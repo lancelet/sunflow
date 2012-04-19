@@ -77,8 +77,8 @@ public class FastDisplay extends JPanel implements Display {
         int off = x + iw * y;
         iw -= w;
         int rgb = 0xFF000000 | c.toRGB();
-        for (int j = 0, index = 0; j < h; j++, off += iw)
-            for (int i = 0; i < w; i++, index++, off++)
+        for (int j = 0; j < h; j++, off += iw)
+            for (int i = 0; i < w; i++, off++)
                 pixels[off] = rgb;
     }
 

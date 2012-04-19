@@ -1217,7 +1217,7 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
             }
             try {
                 // get a List of Files
-                List files = (java.util.List) t.getTransferData(DataFlavor.javaFileListFlavor);
+                @SuppressWarnings("unchecked") List<File> files = (java.util.List<File>) t.getTransferData(DataFlavor.javaFileListFlavor);
                 for (int i = 0; i < files.size(); i++) {
                     final File file = (File) files.get(i);
                     String filename = file.getAbsolutePath();

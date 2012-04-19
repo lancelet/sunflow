@@ -264,7 +264,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             dist2[0] = maxDist2;
         }
 
-        void reset(Point3 p, float maxDist2) {
+        @SuppressWarnings("unused") void reset(Point3 p, float maxDist2) {
             found = 0;
             gotHeap = false;
             px = p.x;

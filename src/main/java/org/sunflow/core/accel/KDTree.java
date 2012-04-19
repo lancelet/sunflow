@@ -527,14 +527,12 @@ public class KDTree implements AccelerationStructure {
                 // allocate space for child nodes
                 BuildTask taskL = new BuildTask(bnl, task);
                 BuildTask taskR = new BuildTask(bnr, task);
-                int lk = 0, rk = 0;
                 for (int i = 0; i < bestOffsetStart; i++) {
                     long ptr = splits[i];
                     if (unpackAxis(ptr) == bestAxis) {
                         if (unpackSplitType(ptr) != CLOSED) {
                             int obj = unpackObject(ptr);
                             lrtable[obj >>> 2] |= 1 << ((obj & 3) << 1);
-                            lk++;
                         }
                     }
                 }
@@ -545,11 +543,9 @@ public class KDTree implements AccelerationStructure {
                         if (bestPlanarLeft) {
                             int obj = unpackObject(ptr);
                             lrtable[obj >>> 2] |= 1 << ((obj & 3) << 1);
-                            lk++;
                         } else {
                             int obj = unpackObject(ptr);
                             lrtable[obj >>> 2] |= 2 << ((obj & 3) << 1);
-                            rk++;
                         }
                     }
                 }
@@ -559,7 +555,6 @@ public class KDTree implements AccelerationStructure {
                         if (unpackSplitType(ptr) != OPENED) {
                             int obj = unpackObject(ptr);
                             lrtable[obj >>> 2] |= 2 << ((obj & 3) << 1);
-                            rk++;
                         }
                     }
                 }
