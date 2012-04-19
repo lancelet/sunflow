@@ -81,9 +81,10 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
         // fetch reference image from resources (jar file or classpath)
         if (saveOutput)
             return;
-        URL imageURL = Benchmark.class.getResource(String.format("/resources/golden_%04X.png", resolution));
+        String imageName = String.format("/golden_%04X.png", resolution);
+        URL imageURL = Benchmark.class.getResource(imageName);
         if (imageURL == null)
-            UI.printError(Module.BENCH, "Unable to find reference frame!");
+            UI.printError(Module.BENCH, String.format("Unable to find reference frame \"%s\"!", imageName));
         UI.printInfo(Module.BENCH, "Loading reference image from: %s", imageURL);
         try {
             BufferedImage bi = ImageIO.read(imageURL);
