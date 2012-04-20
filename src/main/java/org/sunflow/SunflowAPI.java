@@ -47,7 +47,7 @@ import org.sunflow.system.UI.Module;
  * scene.
  */
 public class SunflowAPI implements SunflowAPIInterface {
-    public static final String VERSION = "0.07.3";
+    public static final String VERSION = "0.08.0";
     public static final String DEFAULT_OPTIONS = "::options";
 
     private Scene scene;
@@ -664,7 +664,11 @@ public class SunflowAPI implements SunflowAPIInterface {
         try {
             Timer t = new Timer();
             t.start();
-            SunflowAPI api = (SunflowAPI) ClassBodyEvaluator.createFastClassBodyEvaluator(new Scanner(null, new StringReader(code)), SunflowAPI.class, (ClassLoader) null);
+            SunflowAPI api = (SunflowAPI) ClassBodyEvaluator.
+                    createFastClassBodyEvaluator(
+                            new Scanner(null, new StringReader(code)), 
+                            SunflowAPI.class, 
+                            SunflowAPI.class.getClassLoader());
             t.end();
             UI.printInfo(Module.API, "Compile time: %s", t.toString());
             return api;
