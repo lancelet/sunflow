@@ -22,7 +22,6 @@ public class DirectionalSpotlight implements LightSource {
     public DirectionalSpotlight() {
         src = new Point3(0, 0, 0);
         dir = new Vector3(0, 0, -1);
-        dir.normalize();
         basis = OrthoNormalBasis.makeFromW(dir);
         r = 1;
         r2 = r * r;
@@ -31,8 +30,7 @@ public class DirectionalSpotlight implements LightSource {
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         src = pl.getPoint("source", src);
-        dir = pl.getVector("dir", dir);
-        dir.normalize();
+        dir = pl.getVector("dir", dir).normalize();
         r = pl.getFloat("radius", r);
         basis = OrthoNormalBasis.makeFromW(dir);
         r2 = r * r;
@@ -49,16 +47,16 @@ public class DirectionalSpotlight implements LightSource {
     }
 
     public void getSamples(ShadingState state) {
-        if (Vector3.dot(dir, state.getGeoNormal()) < 0 && Vector3.dot(dir, state.getNormal()) < 0) {
+        if (dir.dot(state.getGeoNormal()) < 0 && dir.dot(state.getNormal()) < 0) {
             // project point onto source plane
             float x = state.getPoint().x - src.x;
             float y = state.getPoint().y - src.y;
             float z = state.getPoint().z - src.z;
-            float t = ((x * dir.x) + (y * dir.y) + (z * dir.z));
+            float t = ((x * dir.x()) + (y * dir.y()) + (z * dir.z()));
             if (t >= 0.0) {
-                x -= (t * dir.x);
-                y -= (t * dir.y);
-                z -= (t * dir.z);
+                x -= (t * dir.x());
+                y -= (t * dir.y());
+                z -= (t * dir.z());
                 if (((x * x) + (y * y) + (z * z)) <= r2) {
                     Point3 p = new Point3();
                     p.x = src.x + x;
@@ -74,16 +72,16 @@ public class DirectionalSpotlight implements LightSource {
         }
     }
 
-    public void getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Vector3 dir, Color power) {
+    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
         float phi = (float) (2 * Math.PI * randX1);
         float s = (float) Math.sqrt(1.0f - randY1);
-        dir.x = r * (float) Math.cos(phi) * s;
-        dir.y = r * (float) Math.sin(phi) * s;
-        dir.z = 0;
-        basis.transform(dir);
-        Point3.add(src, dir, p);
-        dir.set(this.dir);
+        Vector3 ldir = new Vector3(r * (float) Math.cos(phi) * s,
+                                   r * (float) Math.sin(phi) * s,
+                                   0);
+        ldir = basis.transform(ldir);
+        Point3.add(src, ldir, p);
         power.set(radiance).mul((float) Math.PI * r2);
+        return dir;
     }
 
     public float getPower() {

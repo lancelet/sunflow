@@ -130,7 +130,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
 
             float invP = (float) Math.sin(sv * Math.PI) * jacobian / (numSamples * px * py);
             samples[i] = getDirection(su, sv);
-            basis.transform(samples[i]);
+            samples[i] = basis.transform(samples[i]);
             colors[i] = texture.getPixel(su, sv).mul(invP);
         }
     }
@@ -191,8 +191,8 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
                 float sv = (y + v) / rowHistogram.length;
                 float invP = (float) Math.sin(sv * Math.PI) * jacobian / (n * px * py);
                 Vector3 dir = getDirection(su, sv);
-                basis.transform(dir);
-                if (Vector3.dot(dir, state.getGeoNormal()) > 0) {
+                dir = basis.transform(dir);
+                if (dir.dot(state.getGeoNormal()) > 0) {
                     LightSample dest = new LightSample();
                     dest.setShadowRay(new Ray(state.getPoint(), dir));
                     dest.getShadowRay().setMax(Float.MAX_VALUE);
@@ -207,7 +207,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
         } else {
             if (state.getDiffuseDepth() > 0) {
                 for (int i = 0; i < numLowSamples; i++) {
-                    if (Vector3.dot(lowSamples[i], state.getGeoNormal()) > 0 && Vector3.dot(lowSamples[i], state.getNormal()) > 0) {
+                    if (lowSamples[i].dot(state.getGeoNormal()) > 0 && lowSamples[i].dot(state.getNormal()) > 0) {
                         LightSample dest = new LightSample();
                         dest.setShadowRay(new Ray(state.getPoint(), lowSamples[i]));
                         dest.getShadowRay().setMax(Float.MAX_VALUE);
@@ -218,7 +218,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
                 }
             } else {
                 for (int i = 0; i < numSamples; i++) {
-                    if (Vector3.dot(samples[i], state.getGeoNormal()) > 0 && Vector3.dot(samples[i], state.getNormal()) > 0) {
+                    if (samples[i].dot(state.getGeoNormal()) > 0 && samples[i].dot(state.getNormal()) > 0) {
                         LightSample dest = new LightSample();
                         dest.setShadowRay(new Ray(state.getPoint(), samples[i]));
                         dest.getShadowRay().setMax(Float.MAX_VALUE);
@@ -231,34 +231,34 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
         }
     }
 
-    public void getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Vector3 dir, Color power) {
+    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
+        return new Vector3(0, 0, 0);
     }
 
     public Color getRadiance(ShadingState state) {
         // lookup texture based on ray direction
-        return state.includeLights() ? getColor(basis.untransform(state.getRay().getDirection(), new Vector3())) : Color.BLACK;
+        return state.includeLights() ? getColor(basis.untransform(state.getRay().getDirection())) : Color.BLACK;
     }
 
     private Color getColor(Vector3 dir) {
         float u, v;
         // assume lon/lat format
         double phi = 0, theta = 0;
-        phi = Math.acos(dir.y);
-        theta = Math.atan2(dir.z, dir.x);
+        phi = Math.acos(dir.y());
+        theta = Math.atan2(dir.z(), dir.x());
         u = (float) (0.5 - 0.5 * theta / Math.PI);
         v = (float) (phi / Math.PI);
         return texture.getPixel(u, v);
     }
 
     private Vector3 getDirection(float u, float v) {
-        Vector3 dest = new Vector3();
         double phi = 0, theta = 0;
         theta = u * 2 * Math.PI;
         phi = v * Math.PI;
         double sin_phi = Math.sin(phi);
-        dest.x = (float) (-sin_phi * Math.cos(theta));
-        dest.y = (float) Math.cos(phi);
-        dest.z = (float) (sin_phi * Math.sin(theta));
+        Vector3 dest = new Vector3((float) (-sin_phi * Math.cos(theta)),
+                                   (float) Math.cos(phi),
+                                   (float) (sin_phi * Math.sin(theta)));
         return dest;
     }
 

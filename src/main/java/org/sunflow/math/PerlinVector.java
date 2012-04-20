@@ -94,11 +94,11 @@ public class PerlinVector {
     }
 
     public static final Vector3 pnoise(Point3 p, Vector3 period) {
-        return pnoise(p.x, p.y, p.z, period.x, period.y, period.z);
+        return pnoise(p.x, p.y, p.z, period.x(), period.y(), period.z());
     }
 
     public static final Vector3 pnoise(Point3 p, float t, Vector3 pperiod, float tperiod) {
-        return pnoise(p.x, p.y, p.z, t, pperiod.x, pperiod.y, pperiod.z, tperiod);
+        return pnoise(p.x, p.y, p.z, t, pperiod.x(), pperiod.y(), pperiod.z(), tperiod);
     }
 
     public static final Vector3 spnoise(float x, float period) {
@@ -122,10 +122,10 @@ public class PerlinVector {
     }
 
     public static final Vector3 spnoise(Point3 p, Vector3 period) {
-        return spnoise(p.x, p.y, p.z, period.x, period.y, period.z);
+        return spnoise(p.x, p.y, p.z, period.x(), period.y(), period.z());
     }
 
     public static final Vector3 spnoise(Point3 p, float t, Vector3 pperiod, float tperiod) {
-        return spnoise(p.x, p.y, p.z, t, pperiod.x, pperiod.y, pperiod.z, tperiod);
+        return spnoise(p.x, p.y, p.z, t, pperiod.x(), pperiod.y(), pperiod.z(), tperiod);
     }
 }

@@ -41,10 +41,13 @@ public interface LightSource extends RenderObject {
      * @param randX2 sampling parameter
      * @param randY2 sampling parameter
      * @param p position to shoot the photon from
-     * @param dir direction to shoot the photon in
      * @param power power of the photon
+     * 
+     * @return direction to shoot the photon
+     * 
+     * TODO: Eventually, I'll bundle all returns from this method.
      */
-    public void getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Vector3 dir, Color power);
+    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power);
 
     /**
      * Get the total power emitted by this light source. Lights that have 0

@@ -4,21 +4,21 @@ public final class OrthoNormalBasis {
     private Vector3 u, v, w;
 
     private OrthoNormalBasis() {
-        u = new Vector3();
-        v = new Vector3();
-        w = new Vector3();
+        u = new Vector3(0, 0, 0);
+        v = new Vector3(0, 0, 0);
+        w = new Vector3(0, 0, 0);
     }
 
     public void flipU() {
-        u.negate();
+        u = u.unary_$minus();
     }
 
     public void flipV() {
-        v.negate();
+        v = v.unary_$minus();
     }
 
     public void flipW() {
-        w.negate();
+        w = w.unary_$minus();
     }
 
     public void swapUV() {
@@ -39,71 +39,43 @@ public final class OrthoNormalBasis {
         u = t;
     }
 
-    public Vector3 transform(Vector3 a, Vector3 dest) {
-        dest.x = (a.x * u.x) + (a.y * v.x) + (a.z * w.x);
-        dest.y = (a.x * u.y) + (a.y * v.y) + (a.z * w.y);
-        dest.z = (a.x * u.z) + (a.y * v.z) + (a.z * w.z);
-        return dest;
-    }
 
     public Vector3 transform(Vector3 a) {
-        float x = (a.x * u.x) + (a.y * v.x) + (a.z * w.x);
-        float y = (a.x * u.y) + (a.y * v.y) + (a.z * w.y);
-        float z = (a.x * u.z) + (a.y * v.z) + (a.z * w.z);
-        return a.set(x, y, z);
-    }
-
-    public Vector3 untransform(Vector3 a, Vector3 dest) {
-        dest.x = Vector3.dot(a, u);
-        dest.y = Vector3.dot(a, v);
-        dest.z = Vector3.dot(a, w);
-        return dest;
+        float x = (a.x() * u.x()) + (a.y() * v.x()) + (a.z() * w.x());
+        float y = (a.x() * u.y()) + (a.y() * v.y()) + (a.z() * w.y());
+        float z = (a.x() * u.z()) + (a.y() * v.z()) + (a.z() * w.z());
+        return new Vector3(x, y, z);
     }
 
     public Vector3 untransform(Vector3 a) {
-        float x = Vector3.dot(a, u);
-        float y = Vector3.dot(a, v);
-        float z = Vector3.dot(a, w);
-        return a.set(x, y, z);
+        return new Vector3(a.dot(u), a.dot(v), a.dot(w));
     }
 
-    public float untransformX(Vector3 a) {
-        return Vector3.dot(a, u);
-    }
+    public float untransformX(Vector3 a) { return a.dot(u); }
 
-    public float untransformY(Vector3 a) {
-        return Vector3.dot(a, v);
-    }
+    public float untransformY(Vector3 a) { return a.dot(v); }
 
-    public float untransformZ(Vector3 a) {
-        return Vector3.dot(a, w);
-    }
+    public float untransformZ(Vector3 a) { return a.dot(w); }
 
     public static final OrthoNormalBasis makeFromW(Vector3 w) {
         OrthoNormalBasis onb = new OrthoNormalBasis();
-        w.normalize(onb.w);
-        if ((Math.abs(onb.w.x) < Math.abs(onb.w.y)) && (Math.abs(onb.w.x) < Math.abs(onb.w.z))) {
-            onb.v.x = 0;
-            onb.v.y = onb.w.z;
-            onb.v.z = -onb.w.y;
-        } else if (Math.abs(onb.w.y) < Math.abs(onb.w.z)) {
-            onb.v.x = onb.w.z;
-            onb.v.y = 0;
-            onb.v.z = -onb.w.x;
+        onb.w = w.normalize();
+        if ((Math.abs(onb.w.x()) < Math.abs(onb.w.y())) && (Math.abs(onb.w.x()) < Math.abs(onb.w.z()))) {
+            onb.v = new Vector3(0, onb.w.z(), -onb.w.y()).normalize();
+        } else if (Math.abs(onb.w.y()) < Math.abs(onb.w.z())) {
+            onb.v = new Vector3(onb.w.z(), 0, -onb.w.x()).normalize();
         } else {
-            onb.v.x = onb.w.y;
-            onb.v.y = -onb.w.x;
-            onb.v.z = 0;
+            onb.v = new Vector3(onb.w.y(), -onb.w.x(), 0).normalize();
         }
-        Vector3.cross(onb.v.normalize(), onb.w, onb.u);
+        onb.u = onb.v.cross(onb.w);
         return onb;
     }
 
     public static final OrthoNormalBasis makeFromWV(Vector3 w, Vector3 v) {
         OrthoNormalBasis onb = new OrthoNormalBasis();
-        w.normalize(onb.w);
-        Vector3.cross(v, onb.w, onb.u).normalize();
-        Vector3.cross(onb.w, onb.u, onb.v);
+        onb.w = w.normalize();
+        onb.u = v.cross(onb.w).normalize();
+        onb.v = onb.w.cross(onb.u);
         return onb;
     }
 }

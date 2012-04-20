@@ -1,6 +1,7 @@
 package org.sunflow.core;
 
 import org.sunflow.image.Color;
+import org.sunflow.math.Vector3;
 
 public class ShadingCache {
     private Sample first;
@@ -45,7 +46,7 @@ public class ShadingCache {
                 continue;
             if (state.getRay().dot(s.dx, s.dy, s.dz) < 0.999f)
                 continue;
-            if (state.getNormal().dot(s.nx, s.ny, s.nz) < 0.99f)
+            if (state.getNormal().dot(new Vector3(s.nx, s.ny, s.nz)) < 0.99f)
                 continue;
             // we have a match
             hits++;
@@ -66,9 +67,9 @@ public class ShadingCache {
         s.dx = state.getRay().dx;
         s.dy = state.getRay().dy;
         s.dz = state.getRay().dz;
-        s.nx = state.getNormal().x;
-        s.ny = state.getNormal().y;
-        s.nz = state.getNormal().z;
+        s.nx = state.getNormal().x();
+        s.ny = state.getNormal().y();
+        s.nz = state.getNormal().z();
         s.next = first;
         first = s;
     }

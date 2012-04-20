@@ -140,9 +140,7 @@ public class BoundingBox {
      * @return a refreence to the extent vector
      * @see org.sunflow.math.Vector3#length()
      */
-    public final Vector3 getExtents() {
-        return Point3.sub(maximum, minimum, new Vector3());
-    }
+    public final Vector3 getExtents() { return maximum.sub(minimum); }
 
     /**
      * Gets the surface area of the box.
@@ -151,9 +149,9 @@ public class BoundingBox {
      */
     public final float getArea() {
         Vector3 w = getExtents();
-        float ax = Math.max(w.x, 0);
-        float ay = Math.max(w.y, 0);
-        float az = Math.max(w.z, 0);
+        float ax = Math.max(w.x(), 0);
+        float ay = Math.max(w.y(), 0);
+        float az = Math.max(w.z(), 0);
         return 2 * (ax * ay + ay * az + az * ax);
     }
 
@@ -164,9 +162,9 @@ public class BoundingBox {
      */
     public final float getVolume() {
         Vector3 w = getExtents();
-        float ax = Math.max(w.x, 0);
-        float ay = Math.max(w.y, 0);
-        float az = Math.max(w.z, 0);
+        float ax = Math.max(w.x(), 0);
+        float ay = Math.max(w.y(), 0);
+        float az = Math.max(w.z(), 0);
         return ax * ay * az;
     }
 

@@ -62,20 +62,20 @@ public class RA2Parser implements SceneParser {
             to.x = p.getNextFloat();
             to.y = p.getNextFloat();
             to.z = p.getNextFloat();
-            Vector3 up = new Vector3();
+            Vector3 up;
             switch (p.getNextInt()) {
                 case 0:
-                    up.set(1, 0, 0);
+                    up = new Vector3(1, 0, 0);
                     break;
                 case 1:
-                    up.set(0, 1, 0);
+                    up = new Vector3(0, 1, 0);
                     break;
                 case 2:
-                    up.set(0, 0, 1);
+                    up = new Vector3(0, 0, 1);
                     break;
                 default:
                     UI.printWarning(Module.USER, "RA2 - Invalid up vector specification - using Z axis");
-                    up.set(0, 0, 1);
+                    up = new Vector3(0, 0, 1);
                     break;
             }
             api.parameter("eye", eye);

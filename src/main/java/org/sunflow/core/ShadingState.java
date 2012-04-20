@@ -147,9 +147,9 @@ public final class ShadingState implements Iterable<LightSample> {
      */
     public final void init() {
         p = new Point3();
-        n = new Vector3();
+        //n = new Vector3();
         tex = new Point2();
-        ng = new Vector3();
+        //ng = new Vector3();
         basis = null;
     }
 
@@ -164,8 +164,8 @@ public final class ShadingState implements Iterable<LightSample> {
 
     final void correctShadingNormal() {
         // correct shading normals pointing the wrong way
-        if (Vector3.dot(n, ng) < 0) {
-            n.negate();
+        if (n.dot(ng) < 0) {
+            n = n.unary_$minus();
             basis.flipW();
         }
     }
@@ -181,23 +181,23 @@ public final class ShadingState implements Iterable<LightSample> {
         } else {
             // this ensure the ray and the geomtric normal are pointing in the
             // same direction
-            ng.negate();
-            n.negate();
+            ng = ng.unary_$minus();
+            n = n.unary_$minus();
             basis.flipW();
             behind = true;
         }
         cosND = Math.max(-r.dot(n), 0); // can't be negative
         // offset the shaded point away from the surface to prevent
         // self-intersection errors
-        if (Math.abs(ng.x) > Math.abs(ng.y) && Math.abs(ng.x) > Math.abs(ng.z))
+        if (Math.abs(ng.x()) > Math.abs(ng.y()) && Math.abs(ng.x()) > Math.abs(ng.z()))
             bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.x)));
-        else if (Math.abs(ng.y) > Math.abs(ng.z))
+        else if (Math.abs(ng.y()) > Math.abs(ng.z()))
             bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.y)));
         else
             bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.z)));
-        p.x += bias * ng.x;
-        p.y += bias * ng.y;
-        p.z += bias * ng.z;
+        p.x += bias * ng.x();
+        p.y += bias * ng.y();
+        p.z += bias * ng.z();
     }
 
     /**
@@ -317,7 +317,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return transformed normal
      */
     public Vector3 transformNormalObjectToWorld(Vector3 n) {
-        return o2w == null ? new Vector3(n) : w2o.transformTransposeV(n);
+        return o2w == null ? n : w2o.transformTransposeV(n);
     }
 
     /**
@@ -328,7 +328,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return transformed normal
      */
     public Vector3 transformNormalWorldToObject(Vector3 n) {
-        return o2w == null ? new Vector3(n) : o2w.transformTransposeV(n);
+        return o2w == null ? n : o2w.transformTransposeV(n);
     }
 
     /**
@@ -339,7 +339,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return transformed vector
      */
     public Vector3 transformVectorObjectToWorld(Vector3 v) {
-        return o2w == null ? new Vector3(v) : o2w.transformV(v);
+        return o2w == null ? v : o2w.transformV(v);
     }
 
     /**
@@ -350,7 +350,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return transformed vector
      */
     public Vector3 transformVectorWorldToObject(Vector3 v) {
-        return o2w == null ? new Vector3(v) : w2o.transformV(v);
+        return o2w == null ? v : w2o.transformV(v);
     }
 
     final void setResult(Color c) {
@@ -532,6 +532,17 @@ public final class ShadingState implements Iterable<LightSample> {
     }
 
     /**
+     * Set shading normal at the hit point. This may differ from the geometric
+     * normal
+     * 
+     * @param n shading normal
+     */
+    public final void setNormal(Vector3 n) {
+        this.n = n;
+    }
+    
+    
+    /**
      * Get texture coordinates at the hit point.
      * 
      * @return texture coordinate
@@ -548,6 +559,15 @@ public final class ShadingState implements Iterable<LightSample> {
     public final Vector3 getGeoNormal() {
         return ng;
     }
+    
+    /**
+     * Sets the geometric normal of the current hit point.
+     * 
+     * @param ng geometric normal of the current hit point
+     */
+    public final void setGeoNormal(Vector3 ng) {
+        this.ng = ng;
+    }    
 
     /**
      * Gets the local orthonormal basis for the current hit point.
@@ -667,9 +687,9 @@ public final class ShadingState implements Iterable<LightSample> {
      */
     public final Color traceRefraction(Ray r, int i) {
         // this assumes the refraction ray is pointing away from the normal
-        r.ox -= 2 * bias * ng.x;
-        r.oy -= 2 * bias * ng.y;
-        r.oz -= 2 * bias * ng.z;
+        r.ox -= 2 * bias * ng.x();
+        r.oy -= 2 * bias * ng.y();
+        r.oz -= 2 * bias * ng.z();
         return server.traceRefraction(this, r, i);
     }
 
@@ -727,9 +747,9 @@ public final class ShadingState implements Iterable<LightSample> {
     public final void traceRefractionPhoton(Ray r, Color power) {
         if (map.allowRefractionBounced()) {
             // this assumes the refraction ray is pointing away from the normal
-            r.ox -= 0.002f * ng.x;
-            r.oy -= 0.002f * ng.y;
-            r.oz -= 0.002f * ng.z;
+            r.ox -= 0.002f * ng.x();
+            r.oy -= 0.002f * ng.y();
+            r.oz -= 0.002f * ng.z();
             server.traceRefractionPhoton(this, r, power);
         }
     }
@@ -809,7 +829,6 @@ public final class ShadingState implements Iterable<LightSample> {
         // make sure we are on the right side of the material
         faceforward();
         OrthoNormalBasis onb = getBasis();
-        Vector3 w = new Vector3();
         Color result = Color.black();
         for (int i = 0; i < samples; i++) {
             float xi = (float) getRandom(i, 0, samples);
@@ -819,10 +838,8 @@ public final class ShadingState implements Iterable<LightSample> {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            w.x = cosPhi * sinTheta;
-            w.y = sinPhi * sinTheta;
-            w.z = cosTheta;
-            onb.transform(w);
+            Vector3 w = new Vector3(cosPhi * sinTheta, sinPhi * sinTheta, cosTheta);
+            w = onb.transform(w);
             Ray r = new Ray(p, w);
             r.setMax(maxDist);
             result.add(Color.blend(bright, dark, traceShadow(r)));
@@ -864,10 +881,9 @@ public final class ShadingState implements Iterable<LightSample> {
             return lr;
         // reflected direction
         float dn = 2 * cosND;
-        Vector3 refDir = new Vector3();
-        refDir.x = (dn * n.x) + r.dx;
-        refDir.y = (dn * n.y) + r.dy;
-        refDir.z = (dn * n.z) + r.dz;
+        Vector3 refDir = new Vector3((dn * n.x()) + r.dx,
+                                     (dn * n.y()) + r.dy,
+                                     (dn * n.z()) + r.dz);                                     
         // direct lighting
         for (LightSample sample : this) {
             float cosNL = sample.dot(n);
@@ -888,8 +904,8 @@ public final class ShadingState implements Iterable<LightSample> {
                 double s = (float) Math.pow(r2, 1 / (power + 1));
                 double s1 = (float) Math.sqrt(1 - s * s);
                 Vector3 w = new Vector3((float) (Math.cos(u) * s1), (float) (Math.sin(u) * s1), (float) s);
-                w = onb.transform(w, new Vector3());
-                float wn = Vector3.dot(w, n);
+                w = onb.transform(w);
+                float wn = w.dot(n);
                 if (wn > 0)
                     lr.madd(wn * mul, traceGlossy(new Ray(p, w), i));
             }

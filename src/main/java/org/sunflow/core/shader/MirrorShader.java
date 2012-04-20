@@ -26,10 +26,10 @@ public class MirrorShader implements Shader {
         state.faceforward();
         float cos = state.getCosND();
         float dn = 2 * cos;
-        Vector3 refDir = new Vector3();
-        refDir.x = (dn * state.getNormal().x) + state.getRay().getDirection().x;
-        refDir.y = (dn * state.getNormal().y) + state.getRay().getDirection().y;
-        refDir.z = (dn * state.getNormal().z) + state.getRay().getDirection().z;
+        Vector3 refDir = new Vector3(
+                (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
+                (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
+                (dn * state.getNormal().z()) + state.getRay().getDirection().z());
         Ray refRay = new Ray(state.getPoint(), refDir);
 
         // compute Fresnel term
@@ -53,10 +53,10 @@ public class MirrorShader implements Shader {
         power.mul(color).mul(1.0f / avg);
         // photon is reflected
         float dn = 2 * cos;
-        Vector3 dir = new Vector3();
-        dir.x = (dn * state.getNormal().x) + state.getRay().getDirection().x;
-        dir.y = (dn * state.getNormal().y) + state.getRay().getDirection().y;
-        dir.z = (dn * state.getNormal().z) + state.getRay().getDirection().z;
+        Vector3 dir = new Vector3(
+                (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
+                (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
+                (dn * state.getNormal().z()) + state.getRay().getDirection().z());
         state.traceReflectionPhoton(new Ray(state.getPoint(), dir), power);
     }
 }

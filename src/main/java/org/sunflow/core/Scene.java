@@ -176,7 +176,11 @@ public class Scene {
                 Vector3 n = state.getNormal();
                 // create a ray coming from directly above the point being
                 // shaded
-                Ray incoming = new Ray(p.x + n.x, p.y + n.y, p.z + n.z, -n.x, -n.y, -n.z);
+                // TODO: Use operators for arithmetic.
+                Ray incoming = new Ray(p.x + n.x(), 
+                                       p.y + n.y(), 
+                                       p.z + n.z(), 
+                                       -n.x(), -n.y(), -n.z());
                 incoming.setMax(1);
                 state.setRay(incoming);
             }

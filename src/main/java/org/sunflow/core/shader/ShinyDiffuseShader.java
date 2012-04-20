@@ -40,10 +40,10 @@ public class ShinyDiffuseShader implements Shader {
             return lr;
         float cos = state.getCosND();
         float dn = 2 * cos;
-        Vector3 refDir = new Vector3();
-        refDir.x = (dn * state.getNormal().x) + state.getRay().getDirection().x;
-        refDir.y = (dn * state.getNormal().y) + state.getRay().getDirection().y;
-        refDir.z = (dn * state.getNormal().z) + state.getRay().getDirection().z;
+        Vector3 refDir = new Vector3(
+                (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
+                (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
+                (dn * state.getNormal().z()) + state.getRay().getDirection().z());
         Ray refRay = new Ray(state.getPoint(), refDir);
         // compute Fresnel term
         cos = 1 - cos;
@@ -76,17 +76,17 @@ public class ShinyDiffuseShader implements Shader {
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0 - v);
             Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
-            w = onb.transform(w, new Vector3());
+            w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < d + r) {
-            float cos = -Vector3.dot(state.getNormal(), state.getRay().getDirection());
+            float cos = -state.getNormal().dot(state.getRay().getDirection());
             power.mul(diffuse).mul(1.0f / d);
             // photon is reflected
             float dn = 2 * cos;
-            Vector3 dir = new Vector3();
-            dir.x = (dn * state.getNormal().x) + state.getRay().getDirection().x;
-            dir.y = (dn * state.getNormal().y) + state.getRay().getDirection().y;
-            dir.z = (dn * state.getNormal().z) + state.getRay().getDirection().z;
+            Vector3 dir = new Vector3(
+                    (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
+                    (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
+                    (dn * state.getNormal().z()) + state.getRay().getDirection().z());
             state.traceReflectionPhoton(new Ray(state.getPoint(), dir), power);
         }
     }

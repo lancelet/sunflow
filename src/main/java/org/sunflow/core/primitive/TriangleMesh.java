@@ -220,13 +220,12 @@ public class TriangleMesh implements PrimitiveList {
         Point3 v1p = getPoint(index1);
         Point3 v2p = getPoint(index2);
         Vector3 ng = Point3.normal(v0p, v1p, v2p);
-        ng = state.transformNormalObjectToWorld(ng);
-        ng.normalize();
-        state.getGeoNormal().set(ng);
+        ng = state.transformNormalObjectToWorld(ng).normalize();
+        state.setGeoNormal(ng);
         switch (normals.interp) {
             case NONE:
             case FACE: {
-                state.getNormal().set(ng);
+                state.setNormal(ng);
                 break;
             }
             case VERTEX: {
@@ -234,21 +233,25 @@ public class TriangleMesh implements PrimitiveList {
                 int i31 = 3 * index1;
                 int i32 = 3 * index2;
                 float[] normals = this.normals.data;
-                state.getNormal().x = w * normals[i30 + 0] + u * normals[i31 + 0] + v * normals[i32 + 0];
-                state.getNormal().y = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
-                state.getNormal().z = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
-                state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
-                state.getNormal().normalize();
+                float snx = w * normals[i30 + 0] + u * normals[i31 + 0] + v * normals[i32 + 0];
+                float sny = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
+                float snz = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
+                Vector3 sn = state.transformNormalObjectToWorld(
+                          new Vector3(snx, sny, snz)
+                        ).normalize();
+                state.setNormal(sn);
                 break;
             }
             case FACEVARYING: {
                 int idx = 3 * tri;
                 float[] normals = this.normals.data;
-                state.getNormal().x = w * normals[idx + 0] + u * normals[idx + 3] + v * normals[idx + 6];
-                state.getNormal().y = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
-                state.getNormal().z = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
-                state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
-                state.getNormal().normalize();
+                float snx = w * normals[idx + 0] + u * normals[idx + 3] + v * normals[idx + 6];
+                float sny = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
+                float snz = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
+                Vector3 sn = state.transformNormalObjectToWorld(
+                        new Vector3(snx, sny, snz)
+                      ).normalize();
+                state.setNormal(sn);
                 break;
             }
         }
@@ -293,7 +296,8 @@ public class TriangleMesh implements PrimitiveList {
             float du2 = uv10 - uv20;
             float dv1 = uv01 - uv21;
             float dv2 = uv11 - uv21;
-            Vector3 dp1 = Point3.sub(v0p, v2p, new Vector3()), dp2 = Point3.sub(v1p, v2p, new Vector3());
+            Vector3 dp1 = v0p.sub(v2p);
+            Vector3 dp2 = v1p.sub(v2p);
             float determinant = du1 * dv2 - dv1 * du2;
             if (determinant == 0.0f) {
                 // create basis in world space
@@ -304,10 +308,10 @@ public class TriangleMesh implements PrimitiveList {
                 // dpdu.x = (dv2 * dp1.x - dv1 * dp2.x) * invdet;
                 // dpdu.y = (dv2 * dp1.y - dv1 * dp2.y) * invdet;
                 // dpdu.z = (dv2 * dp1.z - dv1 * dp2.z) * invdet;
-                Vector3 dpdv = new Vector3();
-                dpdv.x = (-du2 * dp1.x + du1 * dp2.x) * invdet;
-                dpdv.y = (-du2 * dp1.y + du1 * dp2.y) * invdet;
-                dpdv.z = (-du2 * dp1.z + du1 * dp2.z) * invdet;
+                Vector3 dpdv = new Vector3(
+                        (-du2 * dp1.x() + du1 * dp2.x()) * invdet,
+                        (-du2 * dp1.y() + du1 * dp2.y()) * invdet,
+                        (-du2 * dp1.z() + du1 * dp2.z()) * invdet);
                 dpdv = state.transformVectorObjectToWorld(dpdv);
                 // create basis in world space
                 state.setBasis(OrthoNormalBasis.makeFromWV(state.getNormal(), dpdv));
@@ -361,17 +365,17 @@ public class TriangleMesh implements PrimitiveList {
             Point3 v1p = mesh.getPoint(index1);
             Point3 v2p = mesh.getPoint(index2);
             Vector3 ng = Point3.normal(v0p, v1p, v2p);
-            if (Math.abs(ng.x) > Math.abs(ng.y) && Math.abs(ng.x) > Math.abs(ng.z))
+            if (Math.abs(ng.x()) > Math.abs(ng.y()) && Math.abs(ng.x()) > Math.abs(ng.z()))
                 k = 0;
-            else if (Math.abs(ng.y) > Math.abs(ng.z))
+            else if (Math.abs(ng.y()) > Math.abs(ng.z()))
                 k = 1;
             else
                 k = 2;
             float ax, ay, bx, by, cx, cy;
             switch (k) {
                 case 0: {
-                    nu = ng.y / ng.x;
-                    nv = ng.z / ng.x;
+                    nu = ng.y() / ng.x();
+                    nv = ng.z() / ng.x();
                     nd = v0p.x + (nu * v0p.y) + (nv * v0p.z);
                     ax = v0p.y;
                     ay = v0p.z;
@@ -382,8 +386,8 @@ public class TriangleMesh implements PrimitiveList {
                     break;
                 }
                 case 1: {
-                    nu = ng.z / ng.y;
-                    nv = ng.x / ng.y;
+                    nu = ng.z() / ng.y();
+                    nv = ng.x() / ng.y();
                     nd = (nv * v0p.x) + v0p.y + (nu * v0p.z);
                     ax = v0p.z;
                     ay = v0p.x;
@@ -395,8 +399,8 @@ public class TriangleMesh implements PrimitiveList {
                 }
                 case 2:
                 default: {
-                    nu = ng.x / ng.z;
-                    nv = ng.y / ng.z;
+                    nu = ng.x() / ng.z();
+                    nv = ng.y() / ng.z();
                     nd = (nu * v0p.x) + (nv * v0p.y) + v0p.z;
                     ax = v0p.x;
                     ay = v0p.y;
@@ -677,12 +681,12 @@ public class TriangleMesh implements PrimitiveList {
             Vector3 ng = Point3.normal(v0p, v1p, v2p);
             if (parent != null)
                 ng = state.transformNormalObjectToWorld(ng);
-            ng.normalize();
-            state.getGeoNormal().set(ng);
+            ng = ng.normalize();
+            state.setGeoNormal(ng);
             switch (normals.interp) {
                 case NONE:
                 case FACE: {
-                    state.getNormal().set(ng);
+                    state.setNormal(ng);
                     break;
                 }
                 case VERTEX: {
@@ -690,23 +694,29 @@ public class TriangleMesh implements PrimitiveList {
                     int i31 = 3 * index1;
                     int i32 = 3 * index2;
                     float[] normals = TriangleMesh.this.normals.data;
-                    state.getNormal().x = w * normals[i30 + 0] + u * normals[i31 + 0] + v * normals[i32 + 0];
-                    state.getNormal().y = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
-                    state.getNormal().z = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
-                    if (parent != null)
-                        state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
-                    state.getNormal().normalize();
+                    float snx = w * normals[i30 + 0] + u * normals[i31 + 0] + v * normals[i32 + 0];
+                    float sny = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
+                    float snz = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
+                    Vector3 sn = new Vector3(snx, sny, snz);
+                    if (parent != null) {
+                        sn = state.transformNormalObjectToWorld(sn);
+                    }
+                    sn = sn.normalize();
+                    state.setNormal(sn);
                     break;
                 }
                 case FACEVARYING: {
                     int idx = 3 * tri;
                     float[] normals = TriangleMesh.this.normals.data;
-                    state.getNormal().x = w * normals[idx + 0] + u * normals[idx + 3] + v * normals[idx + 6];
-                    state.getNormal().y = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
-                    state.getNormal().z = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
-                    if (parent != null)
-                        state.getNormal().set(state.transformNormalObjectToWorld(state.getNormal()));
-                    state.getNormal().normalize();
+                    float snx = w * normals[idx + 0] + u * normals[idx + 3] + v * normals[idx + 6];
+                    float sny = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
+                    float snz = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
+                    Vector3 sn = new Vector3(snx, sny, snz);
+                    if (parent != null) {
+                        sn = state.transformNormalObjectToWorld(sn);
+                    }
+                    sn = sn.normalize();
+                    state.setNormal(sn);
                     break;
                 }
             }
@@ -751,7 +761,8 @@ public class TriangleMesh implements PrimitiveList {
                 float du2 = uv10 - uv20;
                 float dv1 = uv01 - uv21;
                 float dv2 = uv11 - uv21;
-                Vector3 dp1 = Point3.sub(v0p, v2p, new Vector3()), dp2 = Point3.sub(v1p, v2p, new Vector3());
+                Vector3 dp1 = v0p.sub(v2p);
+                Vector3 dp2 = v1p.sub(v2p);
                 float determinant = du1 * dv2 - dv1 * du2;
                 if (determinant == 0.0f) {
                     // create basis in world space
@@ -762,10 +773,10 @@ public class TriangleMesh implements PrimitiveList {
                     // dpdu.x = (dv2 * dp1.x - dv1 * dp2.x) * invdet;
                     // dpdu.y = (dv2 * dp1.y - dv1 * dp2.y) * invdet;
                     // dpdu.z = (dv2 * dp1.z - dv1 * dp2.z) * invdet;
-                    Vector3 dpdv = new Vector3();
-                    dpdv.x = (-du2 * dp1.x + du1 * dp2.x) * invdet;
-                    dpdv.y = (-du2 * dp1.y + du1 * dp2.y) * invdet;
-                    dpdv.z = (-du2 * dp1.z + du1 * dp2.z) * invdet;
+                    Vector3 dpdv = new Vector3(
+                            (-du2 * dp1.x() + du1 * dp2.x()) * invdet,
+                            (-du2 * dp1.y() + du1 * dp2.y()) * invdet,
+                            (-du2 * dp1.z() + du1 * dp2.z()) * invdet);
                     if (parent != null)
                         dpdv = state.transformVectorObjectToWorld(dpdv);
                     // create basis in world space

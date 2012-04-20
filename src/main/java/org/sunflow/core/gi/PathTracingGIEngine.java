@@ -28,7 +28,6 @@ public class PathTracingGIEngine implements GIEngine {
         // compute new sample
         Color irr = Color.black();
         OrthoNormalBasis onb = state.getBasis();
-        Vector3 w = new Vector3();
         int n = state.getDiffuseDepth() == 0 ? samples : 1;
         for (int i = 0; i < n; i++) {
             float xi = (float) state.getRandom(i, 0, n);
@@ -38,9 +37,9 @@ public class PathTracingGIEngine implements GIEngine {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            w.x = cosPhi * sinTheta;
-            w.y = sinPhi * sinTheta;
-            w.z = cosTheta;
+            Vector3 w = new Vector3(cosPhi * sinTheta,
+                                    sinPhi * sinTheta,
+                                    cosTheta);
             onb.transform(w);
             ShadingState temp = state.traceFinalGather(new Ray(state.getPoint(), w), i);
             if (temp != null) {

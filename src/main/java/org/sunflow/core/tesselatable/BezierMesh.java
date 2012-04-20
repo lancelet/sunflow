@@ -81,7 +81,7 @@ public class BezierMesh implements Tesselatable {
         return b;
     }
 
-    private void getPatchPoint(float u, float v, float[] ctrl, float[] bu, float[] bv, float[] bdu, float[] bdv, Point3 p, Vector3 n) {
+    private Vector3 getPatchPoint(float u, float v, float[] ctrl, float[] bu, float[] bv, float[] bdu, float[] bdv, Point3 p) {
         float px = 0;
         float py = 0;
         float pz = 0;
@@ -96,7 +96,8 @@ public class BezierMesh implements Tesselatable {
         p.x = px;
         p.y = py;
         p.z = pz;
-        if (n != null) {
+        Vector3 n;
+        if (smooth) {
             float dpdux = 0;
             float dpduy = 0;
             float dpduz = 0;
@@ -116,10 +117,13 @@ public class BezierMesh implements Tesselatable {
                 }
             }
             // surface normal
-            n.x = (dpduy * dpdvz - dpduz * dpdvy);
-            n.y = (dpduz * dpdvx - dpdux * dpdvz);
-            n.z = (dpdux * dpdvy - dpduy * dpdvx);
+            n = new Vector3((dpduy * dpdvz - dpduz * dpdvy),
+                            (dpduz * dpdvx - dpdux * dpdvz),
+                            (dpdux * dpdvy - dpduy * dpdvx));
+        } else {
+            n = new Vector3(0, 0, 0);
         }
+        return n;
     }
 
     public PrimitiveList tesselate() {
@@ -132,7 +136,6 @@ public class BezierMesh implements Tesselatable {
         float step = 1.0f / subdivs;
         int vstride = subdivs + 1;
         Point3 p = new Point3();
-        Vector3 n = smooth ? new Vector3() : null;
         for (float[] patch : patches) {
             // create patch vertices
             for (int i = 0, voff = 0; i <= subdivs; i++) {
@@ -143,14 +146,15 @@ public class BezierMesh implements Tesselatable {
                     float v = j * step;
                     float[] bv = bernstein(v);
                     float[] bdv = bernsteinDeriv(v);
-                    getPatchPoint(u, v, patch, bu, bv, bdu, bdv, p, n);
+                    //Vector3 n = smooth ? new Vector3() : null;
+                    Vector3 n = getPatchPoint(u, v, patch, bu, bv, bdu, bdv, p);
                     vertices[vidx + voff + 0] = p.x;
                     vertices[vidx + voff + 1] = p.y;
                     vertices[vidx + voff + 2] = p.z;
                     if (smooth) {
-                        normals[vidx + voff + 0] = n.x;
-                        normals[vidx + voff + 1] = n.y;
-                        normals[vidx + voff + 2] = n.z;
+                        normals[vidx + voff + 0] = n.x();
+                        normals[vidx + voff + 1] = n.y();
+                        normals[vidx + voff + 2] = n.z();
                     }
                     uvs[(vidx + voff) / 3 * 2 + 0] = u;
                     uvs[(vidx + voff) / 3 * 2 + 1] = v;

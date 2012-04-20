@@ -402,9 +402,9 @@ public class BucketRenderer implements ImageSampler {
                 shader = state.getShader();
                 instance = state.getInstance();
                 if (state.getNormal() != null) {
-                    nx = state.getNormal().x;
-                    ny = state.getNormal().y;
-                    nz = state.getNormal().z;
+                    nx = state.getNormal().x();
+                    ny = state.getNormal().y();
+                    nz = state.getNormal().z();
                 }
                 alpha = state.getInstance() == null ? 0 : 1;
             }

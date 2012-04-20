@@ -162,9 +162,8 @@ class LightServer {
                         double randX2 = QMC.halton(2, qmcI);
                         double randY2 = QMC.halton(3, qmcI);
                         Point3 pt = new Point3();
-                        Vector3 dir = new Vector3();
                         Color power = new Color();
-                        lights[j].getPhoton(randX1, randY1, randX2, randY2, pt, dir, power);
+                        Vector3 dir = lights[j].getPhoton(randX1, randY1, randX2, randY2, pt, power);
                         power.mul(scale);
                         Ray r = new Ray(pt, dir);
                         scene.trace(r, istate);

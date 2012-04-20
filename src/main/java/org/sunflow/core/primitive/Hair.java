@@ -85,9 +85,9 @@ public class Hair implements PrimitiveList, Shader {
             vprev.normalize();
             float t = v + 0.5f;
             float s = 1 - t;
-            float vx = vprev.x * s + vcurr.x * t;
-            float vy = vprev.y * s + vcurr.y * t;
-            float vz = vprev.z * s + vcurr.z * t;
+            float vx = vprev.x() * s + vcurr.x() * t;
+            float vy = vprev.y() * s + vcurr.y() * t;
+            float vz = vprev.z() * s + vcurr.z() * t;
             return new Vector3(vx, vy, vz);
         } else {
             // get next segment
@@ -96,9 +96,9 @@ public class Hair implements PrimitiveList, Shader {
             vnext.normalize();
             float t = 1.5f - v;
             float s = 1 - t;
-            float vx = vnext.x * s + vcurr.x * t;
-            float vy = vnext.y * s + vcurr.y * t;
-            float vz = vnext.z * s + vcurr.z * t;
+            float vx = vnext.x() * s + vcurr.x() * t;
+            float vy = vnext.y() * s + vcurr.y() * t;
+            float vz = vnext.z() * s + vcurr.z() * t;
             return new Vector3(vx, vy, vz);
         }
     }
@@ -186,9 +186,9 @@ public class Hair implements PrimitiveList, Shader {
         state.setBasis(OrthoNormalBasis.makeFromWV(v, new Vector3(-r.dx, -r.dy, -r.dz)));
         state.getBasis().swapVW();
         // normal
-        state.getNormal().set(0, 0, 1);
+        state.setNormal(new Vector3(0, 0, 1));
         state.getBasis().transform(state.getNormal());
-        state.getGeoNormal().set(state.getNormal());
+        state.setGeoNormal(state.getNormal());
 
         state.getUV().set(0, (line + state.getV()) / numSegments);
     }
@@ -228,21 +228,19 @@ public class Hair implements PrimitiveList, Shader {
         // gather lights
         state.initLightSamples();
         state.initCausticSamples();
-        Vector3 v = state.getRay().getDirection();
-        v.negate();
-        Vector3 h = new Vector3();
+        Vector3 v = state.getRay().getDirection().unary_$minus();
+        Vector3 h;
         Vector3 t = state.getBasis().transform(new Vector3(0, 1, 0));
         Color diff = Color.black();
         Color spec = Color.black();
         for (LightSample ls : state) {
             Vector3 l = ls.getShadowRay().getDirection();
-            float dotTL = Vector3.dot(t, l);
+            float dotTL = t.dot(l);
             float sinTL = (float) Math.sqrt(1 - dotTL * dotTL);
             // float dotVL = Vector3.dot(v, l);
             diff.madd(sinTL, ls.getDiffuseRadiance());
-            Vector3.add(v, l, h);
-            h.normalize();
-            float dotTH = Vector3.dot(t, h);
+            h = v.$plus(l).normalize();
+            float dotTH = t.dot(h);
             float sinTH = (float) Math.sqrt(1 - dotTH * dotTH);
             float s = (float) Math.pow(sinTH, 10.0f);
             spec.madd(s, ls.getSpecularRadiance());

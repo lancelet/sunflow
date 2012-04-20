@@ -55,7 +55,7 @@ public class SphereFlake implements PrimitiveList {
     public boolean update(ParameterList pl, SunflowAPI api) {
         level = MathUtils.clamp(pl.getInt("level", level), 0, 20);
         axis = pl.getVector("axis", axis);
-        axis.normalize();
+        axis = axis.normalize();
         baseRadius = Math.abs(pl.getFloat("radius", baseRadius));
         return true;
     }
@@ -86,27 +86,24 @@ public class SphereFlake implements PrimitiveList {
         float cy = state.getV();
         float cz = state.getW();
 
-        state.getNormal().set(localPoint.x - cx, localPoint.y - cy, localPoint.z - cz);
-        state.getNormal().normalize();
+        state.setNormal(new Vector3(localPoint.x - cx, localPoint.y - cy, localPoint.z - cz).normalize());
 
-        float phi = (float) Math.atan2(state.getNormal().y, state.getNormal().x);
+        float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
         if (phi < 0)
             phi += 2 * Math.PI;
-        float theta = (float) Math.acos(state.getNormal().z);
+        float theta = (float) Math.acos(state.getNormal().z());
         state.getUV().y = theta / (float) Math.PI;
         state.getUV().x = phi / (float) (2 * Math.PI);
-        Vector3 v = new Vector3();
-        v.x = -2 * (float) Math.PI * state.getNormal().y;
-        v.y = 2 * (float) Math.PI * state.getNormal().x;
-        v.z = 0;
+        Vector3 v = new Vector3(-2 * (float) Math.PI * state.getNormal().y(),
+                                 2 * (float) Math.PI * state.getNormal().x(),
+                                 0);
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
+        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal()).normalize();
         v = state.transformVectorObjectToWorld(v);
-        state.getNormal().set(worldNormal);
-        state.getNormal().normalize();
-        state.getGeoNormal().set(state.getNormal());
+        state.setNormal(worldNormal);
+        state.setGeoNormal(worldNormal);
         // compute basis in world space
         state.setBasis(OrthoNormalBasis.makeFromWV(state.getNormal(), v));
 
@@ -115,7 +112,7 @@ public class SphereFlake implements PrimitiveList {
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
         // intersect in local space
         float qa = r.dx * r.dx + r.dy * r.dy + r.dz * r.dz;
-        intersectFlake(r, state, level, qa, 1 / qa, 0, 0, 0, axis.x, axis.y, axis.z, baseRadius);
+        intersectFlake(r, state, level, qa, 1 / qa, 0, 0, 0, axis.x(), axis.y(), axis.z(), baseRadius);
     }
 
     private void intersectFlake(Ray r, IntersectionState state, int level, float qa, float qaInv, float cx, float cy, float cz, float dx, float dy, float dz, float radius) {

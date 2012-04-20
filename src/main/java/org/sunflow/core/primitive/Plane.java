@@ -36,10 +36,10 @@ public class Plane implements PrimitiveList {
             Point3 v0 = center;
             Point3 v1 = b;
             Point3 v2 = c;
-            Vector3 ng = normal = Vector3.cross(Point3.sub(v1, v0, new Vector3()), Point3.sub(v2, v0, new Vector3()), new Vector3()).normalize();
-            if (Math.abs(ng.x) > Math.abs(ng.y) && Math.abs(ng.x) > Math.abs(ng.z))
+            Vector3 ng = normal = v1.sub(v0).cross(v2.sub(v0)).normalize();
+            if (Math.abs(ng.x()) > Math.abs(ng.y()) && Math.abs(ng.x()) > Math.abs(ng.z()))
                 k = 0;
-            else if (Math.abs(ng.y) > Math.abs(ng.z))
+            else if (Math.abs(ng.y()) > Math.abs(ng.z()))
                 k = 1;
             else
                 k = 2;
@@ -93,9 +93,9 @@ public class Plane implements PrimitiveList {
         state.init();
         state.getRay().getPoint(state.getPoint());
         Instance parent = state.getInstance();
-        Vector3 worldNormal = state.transformNormalObjectToWorld(normal);
-        state.getNormal().set(worldNormal);
-        state.getGeoNormal().set(worldNormal);
+        Vector3 worldNormal = state.transformNormalObjectToWorld(normal).normalize();
+        state.setNormal(worldNormal);
+        state.setGeoNormal(worldNormal);
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         Point3 p = state.transformWorldToObject(state.getPoint());
@@ -125,10 +125,10 @@ public class Plane implements PrimitiveList {
     }
 
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {
-        float dn = normal.x * r.dx + normal.y * r.dy + normal.z * r.dz;
+        float dn = normal.x() * r.dx + normal.y() * r.dy + normal.z() * r.dz;
         if (dn == 0.0)
             return;
-        float t = (((center.x - r.ox) * normal.x) + ((center.y - r.oy) * normal.y) + ((center.z - r.oz) * normal.z)) / dn;
+        float t = (((center.x - r.ox) * normal.x()) + ((center.y - r.oy) * normal.y()) + ((center.z - r.oz) * normal.z())) / dn;
         if (r.isInside(t)) {
             r.setMax(t);
             state.setIntersection(0);

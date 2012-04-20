@@ -24,7 +24,7 @@ public class NormalMapModifier implements Modifier {
 
     public void modify(ShadingState state) {
         // apply normal map
-        state.getNormal().set(normalMap.getNormal(state.getUV().x, state.getUV().y, state.getBasis()));
+        state.setNormal(normalMap.getNormal(state.getUV().x, state.getUV().y, state.getBasis()));
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
     }
 }

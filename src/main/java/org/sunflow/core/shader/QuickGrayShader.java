@@ -35,9 +35,9 @@ public class QuickGrayShader implements Shader {
     public void scatterPhoton(ShadingState state, Color power) {
         Color diffuse;
         // make sure we are on the right side of the material
-        if (Vector3.dot(state.getNormal(), state.getRay().getDirection()) > 0.0) {
-            state.getNormal().negate();
-            state.getGeoNormal().negate();
+        if (state.getNormal().dot(state.getRay().getDirection()) > 0.0) {
+            state.setNormal(state.getNormal().unary_$minus());
+            state.setGeoNormal(state.getGeoNormal().unary_$minus());
         }
         diffuse = Color.GRAY;
         state.storePhoton(state.getRay().getDirection(), power, diffuse);
@@ -52,7 +52,7 @@ public class QuickGrayShader implements Shader {
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0 - v);
             Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
-            w = onb.transform(w, new Vector3());
+            w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
     }

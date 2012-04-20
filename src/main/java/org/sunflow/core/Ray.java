@@ -8,6 +8,8 @@ import org.sunflow.math.Vector3;
  * This class represents a ray as a oriented half line segment. The ray
  * direction is always normalized. The valid region is delimted by two distances
  * along the ray, tMin and tMax.
+ * 
+ * TODO: Embed vector direction.
  */
 public final class Ray {
     public float ox, oy, oz;
@@ -59,9 +61,9 @@ public final class Ray {
         ox = o.x;
         oy = o.y;
         oz = o.z;
-        dx = d.x;
-        dy = d.y;
-        dz = d.z;
+        dx = d.x();
+        dy = d.y();
+        dz = d.z();
         float in = 1.0f / (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
         dx *= in;
         dy *= in;
@@ -186,9 +188,11 @@ public final class Ray {
      * 
      * @param v vector
      * @return dot product of the ray direction and the specified vector
+     * 
+     * TODO: Simplify using the Vector dot product once it is embedded.
      */
     public final float dot(Vector3 v) {
-        return dx * v.x + dy * v.y + dz * v.z;
+        return dx * v.x() + dy * v.y() + dz * v.z();
     }
 
     /**

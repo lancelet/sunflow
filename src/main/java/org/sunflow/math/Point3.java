@@ -72,17 +72,14 @@ public final class Point3 {
     }
 
     public static final Point3 add(Point3 p, Vector3 v, Point3 dest) {
-        dest.x = p.x + v.x;
-        dest.y = p.y + v.y;
-        dest.z = p.z + v.z;
+        dest.x = p.x + v.x();
+        dest.y = p.y + v.y();
+        dest.z = p.z + v.z();
         return dest;
     }
 
-    public static final Vector3 sub(Point3 p1, Point3 p2, Vector3 dest) {
-        dest.x = p1.x - p2.x;
-        dest.y = p1.y - p2.y;
-        dest.z = p1.z - p2.z;
-        return dest;
+    public final Vector3 sub(Point3 p) {
+        return new Vector3(x - p.x, y - p.y, z - p.z);
     }
 
     public static final Point3 mid(Point3 p1, Point3 p2, Point3 dest) {
@@ -109,20 +106,7 @@ public final class Point3 {
         float nx = edge1y * edge2z - edge1z * edge2y;
         float ny = edge1z * edge2x - edge1x * edge2z;
         float nz = edge1x * edge2y - edge1y * edge2x;
-        return new Vector3(nx, ny, nz);
-    }
-
-    public static final Vector3 normal(Point3 p0, Point3 p1, Point3 p2, Vector3 dest) {
-        float edge1x = p1.x - p0.x;
-        float edge1y = p1.y - p0.y;
-        float edge1z = p1.z - p0.z;
-        float edge2x = p2.x - p0.x;
-        float edge2y = p2.y - p0.y;
-        float edge2z = p2.z - p0.z;
-        dest.x = edge1y * edge2z - edge1z * edge2y;
-        dest.y = edge1z * edge2x - edge1x * edge2z;
-        dest.z = edge1x * edge2y - edge1y * edge2x;
-        return dest;
+        return new Vector3(nx, ny, nz).normalize();
     }
 
     @Override

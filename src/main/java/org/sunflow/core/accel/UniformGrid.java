@@ -38,13 +38,13 @@ public final class UniformGrid implements AccelerationStructure {
         // create grid from number of objects
         bounds.enlargeUlps();
         Vector3 w = bounds.getExtents();
-        double s = Math.pow((w.x * w.y * w.z) / n, 1 / 3.0);
-        nx = MathUtils.clamp((int) ((w.x / s) + 0.5), 1, 128);
-        ny = MathUtils.clamp((int) ((w.y / s) + 0.5), 1, 128);
-        nz = MathUtils.clamp((int) ((w.z / s) + 0.5), 1, 128);
-        voxelwx = w.x / nx;
-        voxelwy = w.y / ny;
-        voxelwz = w.z / nz;
+        double s = Math.pow((w.x() * w.y() * w.z()) / n, 1 / 3.0);
+        nx = MathUtils.clamp((int) ((w.x() / s) + 0.5), 1, 128);
+        ny = MathUtils.clamp((int) ((w.y() / s) + 0.5), 1, 128);
+        nz = MathUtils.clamp((int) ((w.z() / s) + 0.5), 1, 128);
+        voxelwx = w.x() / nx;
+        voxelwy = w.y() / ny;
+        voxelwz = w.z() / nz;
         invVoxelwx = 1 / voxelwx;
         invVoxelwy = 1 / voxelwy;
         invVoxelwz = 1 / voxelwz;

@@ -143,28 +143,28 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         int n = state.getPrimitiveID();
         switch (n) {
             case 0:
-                state.getNormal().set(new Vector3(1, 0, 0));
+                state.setNormal(new Vector3(1, 0, 0));
                 break;
             case 1:
-                state.getNormal().set(new Vector3(-1, 0, 0));
+                state.setNormal(new Vector3(-1, 0, 0));
                 break;
             case 2:
-                state.getNormal().set(new Vector3(0, 1, 0));
+                state.setNormal(new Vector3(0, 1, 0));
                 break;
             case 3:
-                state.getNormal().set(new Vector3(0, -1, 0));
+                state.setNormal(new Vector3(0, -1, 0));
                 break;
             case 4:
-                state.getNormal().set(new Vector3(0, 0, 1));
+                state.setNormal(new Vector3(0, 0, 1));
                 break;
             case 5:
-                state.getNormal().set(new Vector3(0, 0, -1));
+                state.setNormal(new Vector3(0, 0, -1));
                 break;
             default:
-                state.getNormal().set(new Vector3(0, 0, 0));
+                state.setNormal(new Vector3(0, 0, 0));
                 break;
         }
-        state.getGeoNormal().set(state.getNormal());
+        state.setGeoNormal(state.getNormal());
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
         state.setShader(this);
     }
@@ -322,9 +322,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 assert false;
         }
         // make sure we are on the right side of the material
-        if (Vector3.dot(state.getNormal(), state.getRay().getDirection()) > 0) {
-            state.getNormal().negate();
-            state.getGeoNormal().negate();
+        if (state.getNormal().dot(state.getRay().getDirection()) > 0) {
+            state.setNormal(state.getNormal().unary_$minus());
+            state.setGeoNormal(state.getGeoNormal().unary_$minus());
         }
         state.storePhoton(state.getRay().getDirection(), power, kd);
         double avg = kd.getAverage();
@@ -338,7 +338,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0 - v);
             Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
-            w = onb.transform(w, new Vector3());
+            w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
     }
@@ -390,15 +390,16 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         }
     }
 
-    public void getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Vector3 dir, Color power) {
+    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
         p.x = (float) (lxmin * (1 - randX2) + lxmax * randX2);
         p.y = (float) (lymin * (1 - randY2) + lymax * randY2);
         p.z = maxZ - 0.001f;
 
         double u = 2 * Math.PI * randX1;
         double s = Math.sqrt(randY1);
-        dir.set((float) (Math.cos(u) * s), (float) (Math.sin(u) * s), (float) -Math.sqrt(1.0f - randY1));
+        Vector3 dir = new Vector3((float) (Math.cos(u) * s), (float) (Math.sin(u) * s), (float) -Math.sqrt(1.0f - randY1));
         Color.mul((float) Math.PI * area, radiance, power);
+        return dir;
     }
 
     public float getPower() {

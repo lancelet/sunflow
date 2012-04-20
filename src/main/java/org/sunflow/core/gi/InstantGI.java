@@ -32,7 +32,7 @@ public class InstantGI implements GIEngine {
         Color pow = null;
         for (PointLight vpl : virtualLights[set]) {
             maxAvgPow = Math.max(maxAvgPow, vpl.power.getAverage());
-            if (Vector3.dot(n, vpl.n) > 0.9f) {
+            if (n.dot(vpl.n) > 0.9f) {
                 float d = vpl.p.distanceToSquared(p);
                 if (d < minDist) {
                     pow = vpl.power;
@@ -81,8 +81,8 @@ public class InstantGI implements GIEngine {
         int set = (int) (state.getRandom(0, 1, 1) * numSets);
         for (PointLight vpl : virtualLights[set]) {
             Ray r = new Ray(p, vpl.p);
-            float dotNlD = -(r.dx * vpl.n.x + r.dy * vpl.n.y + r.dz * vpl.n.z);
-            float dotND = r.dx * n.x + r.dy * n.y + r.dz * n.z;
+            float dotNlD = -(r.dx * vpl.n.x() + r.dy * vpl.n.y() + r.dz * vpl.n.z());
+            float dotND = r.dx * n.x() + r.dy * n.y() + r.dz * n.z();
             if (dotNlD > 0 && dotND > 0) {
                 float r2 = r.getMax() * r.getMax();
                 Color opacity = state.traceShadow(r);
@@ -96,7 +96,6 @@ public class InstantGI implements GIEngine {
         if (nb <= 0)
             return irr;
         OrthoNormalBasis onb = state.getBasis();
-        Vector3 w = new Vector3();
         float scale = (float) Math.PI / nb;
         for (int i = 0; i < nb; i++) {
             float xi = (float) state.getRandom(i, 0, nb);
@@ -106,9 +105,9 @@ public class InstantGI implements GIEngine {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            w.x = cosPhi * sinTheta;
-            w.y = sinPhi * sinTheta;
-            w.z = cosTheta;
+            Vector3 w = new Vector3(cosPhi * sinTheta,
+                                    sinPhi * sinTheta,
+                                    cosTheta);
             onb.transform(w);
             Ray r = new Ray(state.getPoint(), w);
             r.setMax((float) Math.sqrt(cosTheta / b));
@@ -118,7 +117,7 @@ public class InstantGI implements GIEngine {
                 if (temp.getShader() != null) {
                     float dist = temp.getRay().getMax();
                     float r2 = dist * dist;
-                    float cosThetaY = -Vector3.dot(w, temp.getNormal());
+                    float cosThetaY = -w.dot(temp.getNormal());
                     if (cosThetaY > 0) {
                         float g = (cosTheta * cosThetaY) / r2;
                         // was this path accounted for yet?

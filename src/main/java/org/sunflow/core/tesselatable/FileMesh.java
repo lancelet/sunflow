@@ -175,7 +175,6 @@ public class FileMesh implements Tesselatable {
             Point3 p0 = new Point3();
             Point3 p1 = new Point3();
             Point3 p2 = new Point3();
-            Vector3 n = new Vector3();
             for (int i3 = 0; i3 < tris.length; i3 += 3) {
                 int v0 = tris[i3 + 0];
                 int v1 = tris[i3 + 1];
@@ -183,27 +182,26 @@ public class FileMesh implements Tesselatable {
                 p0.set(verts[3 * v0 + 0], verts[3 * v0 + 1], verts[3 * v0 + 2]);
                 p1.set(verts[3 * v1 + 0], verts[3 * v1 + 1], verts[3 * v1 + 2]);
                 p2.set(verts[3 * v2 + 0], verts[3 * v2 + 1], verts[3 * v2 + 2]);
-                Point3.normal(p0, p1, p2, n); // compute normal
+                Vector3 n = Point3.normal(p0, p1, p2); // compute normal
                 // add face normal to each vertex
                 // note that these are not normalized so this in fact weights
                 // each normal by the area of the triangle
-                normals[3 * v0 + 0] += n.x;
-                normals[3 * v0 + 1] += n.y;
-                normals[3 * v0 + 2] += n.z;
-                normals[3 * v1 + 0] += n.x;
-                normals[3 * v1 + 1] += n.y;
-                normals[3 * v1 + 2] += n.z;
-                normals[3 * v2 + 0] += n.x;
-                normals[3 * v2 + 1] += n.y;
-                normals[3 * v2 + 2] += n.z;
+                normals[3 * v0 + 0] += n.x();
+                normals[3 * v0 + 1] += n.y();
+                normals[3 * v0 + 2] += n.z();
+                normals[3 * v1 + 0] += n.x();
+                normals[3 * v1 + 1] += n.y();
+                normals[3 * v1 + 2] += n.z();
+                normals[3 * v2 + 0] += n.x();
+                normals[3 * v2 + 1] += n.y();
+                normals[3 * v2 + 2] += n.z();
             }
             // normalize all the vectors
             for (int i3 = 0; i3 < normals.length; i3 += 3) {
-                n.set(normals[i3 + 0], normals[i3 + 1], normals[i3 + 2]);
-                n.normalize();
-                normals[i3 + 0] = n.x;
-                normals[i3 + 1] = n.y;
-                normals[i3 + 2] = n.z;
+                Vector3 n = new Vector3(normals[i3 + 0], normals[i3 + 1], normals[i3 + 2]).normalize();
+                normals[i3 + 0] = n.x();
+                normals[i3 + 1] = n.y();
+                normals[i3 + 2] = n.z();
             }
             pl.addVectors("normals", InterpolationType.VERTEX, normals);
         }

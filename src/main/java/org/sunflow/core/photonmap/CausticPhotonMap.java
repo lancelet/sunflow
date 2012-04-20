@@ -11,6 +11,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.Timer;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -96,9 +97,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             median = end - median + 1;
         int axis = Photon.SPLIT_Z;
         Vector3 extents = bounds.getExtents();
-        if ((extents.x > extents.y) && (extents.x > extents.z))
+        if ((extents.x() > extents.y()) && (extents.x() > extents.z()))
             axis = Photon.SPLIT_X;
-        else if (extents.y > extents.z)
+        else if (extents.y() > extents.z())
             axis = Photon.SPLIT_Y;
         int left = start;
         int right = end;
@@ -219,23 +220,23 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         if (np.found < 8)
             return;
         Point3 ppos = new Point3();
-        Vector3 pdir = new Vector3();
-        Vector3 pvec = new Vector3();
+        Vector3 pdir;
+        Vector3 pvec;
         float invArea = 1.0f / ((float) Math.PI * np.dist2[0]);
         float maxNDist = np.dist2[0] * 0.05f;
         float f2r2 = 1.0f / (filterValue * filterValue * np.dist2[0]);
         float fInv = 1.0f / (1.0f - 2.0f / (3.0f * filterValue));
         for (int i = 1; i <= np.found; i++) {
             Photon phot = np.index[i];
-            Vector3.decode(phot.dir, pdir);
-            float cos = -Vector3.dot(pdir, state.getNormal());
+            pdir = Vector3J.decode(phot.dir);
+            float cos = -pdir.dot(state.getNormal());
             if (cos > 0.001) {
                 ppos.set(phot.x, phot.y, phot.z);
-                Point3.sub(ppos, state.getPoint(), pvec);
-                float pcos = Vector3.dot(pvec, state.getNormal());
+                pvec = ppos.sub(state.getPoint());
+                float pcos = pvec.dot(state.getNormal());
                 if ((pcos < maxNDist) && (pcos > -maxNDist)) {
                     LightSample sample = new LightSample();
-                    sample.setShadowRay(new Ray(state.getPoint(), pdir.negate()));
+                    sample.setShadowRay(new Ray(state.getPoint(), pdir.unary_$minus()));
                     sample.setRadiance(new Color().setRGBE(np.index[i].power).mul(invArea / cos), Color.BLACK);
                     sample.getDiffuseRadiance().mul((1.0f - (float) Math.sqrt(np.dist2[i] * f2r2)) * fInv);
                     state.addSample(sample);
@@ -343,7 +344,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             x = p.x;
             y = p.y;
             z = p.z;
-            this.dir = dir.encode();
+            this.dir = Vector3J.encode(dir);
             this.power = power.toRGBE();
             flags = SPLIT_X;
         }

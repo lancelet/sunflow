@@ -47,9 +47,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         bounds = new BoundingBox(sceneBounds);
         bounds.enlargeUlps();
         Vector3 w = bounds.getExtents();
-        nx = (int) Math.max(((w.x / gatherRadius) + 0.5f), 1);
-        ny = (int) Math.max(((w.y / gatherRadius) + 0.5f), 1);
-        nz = (int) Math.max(((w.z / gatherRadius) + 0.5f), 1);
+        nx = (int) Math.max(((w.x() / gatherRadius) + 0.5f), 1);
+        ny = (int) Math.max(((w.y() / gatherRadius) + 0.5f), 1);
+        nz = (int) Math.max(((w.z() / gatherRadius) + 0.5f), 1);
         int numCells = nx * ny * nz;
         UI.printInfo(Module.LIGHT, "Initializing grid photon map:");
         UI.printInfo(Module.LIGHT, "  * Resolution:  %dx%dx%d", nx, ny, nz);
@@ -67,16 +67,16 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
 
     public void store(ShadingState state, Vector3 dir, Color power, Color diffuse) {
         // don't store on the wrong side of a surface
-        if (Vector3.dot(state.getNormal(), dir) > 0)
+        if (state.getNormal().dot(dir) > 0)
             return;
         Point3 pt = state.getPoint();
         // outside grid bounds ?
         if (!bounds.contains(pt))
             return;
         Vector3 ext = bounds.getExtents();
-        int ix = (int) (((pt.x - bounds.getMinimum().x) * nx) / ext.x);
-        int iy = (int) (((pt.y - bounds.getMinimum().y) * ny) / ext.y);
-        int iz = (int) (((pt.z - bounds.getMinimum().z) * nz) / ext.z);
+        int ix = (int) (((pt.x - bounds.getMinimum().x) * nx) / ext.x());
+        int iy = (int) (((pt.y - bounds.getMinimum().y) * ny) / ext.y());
+        int iz = (int) (((pt.z - bounds.getMinimum().z) * nz) / ext.z());
         ix = MathUtils.clamp(ix, 0, nx - 1);
         iy = MathUtils.clamp(iy, 0, ny - 1);
         iz = MathUtils.clamp(iz, 0, nz - 1);
@@ -89,7 +89,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
             while (g != null) {
                 if (g.id == id) {
                     hasID = true;
-                    if (Vector3.dot(state.getNormal(), g.normal) > NORMAL_THRESHOLD)
+                    if (state.getNormal().dot(g.normal) > NORMAL_THRESHOLD)
                         break;
                 }
                 last = g;
@@ -161,9 +161,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         if (!bounds.contains(p))
             return Color.BLACK;
         Vector3 ext = bounds.getExtents();
-        int ix = (int) (((p.x - bounds.getMinimum().x) * nx) / ext.x);
-        int iy = (int) (((p.y - bounds.getMinimum().y) * ny) / ext.y);
-        int iz = (int) (((p.z - bounds.getMinimum().z) * nz) / ext.z);
+        int ix = (int) (((p.x - bounds.getMinimum().x) * nx) / ext.x());
+        int iy = (int) (((p.y - bounds.getMinimum().y) * ny) / ext.y());
+        int iz = (int) (((p.z - bounds.getMinimum().z) * nz) / ext.z());
         ix = MathUtils.clamp(ix, 0, nx - 1);
         iy = MathUtils.clamp(iy, 0, ny - 1);
         iz = MathUtils.clamp(iz, 0, nz - 1);
@@ -171,7 +171,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         rwl.readLock().lock();
         PhotonGroup center = null;
         for (PhotonGroup g = get(ix, iy, iz); g != null; g = g.next) {
-            if (g.id == id && Vector3.dot(n, g.normal) > NORMAL_THRESHOLD) {
+            if (g.id == id && n.dot(g.normal) > NORMAL_THRESHOLD) {
                 if (g.radiance == null) {
                     center = g;
                     break;
@@ -192,7 +192,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                     for (int x = ix - (vol - 1); x <= ix + (vol - 1); x++) {
                         int vid = x + y * nx + z * nx * ny;
                         for (PhotonGroup g = get(x, y, z); g != null; g = g.next) {
-                            if (g.id == vid && Vector3.dot(n, g.normal) > NORMAL_THRESHOLD) {
+                            if (g.id == vid && n.dot(g.normal) > NORMAL_THRESHOLD) {
                                 numPhotons += g.count;
                                 irr.add(g.flux);
                                 if (diff != null) {
@@ -209,7 +209,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
             if (numPhotons >= numGather || vol >= 3) {
                 // we have found enough photons
                 // cache irradiance and return
-                float area = (2 * vol - 1) / 3.0f * ((ext.x / nx) + (ext.y / ny) + (ext.z / nz));
+                float area = (2 * vol - 1) / 3.0f * ((ext.x() / nx) + (ext.y() / ny) + (ext.z() / nz));
                 area *= area;
                 area *= Math.PI;
                 irr.mul(1.0f / area);
@@ -254,7 +254,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         PhotonGroup next;
 
         PhotonGroup(int id, Vector3 n) {
-            normal = new Vector3(n);
+            normal = n;
             flux = Color.black();
             diffuse = Color.black();
             radiance = null;

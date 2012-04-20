@@ -45,7 +45,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                 Point3 v2p = getPoint(c);
                 ngs[i] = Point3.normal(v0p, v1p, v2p);
                 areas[i] = 0.5f * ngs[i].length();
-                ngs[i].normalize();
+                ngs[i] = ngs[i].normalize();
                 totalArea += areas[i];
             }
         } else
@@ -113,7 +113,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         return numSamples * getNumPrimitives();
     }
 
-    public void getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Vector3 dir, Color power) {
+    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
         double rnd = randX1 * totalArea;
         int j = areas.length - 1;
         for (int i = 0; i < areas.length; i++) {
@@ -136,14 +136,19 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         p.x = w * points[index0 + 0] + u * points[index1 + 0] + v * points[index2 + 0];
         p.y = w * points[index0 + 1] + u * points[index1 + 1] + v * points[index2 + 1];
         p.z = w * points[index0 + 2] + u * points[index1 + 2] + v * points[index2 + 2];
-        p.x += 0.001f * ngs[j].x;
-        p.y += 0.001f * ngs[j].y;
-        p.z += 0.001f * ngs[j].z;
+        p.x += 0.001f * ngs[j].x();
+        p.y += 0.001f * ngs[j].y();
+        p.z += 0.001f * ngs[j].z();
         OrthoNormalBasis onb = OrthoNormalBasis.makeFromW(ngs[j]);
         u = (float) (2 * Math.PI * randX1);
         s = Math.sqrt(randY1);
-        onb.transform(new Vector3((float) (Math.cos(u) * s), (float) (Math.sin(u) * s), (float) (Math.sqrt(1 - randY1))), dir);
+        Vector3 dir = onb.transform(
+                new Vector3((float) (Math.cos(u) * s), 
+                            (float) (Math.sin(u) * s), 
+                            (float) (Math.sqrt(1 - randY1)))
+                );
         Color.mul((float) Math.PI * areas[j], radiance, power);
+        return dir;
     }
 
     public float getPower() {
@@ -157,50 +162,49 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         Point3 p = state.getPoint();
         for (int tri3 = 0, i = 0; tri3 < triangles.length; tri3 += 3, i++) {
             // vector towards each vertex of the light source
-            Vector3 p0 = Point3.sub(getPoint(triangles[tri3 + 0]), p, new Vector3());
+            Vector3 p0 = getPoint(triangles[tri3 + 0]).sub(p);
             // cull triangle if it is facing the wrong way
-            if (Vector3.dot(p0, ngs[i]) >= 0)
+            if (p0.dot(ngs[i]) >= 0)
                 continue;
-            Vector3 p1 = Point3.sub(getPoint(triangles[tri3 + 1]), p, new Vector3());
-            Vector3 p2 = Point3.sub(getPoint(triangles[tri3 + 2]), p, new Vector3());
+            Vector3 p1 = getPoint(triangles[tri3 + 1]).sub(p);
+            Vector3 p2 = getPoint(triangles[tri3 + 2]).sub(p);
             // if all three vertices are below the hemisphere, stop
-            if (Vector3.dot(p0, n) <= 0 && Vector3.dot(p1, n) <= 0 && Vector3.dot(p2, n) <= 0)
+            if (p0.dot(n) <= 0 && p1.dot(n) <= 0 && p2.dot(n) <= 0)
                 continue;
-            p0.normalize();
-            p1.normalize();
-            p2.normalize();
-            float dot = Vector3.dot(p2, p0);
-            Vector3 h = new Vector3();
-            h.x = p2.x - dot * p0.x;
-            h.y = p2.y - dot * p0.y;
-            h.z = p2.z - dot * p0.z;
+            p0 = p0.normalize();
+            p1 = p1.normalize();
+            p2 = p2.normalize();
+            float dot = p2.dot(p0);
+            Vector3 h = new Vector3(p2.x() - dot * p0.x(),
+                                    p2.y() - dot * p0.y(),
+                                    p2.z() - dot * p0.z());
             float hlen = h.length();
             if (hlen > 1e-6f)
-                h.div(hlen);
+                h = h.$div(hlen);
             else
                 continue;
-            Vector3 n0 = Vector3.cross(p0, p1, new Vector3());
+            Vector3 n0 = p0.cross(p1);
             float len0 = n0.length();
             if (len0 > 1e-6f)
-                n0.div(len0);
+                n0 = n0.$div(len0);
             else
                 continue;
-            Vector3 n1 = Vector3.cross(p1, p2, new Vector3());
+            Vector3 n1 = p1.cross(p2);
             float len1 = n1.length();
             if (len1 > 1e-6f)
-                n1.div(len1);
+                n1 = n1.$div(len1);
             else
                 continue;
-            Vector3 n2 = Vector3.cross(p2, p0, new Vector3());
+            Vector3 n2 = p2.cross(p0);
             float len2 = n2.length();
             if (len2 > 1e-6f)
-                n2.div(len2);
+                n2 = n2.$div(len2);
             else
                 continue;
 
-            float cosAlpha = MathUtils.clamp(-Vector3.dot(n2, n0), -1.0f, 1.0f);
-            float cosBeta = MathUtils.clamp(-Vector3.dot(n0, n1), -1.0f, 1.0f);
-            float cosGamma = MathUtils.clamp(-Vector3.dot(n1, n2), -1.0f, 1.0f);
+            float cosAlpha = MathUtils.clamp(-n2.dot(n0), -1.0f, 1.0f);
+            float cosBeta = MathUtils.clamp(-n0.dot(n1), -1.0f, 1.0f);
+            float cosGamma = MathUtils.clamp(-n1.dot(n2), -1.0f, 1.0f);
 
             float alpha = (float) Math.acos(cosAlpha);
             float beta = (float) Math.acos(cosBeta);
@@ -208,7 +212,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
 
             float area = alpha + beta + gamma - (float) Math.PI;
 
-            float cosC = MathUtils.clamp(Vector3.dot(p0, p1), -1.0f, 1.0f);
+            float cosC = MathUtils.clamp(p0.dot(p1), -1.0f, 1.0f);
             float salpha = (float) Math.sin(alpha);
             float product = salpha * cosC;
 
@@ -233,28 +237,26 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                     q1 = 0.0f;
 
                 float sqrtq1 = (float) Math.sqrt(q1);
-                float ncx = q * p0.x + sqrtq1 * h.x;
-                float ncy = q * p0.y + sqrtq1 * h.y;
-                float ncz = q * p0.z + sqrtq1 * h.z;
-                dot = p1.dot(ncx, ncy, ncz);
+                float ncx = q * p0.x() + sqrtq1 * h.x();
+                float ncy = q * p0.y() + sqrtq1 * h.y();
+                float ncz = q * p0.z() + sqrtq1 * h.z();
+                dot = p1.dot(new Vector3(ncx, ncy, ncz));
                 float z = 1.0f - (float) randY * (1.0f - dot);
                 float z1 = 1.0f - z * z;
                 if (z1 < 0.0f)
                     z1 = 0.0f;
-                Vector3 nd = new Vector3();
-                nd.x = ncx - dot * p1.x;
-                nd.y = ncy - dot * p1.y;
-                nd.z = ncz - dot * p1.z;
+                Vector3 nd = new Vector3(ncx - dot * p1.x(),
+                                         ncy - dot * p1.y(),
+                                         ncz - dot * p1.z());
                 nd.normalize();
                 float sqrtz1 = (float) Math.sqrt(z1);
-                Vector3 result = new Vector3();
-                result.x = z * p1.x + sqrtz1 * nd.x;
-                result.y = z * p1.y + sqrtz1 * nd.y;
-                result.z = z * p1.z + sqrtz1 * nd.z;
+                Vector3 result = new Vector3(z * p1.x() + sqrtz1 * nd.x(),
+                                             z * p1.y() + sqrtz1 * nd.y(),
+                                             z * p1.z() + sqrtz1 * nd.z());
 
                 // make sure the sample is in the right hemisphere - facing in
                 // the right direction
-                if (Vector3.dot(result, n) > 0 && Vector3.dot(result, state.getGeoNormal()) > 0 && Vector3.dot(result, ngs[i]) < 0) {
+                if (result.dot(n) > 0 && result.dot(state.getGeoNormal()) > 0 && result.dot(ngs[i]) < 0) {
                     // compute intersection with triangle (if any)
                     Ray shadowRay = new Ray(state.getPoint(), result);
                     if (!intersectTriangleKensler(tri3, shadowRay))

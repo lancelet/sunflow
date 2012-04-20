@@ -30,7 +30,6 @@ public class AmbientOcclusionGIEngine implements GIEngine {
 
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         OrthoNormalBasis onb = state.getBasis();
-        Vector3 w = new Vector3();
         Color result = Color.black();
         for (int i = 0; i < samples; i++) {
             float xi = (float) state.getRandom(i, 0, samples);
@@ -40,9 +39,9 @@ public class AmbientOcclusionGIEngine implements GIEngine {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            w.x = cosPhi * sinTheta;
-            w.y = sinPhi * sinTheta;
-            w.z = cosTheta;
+            Vector3 w = new Vector3(cosPhi * sinTheta,
+                                    sinPhi * sinTheta,
+                                    cosTheta);
             onb.transform(w);
             Ray r = new Ray(state.getPoint(), w);
             r.setMax(maxDist);

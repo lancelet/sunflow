@@ -1083,7 +1083,7 @@ public class SCParser implements SceneParser {
             api.parameter("source", s);
             p.checkNextToken("target");
             Point3 t = parsePoint();
-            api.parameter("dir", Point3.sub(t, s, new Vector3()));
+            api.parameter("dir", t.sub(s));
             p.checkNextToken("radius");
             api.parameter("radius", p.getNextFloat());
             p.checkNextToken("emit");

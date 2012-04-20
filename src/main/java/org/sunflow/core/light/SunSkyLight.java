@@ -124,11 +124,10 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
 
     private void initSunSky() {
         // perform all the required initialization of constants
-        sunDirWorld.normalize();
-        sunDir = basis.untransform(sunDirWorld, new Vector3());
-        sunDir.normalize();
-        sunTheta = (float) Math.acos(MathUtils.clamp(sunDir.z, -1, 1));
-        if (sunDir.z > 0) {
+        sunDirWorld = sunDirWorld.normalize();
+        sunDir = basis.untransform(sunDirWorld).normalize();
+        sunTheta = (float) Math.acos(MathUtils.clamp(sunDir.z(), -1, 1));
+        if (sunDir.z() > 0) {
             sunSpectralRadiance = computeAttenuatedSunlight(sunTheta, turbidity);
             // produce color suitable for rendering
             sunColor = RGBSpace.SRGB.convertXYZtoRGB(sunSpectralRadiance.toXYZ().mul(1e-4f)).constrainRGB();
@@ -207,13 +206,13 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     }
 
     private Color getSkyRGB(Vector3 dir) {
-        if (dir.z < 0 && !groundExtendSky)
+        if (dir.z() < 0 && !groundExtendSky)
             return groundColor;
-        if (dir.z < 0.001f)
-            dir.z = 0.001f;
-        dir.normalize();
-        double theta = Math.acos(MathUtils.clamp(dir.z, -1, 1));
-        double gamma = Math.acos(MathUtils.clamp(Vector3.dot(dir, sunDir), -1, 1));
+        if (dir.z() < 0.001f)
+            dir = new Vector3(dir.x(), dir.y(), 0.001f);
+        dir = dir.normalize();
+        double theta = Math.acos(MathUtils.clamp(dir.z(), -1, 1));
+        double gamma = Math.acos(MathUtils.clamp(dir.dot(sunDir), -1, 1));
         double x = perezFunction(perezx, theta, gamma, zenithx);
         double y = perezFunction(perezy, theta, gamma, zenithy);
         double Y = perezFunction(perezY, theta, gamma, zenithY) * 1e-4;
@@ -228,8 +227,9 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
         return 1 + numSkySamples;
     }
 
-    public void getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Vector3 dir, Color power) {
+    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
         // FIXME: not implemented
+        return null;
     }
 
     public float getPower() {
@@ -237,7 +237,7 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     }
 
     public void getSamples(ShadingState state) {
-        if (Vector3.dot(sunDirWorld, state.getGeoNormal()) > 0 && Vector3.dot(sunDirWorld, state.getNormal()) > 0) {
+        if (sunDirWorld.dot(state.getGeoNormal()) > 0 && sunDirWorld.dot(state.getNormal()) > 0) {
             LightSample dest = new LightSample();
             dest.setShadowRay(new Ray(state.getPoint(), sunDirWorld));
             dest.getShadowRay().setMax(Float.MAX_VALUE);
@@ -270,8 +270,8 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
             float sv = (y + v) / rowHistogram.length;
             float invP = (float) Math.sin(sv * Math.PI) * jacobian / (n * px * py);
             Vector3 localDir = getDirection(su, sv);
-            Vector3 dir = basis.transform(localDir, new Vector3());
-            if (Vector3.dot(dir, state.getGeoNormal()) > 0 && Vector3.dot(dir, state.getNormal()) > 0) {
+            Vector3 dir = basis.transform(localDir);
+            if (dir.dot(state.getGeoNormal()) > 0 && dir.dot(state.getNormal()) > 0) {
                 LightSample dest = new LightSample();
                 dest.setShadowRay(new Ray(state.getPoint(), dir));
                 dest.getShadowRay().setMax(Float.MAX_VALUE);
@@ -320,14 +320,13 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     }
 
     private Vector3 getDirection(float u, float v) {
-        Vector3 dest = new Vector3();
         double phi = 0, theta = 0;
         theta = u * 2 * Math.PI;
         phi = v * Math.PI;
         double sin_phi = Math.sin(phi);
-        dest.x = (float) (-sin_phi * Math.cos(theta));
-        dest.y = (float) Math.cos(phi);
-        dest.z = (float) (sin_phi * Math.sin(theta));
+        Vector3 dest = new Vector3((float) (-sin_phi * Math.cos(theta)),
+                                   (float) Math.cos(phi),
+                                   (float) (sin_phi * Math.sin(theta)));
         return dest;
     }
 

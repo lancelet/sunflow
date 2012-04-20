@@ -51,7 +51,7 @@ public class IrradianceCacheGIEngine implements GIEngine {
         UI.printInfo(Module.LIGHT, "  * Spacing: %.3f to %.3f", minSpacing, maxSpacing);
         // prepare root node
         Vector3 ext = scene.getBounds().getExtents();
-        root = new Node(scene.getBounds().getCenter(), 1.0001f * MathUtils.max(ext.x, ext.y, ext.z));
+        root = new Node(scene.getBounds().getCenter(), 1.0001f * MathUtils.max(ext.x(), ext.y(), ext.z()));
         // init global photon map
         return (globalPhotonMap != null) ? scene.calculatePhotons(globalPhotonMap, "global", 0, options) : true;
     }
@@ -78,12 +78,11 @@ public class IrradianceCacheGIEngine implements GIEngine {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            Vector3 w = new Vector3();
-            w.x = cosPhi * sinTheta;
-            w.y = sinPhi * sinTheta;
-            w.z = cosTheta;
+            Vector3 w = new Vector3(cosPhi * sinTheta,
+                                    sinPhi * sinTheta,
+                                    cosTheta);
             OrthoNormalBasis onb = state.getBasis();
-            onb.transform(w);
+            w = onb.transform(w);
             Ray r = new Ray(state.getPoint(), w);
             ShadingState temp = state.traceFinalGather(r, 0);
             return temp != null ? getGlobalRadiance(temp).copy().mul((float) Math.PI) : Color.BLACK;
@@ -97,7 +96,6 @@ public class IrradianceCacheGIEngine implements GIEngine {
             OrthoNormalBasis onb = state.getBasis();
             float invR = 0;
             float minR = Float.POSITIVE_INFINITY;
-            Vector3 w = new Vector3();
             for (int i = 0; i < samples; i++) {
                 float xi = (float) state.getRandom(i, 0, samples);
                 float xj = (float) state.getRandom(i, 1, samples);
@@ -106,10 +104,10 @@ public class IrradianceCacheGIEngine implements GIEngine {
                 float sinPhi = (float) Math.sin(phi);
                 float sinTheta = (float) Math.sqrt(xj);
                 float cosTheta = (float) Math.sqrt(1.0f - xj);
-                w.x = cosPhi * sinTheta;
-                w.y = sinPhi * sinTheta;
-                w.z = cosTheta;
-                onb.transform(w);
+                Vector3 w = new Vector3(cosPhi * sinTheta,
+                                        sinPhi * sinTheta,
+                                        cosTheta);
+                w = onb.transform(w);
                 Ray r = new Ray(state.getPoint(), w);
                 ShadingState temp = state.traceFinalGather(r, i);
                 if (temp != null) {
@@ -222,10 +220,10 @@ public class IrradianceCacheGIEngine implements GIEngine {
             pix = p.x;
             piy = p.y;
             piz = p.z;
-            Vector3 ni = new Vector3(n).normalize();
-            nix = ni.x;
-            niy = ni.y;
-            niz = ni.z;
+            Vector3 ni = n.normalize();
+            nix = ni.x();
+            niy = ni.y();
+            niz = ni.z();
             irr = null;
             next = null;
         }
@@ -234,10 +232,10 @@ public class IrradianceCacheGIEngine implements GIEngine {
             pix = p.x;
             piy = p.y;
             piz = p.z;
-            Vector3 ni = new Vector3(n).normalize();
-            nix = ni.x;
-            niy = ni.y;
-            niz = ni.z;
+            Vector3 ni = n.normalize();
+            nix = ni.x();
+            niy = ni.y();
+            niz = ni.z();
             invR0 = 1.0f / r0;
             this.irr = irr;
             next = null;

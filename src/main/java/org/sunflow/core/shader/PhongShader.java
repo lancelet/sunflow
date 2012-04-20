@@ -61,16 +61,16 @@ public class PhongShader implements Shader {
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0f - v);
             Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
-            w = onb.transform(w, new Vector3());
+            w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < avgD + avgS) {
             // photon is scattered specularly
             float dn = 2.0f * state.getCosND();
             // reflected direction
-            Vector3 refDir = new Vector3();
-            refDir.x = (dn * state.getNormal().x) + state.getRay().dx;
-            refDir.y = (dn * state.getNormal().y) + state.getRay().dy;
-            refDir.z = (dn * state.getNormal().z) + state.getRay().dz;
+            Vector3 refDir = new Vector3(
+                    (dn * state.getNormal().x()) + state.getRay().dx,
+                    (dn * state.getNormal().y()) + state.getRay().dy,
+                    (dn * state.getNormal().z()) + state.getRay().dz);
             power.mul(spec).mul(1.0f / avgS);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * (rnd - avgD) / avgS;
@@ -78,7 +78,7 @@ public class PhongShader implements Shader {
             float s = (float) Math.pow(v, 1 / (this.power + 1));
             float s1 = (float) Math.sqrt(1 - s * s);
             Vector3 w = new Vector3((float) Math.cos(u) * s1, (float) Math.sin(u) * s1, s);
-            w = onb.transform(w, new Vector3());
+            w = onb.transform(w);
             state.traceReflectionPhoton(new Ray(state.getPoint(), w), power);
         }
     }

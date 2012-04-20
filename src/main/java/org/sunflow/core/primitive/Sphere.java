@@ -39,27 +39,24 @@ public class Sphere implements PrimitiveList {
         state.getRay().getPoint(state.getPoint());
         Instance parent = state.getInstance();
         Point3 localPoint = state.transformWorldToObject(state.getPoint());
-        state.getNormal().set(localPoint.x, localPoint.y, localPoint.z);
-        state.getNormal().normalize();
+        state.setNormal(new Vector3(localPoint.x, localPoint.y, localPoint.z).normalize());
 
-        float phi = (float) Math.atan2(state.getNormal().y, state.getNormal().x);
+        float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
         if (phi < 0)
             phi += 2 * Math.PI;
-        float theta = (float) Math.acos(state.getNormal().z);
+        float theta = (float) Math.acos(state.getNormal().z());
         state.getUV().y = theta / (float) Math.PI;
         state.getUV().x = phi / (float) (2 * Math.PI);
-        Vector3 v = new Vector3();
-        v.x = -2 * (float) Math.PI * state.getNormal().y;
-        v.y = 2 * (float) Math.PI * state.getNormal().x;
-        v.z = 0;
+        Vector3 v = new Vector3(-2 * (float) Math.PI * state.getNormal().y(),
+                                 2 * (float) Math.PI * state.getNormal().x(),
+                                 0);
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
+        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal()).normalize();
         v = state.transformVectorObjectToWorld(v);
-        state.getNormal().set(worldNormal);
-        state.getNormal().normalize();
-        state.getGeoNormal().set(state.getNormal());
+        state.setNormal(worldNormal);
+        state.setGeoNormal(worldNormal);
         // compute basis in world space
         state.setBasis(OrthoNormalBasis.makeFromWV(state.getNormal(), v));
 
