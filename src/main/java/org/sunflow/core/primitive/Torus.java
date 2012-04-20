@@ -14,6 +14,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class Torus implements PrimitiveList {
     private float ri2, ro2;
@@ -72,7 +73,7 @@ public class Torus implements PrimitiveList {
         Point3 p = state.transformWorldToObject(state.getPoint());
         // compute local normal
         float deriv = p.x * p.x + p.y * p.y + p.z * p.z - ri2 - ro2;
-        state.setNormal(new Vector3(p.x * deriv, p.y * deriv, p.z * deriv + 2 * ro2 * p.z).normalize());
+        state.setNormal(Vector3J.create(p.x * deriv, p.y * deriv, p.z * deriv + 2 * ro2 * p.z));
 
         double phi = Math.asin(MathUtils.clamp(p.z / ri, -1, 1));
         double theta = Math.atan2(p.y, p.x);
@@ -83,7 +84,7 @@ public class Torus implements PrimitiveList {
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal()).normalize();
+        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         // make basis in world space

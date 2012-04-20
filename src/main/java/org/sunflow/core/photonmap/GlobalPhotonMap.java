@@ -9,7 +9,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
-import org.sunflow.math.Vector3J;
+import org.sunflow.math.Vector3Encoding;
 import org.sunflow.system.Timer;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -212,10 +212,10 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             x = p.x;
             y = p.y;
             z = p.z;
-            this.dir = Vector3J.encode(dir);
+            this.dir = Vector3Encoding.encode(dir);
             this.power = power.toRGBE();
             flags = 0;
-            normal = Vector3J.encode(n);
+            normal = Vector3Encoding.encode(n);
             data = diffuse.toRGB();
         }
 
@@ -300,7 +300,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             UI.taskUpdate(i);
             Photon curr = photons[i];
             p.set(curr.x, curr.y, curr.z);
-            n = Vector3J.decode(curr.normal);
+            n = Vector3Encoding.decode(curr.normal);
             irr.set(Color.BLACK);
             np.reset(p, maxDist2);
             locatePhotons(np);
@@ -313,7 +313,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             float maxNDist = np.dist2[0] * 0.05f;
             for (int j = 1; j <= np.found; j++) {
                 Photon phot = np.index[j];
-                pdir = Vector3J.decode(phot.dir);
+                pdir = Vector3Encoding.decode(phot.dir);
                 float cos = -pdir.dot(n);
                 if (cos > 0.01f) {
                     ppos.set(phot.x, phot.y, phot.z);
@@ -371,7 +371,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             curr = photons[i];
             dist2 = curr.getDist2(px, py, pz);
             if (dist2 < maxDist2) {
-                photN = Vector3J.decode(curr.normal);
+                photN = Vector3Encoding.decode(curr.normal);
                 float currentDotN = photN.dot(n);
                 if (currentDotN > 0.9f) {
                     nearest = curr;
@@ -388,7 +388,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             curr = photons[i];
             dist2 = curr.getDist2(px, py, pz);
             if (dist2 < maxDist2) {
-                photN = Vector3J.decode(curr.normal);
+                photN = Vector3Encoding.decode(curr.normal);
                 float currentDotN = photN.dot(n);
                 if (currentDotN > 0.9f) {
                     nearest = curr;

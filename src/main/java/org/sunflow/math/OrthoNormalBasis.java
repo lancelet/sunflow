@@ -4,21 +4,21 @@ public final class OrthoNormalBasis {
     private Vector3 u, v, w;
 
     private OrthoNormalBasis() {
-        u = new Vector3(0, 0, 0);
-        v = new Vector3(0, 0, 0);
-        w = new Vector3(0, 0, 0);
+        u = Vector3J.zero();
+        v = Vector3J.zero();
+        w = Vector3J.zero();
     }
 
     public void flipU() {
-        u = u.unary_$minus();
+        u = Vector3J.negate(u);
     }
 
     public void flipV() {
-        v = v.unary_$minus();
+        v = Vector3J.negate(v);
     }
 
     public void flipW() {
-        w = w.unary_$minus();
+        w = Vector3J.negate(w);
     }
 
     public void swapUV() {
@@ -44,11 +44,11 @@ public final class OrthoNormalBasis {
         float x = (a.x() * u.x()) + (a.y() * v.x()) + (a.z() * w.x());
         float y = (a.x() * u.y()) + (a.y() * v.y()) + (a.z() * w.y());
         float z = (a.x() * u.z()) + (a.y() * v.z()) + (a.z() * w.z());
-        return new Vector3(x, y, z);
+        return Vector3J.create(x, y, z);
     }
 
     public Vector3 untransform(Vector3 a) {
-        return new Vector3(a.dot(u), a.dot(v), a.dot(w));
+        return Vector3J.create(a.dot(u), a.dot(v), a.dot(w));
     }
 
     public float untransformX(Vector3 a) { return a.dot(u); }
@@ -59,23 +59,30 @@ public final class OrthoNormalBasis {
 
     public static final OrthoNormalBasis makeFromW(Vector3 w) {
         OrthoNormalBasis onb = new OrthoNormalBasis();
-        onb.w = w.normalize();
+        onb.w = Vector3J.normalize(w);
         if ((Math.abs(onb.w.x()) < Math.abs(onb.w.y())) && (Math.abs(onb.w.x()) < Math.abs(onb.w.z()))) {
-            onb.v = new Vector3(0, onb.w.z(), -onb.w.y()).normalize();
+            onb.v = Vector3J.normalize(Vector3J.create(0, onb.w.z(), -onb.w.y()));
         } else if (Math.abs(onb.w.y()) < Math.abs(onb.w.z())) {
-            onb.v = new Vector3(onb.w.z(), 0, -onb.w.x()).normalize();
+            onb.v = Vector3J.normalize(Vector3J.create(onb.w.z(), 0, -onb.w.x()));
         } else {
-            onb.v = new Vector3(onb.w.y(), -onb.w.x(), 0).normalize();
+            onb.v = Vector3J.normalize(Vector3J.create(onb.w.y(), -onb.w.x(), 0));
         }
-        onb.u = onb.v.cross(onb.w);
+        onb.u = Vector3J.cross(onb.v, onb.w);
         return onb;
     }
 
     public static final OrthoNormalBasis makeFromWV(Vector3 w, Vector3 v) {
         OrthoNormalBasis onb = new OrthoNormalBasis();
-        onb.w = w.normalize();
-        onb.u = v.cross(onb.w).normalize();
-        onb.v = onb.w.cross(onb.u);
+        onb.w = Vector3J.normalize(w);
+        Vector3 c = Vector3J.cross(v, onb.w);
+        /* TODO: lancelet: sometimes the u, v vectors are colinear
+        if (c.length() <= 1.0e-6) {
+            // TODO: Warning
+            return makeFromW(onb.w);
+        }
+        */
+        onb.u = Vector3J.normalize(c);
+        onb.v = Vector3J.cross(onb.w, onb.u);
         return onb;
     }
 }

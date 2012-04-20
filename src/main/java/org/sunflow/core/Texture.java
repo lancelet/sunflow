@@ -11,6 +11,7 @@ import org.sunflow.image.formats.BitmapBlack;
 import org.sunflow.math.MathUtils;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.FileUtils;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -108,7 +109,10 @@ public class Texture {
 
     public Vector3 getNormal(float x, float y, OrthoNormalBasis basis) {
         float[] rgb = getPixel(x, y).getRGB();
-        return basis.transform(new Vector3(2 * rgb[0] - 1, 2 * rgb[1] - 1, 2 * rgb[2] - 1)).normalize();
+        return Vector3J.normalize(basis.transform(
+                Vector3J.create(2 * rgb[0] - 1, 
+                                2 * rgb[1] - 1, 
+                                2 * rgb[2] - 1)));
     }
 
     public Vector3 getBump(float x, float y, OrthoNormalBasis basis, float scale) {
@@ -118,6 +122,9 @@ public class Texture {
         float b0 = getPixel(x, y).getLuminance();
         float bx = getPixel(x + dx, y).getLuminance();
         float by = getPixel(x, y + dy).getLuminance();
-        return basis.transform(new Vector3(scale * (b0 - bx), scale * (b0 - by), 1)).normalize();
+        return Vector3J.normalize(basis.transform(
+                Vector3J.create(scale * (b0 - bx), 
+                                scale * (b0 - by), 
+                                1)));
     }
 }

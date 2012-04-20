@@ -15,6 +15,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class SphereLight implements LightSource, Shader {
     private Color radiance;
@@ -62,7 +63,7 @@ public class SphereLight implements LightSource, Shader {
         float topX = wc.x() + state.getNormal().x() * radius;
         float topY = wc.y() + state.getNormal().y() * radius;
         float topZ = wc.z() + state.getNormal().z() * radius;
-        if (state.getNormal().dot(new Vector3(topX, topY, topZ)) <= 0)
+        if (state.getNormal().dot(Vector3J.create(topX, topY, topZ)) <= 0)
             return; // top of the sphere is below the horizon
         float cosThetaMax = (float) Math.sqrt(Math.max(0, 1 - r2 / wc.dot(wc)));
         OrthoNormalBasis basis = OrthoNormalBasis.makeFromW(wc);
@@ -78,9 +79,9 @@ public class SphereLight implements LightSource, Shader {
             double cosTheta = (1 - randX) * cosThetaMax + randX;
             double sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
             double phi = randY * 2 * Math.PI;
-            Vector3 dir = new Vector3((float) (Math.cos(phi) * sinTheta), 
-                                      (float) (Math.sin(phi) * sinTheta), 
-                                      (float) cosTheta);
+            Vector3 dir = Vector3J.create((float) (Math.cos(phi) * sinTheta), 
+                                          (float) (Math.sin(phi) * sinTheta), 
+                                          (float) cosTheta);
             dir = basis.transform(dir);
 
             // check that the direction of the sample is the same as the
@@ -119,15 +120,16 @@ public class SphereLight implements LightSource, Shader {
         p.x = center.x + x * radius;
         p.y = center.y + y * radius;
         p.z = center.z + z * radius;
-        OrthoNormalBasis basis = OrthoNormalBasis.makeFromW(new Vector3(x, y, z));
+        OrthoNormalBasis basis = OrthoNormalBasis.makeFromW(
+                Vector3J.create(x, y, z));
         phi = (float) (2 * Math.PI * randX1);
         float cosPhi = (float) Math.cos(phi);
         float sinPhi = (float) Math.sin(phi);
         float sinTheta = (float) Math.sqrt(randY1);
         float cosTheta = (float) Math.sqrt(1 - randY1);
-        Vector3 dir = new Vector3(cosPhi * sinTheta,
-                                  sinPhi * sinTheta,
-                                  cosTheta);
+        Vector3 dir = Vector3J.create(cosPhi * sinTheta,
+                                      sinPhi * sinTheta,
+                                      cosTheta);
         dir = basis.transform(dir);
         power.set(radiance);
         power.mul((float) (Math.PI * Math.PI * 4 * r2));

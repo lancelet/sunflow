@@ -8,6 +8,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class PhongShader implements Shader {
     private Color diff;
@@ -60,7 +61,7 @@ public class PhongShader implements Shader {
             double v = state.getRandom(0, 1, 1);
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0f - v);
-            Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
+            Vector3 w = Vector3J.create((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < avgD + avgS) {
@@ -79,7 +80,7 @@ public class PhongShader implements Shader {
             double v = state.getRandom(0, 1, 1);
             float s = (float) Math.pow(v, 1 / (this.power + 1));
             float s1 = (float) Math.sqrt(1 - s * s);
-            Vector3 w = new Vector3((float) Math.cos(u) * s1, (float) Math.sin(u) * s1, s);
+            Vector3 w = Vector3J.create((float) Math.cos(u) * s1, (float) Math.sin(u) * s1, s);
             w = onb.transform(w);
             state.traceReflectionPhoton(new Ray(state.getPoint(), w), power);
         }

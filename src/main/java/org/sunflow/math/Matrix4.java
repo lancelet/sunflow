@@ -229,7 +229,7 @@ public final class Matrix4 {
         float x = m00 * v.x() + m01 * v.y() + m02 * v.z();
         float y = m10 * v.x() + m11 * v.y() + m12 * v.z();
         float z = m20 * v.x() + m21 * v.y() + m22 * v.z();
-        return new Vector3(x, y, z);
+        return Vector3J.create(x, y, z);
     }
 
     /**
@@ -243,7 +243,7 @@ public final class Matrix4 {
         float x = m00 * v.x() + m10 * v.y() + m20 * v.z();
         float y = m01 * v.x() + m11 * v.y() + m21 * v.z();
         float z = m02 * v.x() + m12 * v.y() + m22 * v.z();
-        return new Vector3(x, y, z);
+        return Vector3J.create(x, y, z);
     }
 
     /**
@@ -509,9 +509,9 @@ public final class Matrix4 {
      */
     public final static Matrix4 fromBasis(OrthoNormalBasis basis) {
         Matrix4 m = new Matrix4();
-        Vector3 u = basis.transform(new Vector3(1, 0, 0));
-        Vector3 v = basis.transform(new Vector3(0, 1, 0));
-        Vector3 w = basis.transform(new Vector3(0, 0, 1));
+        Vector3 u = basis.transform(Vector3J.create(1, 0, 0));
+        Vector3 v = basis.transform(Vector3J.create(0, 1, 0));
+        Vector3 w = basis.transform(Vector3J.create(0, 0, 1));
         m.m00 = u.x();
         m.m01 = v.x();
         m.m02 = w.x();

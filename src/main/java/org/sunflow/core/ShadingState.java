@@ -10,6 +10,7 @@ import org.sunflow.math.Point2;
 import org.sunflow.math.Point3;
 import org.sunflow.math.QMC;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 /**
  * Represents a point to be shaded and provides various options for the shading
@@ -165,7 +166,7 @@ public final class ShadingState implements Iterable<LightSample> {
     final void correctShadingNormal() {
         // correct shading normals pointing the wrong way
         if (n.dot(ng) < 0) {
-            n = n.unary_$minus();
+            n = Vector3J.negate(n);
             basis.flipW();
         }
     }
@@ -181,8 +182,8 @@ public final class ShadingState implements Iterable<LightSample> {
         } else {
             // this ensure the ray and the geomtric normal are pointing in the
             // same direction
-            ng = ng.unary_$minus();
-            n = n.unary_$minus();
+            ng = Vector3J.negate(ng);
+            n = Vector3J.negate(n);
             basis.flipW();
             behind = true;
         }
@@ -538,7 +539,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @param n shading normal
      */
     public final void setNormal(Vector3 n) {
-        this.n = n;
+        this.n = Vector3J.normalize(n);
     }
     
     
@@ -566,7 +567,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @param ng geometric normal of the current hit point
      */
     public final void setGeoNormal(Vector3 ng) {
-        this.ng = ng;
+        this.ng = Vector3J.normalize(ng);
     }    
 
     /**
@@ -838,7 +839,9 @@ public final class ShadingState implements Iterable<LightSample> {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            Vector3 w = new Vector3(cosPhi * sinTheta, sinPhi * sinTheta, cosTheta);
+            Vector3 w = Vector3J.create(cosPhi * sinTheta, 
+                                        sinPhi * sinTheta, 
+                                        cosTheta);
             w = onb.transform(w);
             Ray r = new Ray(p, w);
             r.setMax(maxDist);
@@ -881,9 +884,9 @@ public final class ShadingState implements Iterable<LightSample> {
             return lr;
         // reflected direction
         float dn = 2 * cosND;
-        Vector3 refDir = new Vector3((dn * n.x()) + r.dx,
-                                     (dn * n.y()) + r.dy,
-                                     (dn * n.z()) + r.dz);                                     
+        Vector3 refDir = Vector3J.create((dn * n.x()) + r.dx,
+                                         (dn * n.y()) + r.dy,
+                                         (dn * n.z()) + r.dz);                                     
         // direct lighting
         for (LightSample sample : this) {
             float cosNL = sample.dot(n);
@@ -903,7 +906,9 @@ public final class ShadingState implements Iterable<LightSample> {
                 double u = 2 * Math.PI * r1;
                 double s = (float) Math.pow(r2, 1 / (power + 1));
                 double s1 = (float) Math.sqrt(1 - s * s);
-                Vector3 w = new Vector3((float) (Math.cos(u) * s1), (float) (Math.sin(u) * s1), (float) s);
+                Vector3 w = Vector3J.create((float) (Math.cos(u) * s1), 
+                                            (float) (Math.sin(u) * s1), 
+                                            (float) s);
                 w = onb.transform(w);
                 float wn = w.dot(n);
                 if (wn > 0)

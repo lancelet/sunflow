@@ -14,6 +14,7 @@ import org.sunflow.math.MathUtils;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -78,9 +79,9 @@ public class IrradianceCacheGIEngine implements GIEngine {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            Vector3 w = new Vector3(cosPhi * sinTheta,
-                                    sinPhi * sinTheta,
-                                    cosTheta);
+            Vector3 w = Vector3J.create(cosPhi * sinTheta,
+                                        sinPhi * sinTheta,
+                                        cosTheta);
             OrthoNormalBasis onb = state.getBasis();
             w = onb.transform(w);
             Ray r = new Ray(state.getPoint(), w);
@@ -104,9 +105,9 @@ public class IrradianceCacheGIEngine implements GIEngine {
                 float sinPhi = (float) Math.sin(phi);
                 float sinTheta = (float) Math.sqrt(xj);
                 float cosTheta = (float) Math.sqrt(1.0f - xj);
-                Vector3 w = new Vector3(cosPhi * sinTheta,
-                                        sinPhi * sinTheta,
-                                        cosTheta);
+                Vector3 w = Vector3J.create(cosPhi * sinTheta,
+                                            sinPhi * sinTheta,
+                                            cosTheta);
                 w = onb.transform(w);
                 Ray r = new Ray(state.getPoint(), w);
                 ShadingState temp = state.traceFinalGather(r, i);
@@ -220,7 +221,7 @@ public class IrradianceCacheGIEngine implements GIEngine {
             pix = p.x;
             piy = p.y;
             piz = p.z;
-            Vector3 ni = n.normalize();
+            Vector3 ni = Vector3J.normalize(n);
             nix = ni.x();
             niy = ni.y();
             niz = ni.z();
@@ -232,7 +233,7 @@ public class IrradianceCacheGIEngine implements GIEngine {
             pix = p.x;
             piy = p.y;
             piz = p.z;
-            Vector3 ni = n.normalize();
+            Vector3 ni = Vector3J.normalize(n);
             nix = ni.x();
             niy = ni.y();
             niz = ni.z();

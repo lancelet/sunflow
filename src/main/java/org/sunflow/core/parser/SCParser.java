@@ -20,6 +20,7 @@ import org.sunflow.image.ColorFactory.ColorSpecificationException;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.Parser;
 import org.sunflow.system.Timer;
 import org.sunflow.system.UI;
@@ -1218,7 +1219,7 @@ public class SCParser implements SceneParser {
         float x = p.getNextFloat();
         float y = p.getNextFloat();
         float z = p.getNextFloat();
-        return new Vector3(x, y, z);
+        return Vector3J.create(x, y, z);
     }
 
     private int[] parseIntArray(int size) throws IOException {

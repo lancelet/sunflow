@@ -18,19 +18,19 @@ public class PerlinVector {
     private static final float P3z = 0.9f;
 
     public static final Vector3 snoise(float x) {
-        return new Vector3(PerlinScalar.snoise(x + P1x), PerlinScalar.snoise(x + P2x), PerlinScalar.snoise(x + P3x));
+        return Vector3J.create(PerlinScalar.snoise(x + P1x), PerlinScalar.snoise(x + P2x), PerlinScalar.snoise(x + P3x));
     }
 
     public static final Vector3 snoise(float x, float y) {
-        return new Vector3(PerlinScalar.snoise(x + P1x, y + P1y), PerlinScalar.snoise(x + P2x, y + P2y), PerlinScalar.snoise(x + P3x, y + P3y));
+        return Vector3J.create(PerlinScalar.snoise(x + P1x, y + P1y), PerlinScalar.snoise(x + P2x, y + P2y), PerlinScalar.snoise(x + P3x, y + P3y));
     }
 
     public static final Vector3 snoise(float x, float y, float z) {
-        return new Vector3(PerlinScalar.snoise(x + P1x, y + P1y, z + P1z), PerlinScalar.snoise(x + P2x, y + P2y, z + P2z), PerlinScalar.snoise(x + P3x, y + P3y, z + P3z));
+        return Vector3J.create(PerlinScalar.snoise(x + P1x, y + P1y, z + P1z), PerlinScalar.snoise(x + P2x, y + P2y, z + P2z), PerlinScalar.snoise(x + P3x, y + P3y, z + P3z));
     }
 
     public static final Vector3 snoise(float x, float y, float z, float t) {
-        return new Vector3(PerlinScalar.snoise(x + P1x, y + P1y, z + P1z, t), PerlinScalar.snoise(x + P2x, y + P2y, z + P2z, t), PerlinScalar.snoise(x + P3x, y + P3y, z + P3z, t));
+        return Vector3J.create(PerlinScalar.snoise(x + P1x, y + P1y, z + P1z, t), PerlinScalar.snoise(x + P2x, y + P2y, z + P2z, t), PerlinScalar.snoise(x + P3x, y + P3y, z + P3z, t));
     }
 
     public static final Vector3 snoise(Point2 p) {
@@ -46,19 +46,19 @@ public class PerlinVector {
     }
 
     public static final Vector3 noise(float x) {
-        return new Vector3(PerlinScalar.noise(x + P1x), PerlinScalar.noise(x + P2x), PerlinScalar.noise(x + P3x));
+        return Vector3J.create(PerlinScalar.noise(x + P1x), PerlinScalar.noise(x + P2x), PerlinScalar.noise(x + P3x));
     }
 
     public static final Vector3 noise(float x, float y) {
-        return new Vector3(PerlinScalar.noise(x + P1x, y + P1y), PerlinScalar.noise(x + P2x, y + P2y), PerlinScalar.noise(x + P3x, y + P3y));
+        return Vector3J.create(PerlinScalar.noise(x + P1x, y + P1y), PerlinScalar.noise(x + P2x, y + P2y), PerlinScalar.noise(x + P3x, y + P3y));
     }
 
     public static final Vector3 noise(float x, float y, float z) {
-        return new Vector3(PerlinScalar.noise(x + P1x, y + P1y, z + P1z), PerlinScalar.noise(x + P2x, y + P2y, z + P2z), PerlinScalar.noise(x + P3x, y + P3y, z + P3z));
+        return Vector3J.create(PerlinScalar.noise(x + P1x, y + P1y, z + P1z), PerlinScalar.noise(x + P2x, y + P2y, z + P2z), PerlinScalar.noise(x + P3x, y + P3y, z + P3z));
     }
 
     public static final Vector3 noise(float x, float y, float z, float t) {
-        return new Vector3(PerlinScalar.noise(x + P1x, y + P1y, z + P1z, t), PerlinScalar.noise(x + P2x, y + P2y, z + P2z, t), PerlinScalar.noise(x + P3x, y + P3y, z + P3z, t));
+        return Vector3J.create(PerlinScalar.noise(x + P1x, y + P1y, z + P1z, t), PerlinScalar.noise(x + P2x, y + P2y, z + P2z, t), PerlinScalar.noise(x + P3x, y + P3y, z + P3z, t));
     }
 
     public static final Vector3 noise(Point2 p) {
@@ -74,19 +74,19 @@ public class PerlinVector {
     }
 
     public static final Vector3 pnoise(float x, float period) {
-        return new Vector3(PerlinScalar.pnoise(x + P1x, period), PerlinScalar.pnoise(x + P2x, period), PerlinScalar.pnoise(x + P3x, period));
+        return Vector3J.create(PerlinScalar.pnoise(x + P1x, period), PerlinScalar.pnoise(x + P2x, period), PerlinScalar.pnoise(x + P3x, period));
     }
 
     public static final Vector3 pnoise(float x, float y, float w, float h) {
-        return new Vector3(PerlinScalar.pnoise(x + P1x, y + P1y, w, h), PerlinScalar.pnoise(x + P2x, y + P2y, w, h), PerlinScalar.pnoise(x + P3x, y + P3y, w, h));
+        return Vector3J.create(PerlinScalar.pnoise(x + P1x, y + P1y, w, h), PerlinScalar.pnoise(x + P2x, y + P2y, w, h), PerlinScalar.pnoise(x + P3x, y + P3y, w, h));
     }
 
     public static final Vector3 pnoise(float x, float y, float z, float w, float h, float d) {
-        return new Vector3(PerlinScalar.pnoise(x + P1x, y + P1y, z + P1z, w, h, d), PerlinScalar.pnoise(x + P2x, y + P2y, z + P2z, w, h, d), PerlinScalar.pnoise(x + P3x, y + P3y, z + P3z, w, h, d));
+        return Vector3J.create(PerlinScalar.pnoise(x + P1x, y + P1y, z + P1z, w, h, d), PerlinScalar.pnoise(x + P2x, y + P2y, z + P2z, w, h, d), PerlinScalar.pnoise(x + P3x, y + P3y, z + P3z, w, h, d));
     }
 
     public static final Vector3 pnoise(float x, float y, float z, float t, float w, float h, float d, float p) {
-        return new Vector3(PerlinScalar.pnoise(x + P1x, y + P1y, z + P1z, t, w, h, d, p), PerlinScalar.pnoise(x + P2x, y + P2y, z + P2z, t, w, h, d, p), PerlinScalar.pnoise(x + P3x, y + P3y, z + P3z, t, w, h, d, p));
+        return Vector3J.create(PerlinScalar.pnoise(x + P1x, y + P1y, z + P1z, t, w, h, d, p), PerlinScalar.pnoise(x + P2x, y + P2y, z + P2z, t, w, h, d, p), PerlinScalar.pnoise(x + P3x, y + P3y, z + P3z, t, w, h, d, p));
     }
 
     public static final Vector3 pnoise(Point2 p, float periodx, float periody) {
@@ -102,19 +102,19 @@ public class PerlinVector {
     }
 
     public static final Vector3 spnoise(float x, float period) {
-        return new Vector3(PerlinScalar.spnoise(x + P1x, period), PerlinScalar.spnoise(x + P2x, period), PerlinScalar.spnoise(x + P3x, period));
+        return Vector3J.create(PerlinScalar.spnoise(x + P1x, period), PerlinScalar.spnoise(x + P2x, period), PerlinScalar.spnoise(x + P3x, period));
     }
 
     public static final Vector3 spnoise(float x, float y, float w, float h) {
-        return new Vector3(PerlinScalar.spnoise(x + P1x, y + P1y, w, h), PerlinScalar.spnoise(x + P2x, y + P2y, w, h), PerlinScalar.spnoise(x + P3x, y + P3y, w, h));
+        return Vector3J.create(PerlinScalar.spnoise(x + P1x, y + P1y, w, h), PerlinScalar.spnoise(x + P2x, y + P2y, w, h), PerlinScalar.spnoise(x + P3x, y + P3y, w, h));
     }
 
     public static final Vector3 spnoise(float x, float y, float z, float w, float h, float d) {
-        return new Vector3(PerlinScalar.spnoise(x + P1x, y + P1y, z + P1z, w, h, d), PerlinScalar.spnoise(x + P2x, y + P2y, z + P2z, w, h, d), PerlinScalar.spnoise(x + P3x, y + P3y, z + P3z, w, h, d));
+        return Vector3J.create(PerlinScalar.spnoise(x + P1x, y + P1y, z + P1z, w, h, d), PerlinScalar.spnoise(x + P2x, y + P2y, z + P2z, w, h, d), PerlinScalar.spnoise(x + P3x, y + P3y, z + P3z, w, h, d));
     }
 
     public static final Vector3 spnoise(float x, float y, float z, float t, float w, float h, float d, float p) {
-        return new Vector3(PerlinScalar.spnoise(x + P1x, y + P1y, z + P1z, t, w, h, d, p), PerlinScalar.spnoise(x + P2x, y + P2y, z + P2z, t, w, h, d, p), PerlinScalar.spnoise(x + P3x, y + P3y, z + P3z, t, w, h, d, p));
+        return Vector3J.create(PerlinScalar.spnoise(x + P1x, y + P1y, z + P1z, t, w, h, d, p), PerlinScalar.spnoise(x + P2x, y + P2y, z + P2z, t, w, h, d, p), PerlinScalar.spnoise(x + P3x, y + P3y, z + P3z, t, w, h, d, p));
     }
 
     public static final Vector3 spnoise(Point2 p, float periodx, float periody) {

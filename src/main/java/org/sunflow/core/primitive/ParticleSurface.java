@@ -13,6 +13,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class ParticleSurface implements PrimitiveList {
     private float[] particles;
@@ -73,12 +74,12 @@ public class ParticleSurface implements PrimitiveList {
         localPoint.y -= particles[3 * state.getPrimitiveID() + 1];
         localPoint.z -= particles[3 * state.getPrimitiveID() + 2];
 
-        state.setNormal(new Vector3(localPoint.x, localPoint.y, localPoint.z).normalize());
+        state.setNormal(Vector3J.create(localPoint.x, localPoint.y, localPoint.z));
 
         state.setShader(state.getInstance().getShader(0));
         state.setModifier(state.getInstance().getModifier(0));
         // into object space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal()).normalize();
+        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));

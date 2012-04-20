@@ -19,6 +19,7 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -220,7 +221,7 @@ public class TriangleMesh implements PrimitiveList {
         Point3 v1p = getPoint(index1);
         Point3 v2p = getPoint(index2);
         Vector3 ng = Point3.normal(v0p, v1p, v2p);
-        ng = state.transformNormalObjectToWorld(ng).normalize();
+        ng = state.transformNormalObjectToWorld(ng);
         state.setGeoNormal(ng);
         switch (normals.interp) {
             case NONE:
@@ -237,8 +238,8 @@ public class TriangleMesh implements PrimitiveList {
                 float sny = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
                 float snz = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
                 Vector3 sn = state.transformNormalObjectToWorld(
-                          new Vector3(snx, sny, snz)
-                        ).normalize();
+                          Vector3J.create(snx, sny, snz)
+                        );
                 state.setNormal(sn);
                 break;
             }
@@ -249,8 +250,8 @@ public class TriangleMesh implements PrimitiveList {
                 float sny = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
                 float snz = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
                 Vector3 sn = state.transformNormalObjectToWorld(
-                        new Vector3(snx, sny, snz)
-                      ).normalize();
+                        Vector3J.create(snx, sny, snz)
+                      );
                 state.setNormal(sn);
                 break;
             }
@@ -308,7 +309,7 @@ public class TriangleMesh implements PrimitiveList {
                 // dpdu.x = (dv2 * dp1.x - dv1 * dp2.x) * invdet;
                 // dpdu.y = (dv2 * dp1.y - dv1 * dp2.y) * invdet;
                 // dpdu.z = (dv2 * dp1.z - dv1 * dp2.z) * invdet;
-                Vector3 dpdv = new Vector3(
+                Vector3 dpdv = Vector3J.create(
                         (-du2 * dp1.x() + du1 * dp2.x()) * invdet,
                         (-du2 * dp1.y() + du1 * dp2.y()) * invdet,
                         (-du2 * dp1.z() + du1 * dp2.z()) * invdet);
@@ -437,6 +438,11 @@ public class TriangleMesh implements PrimitiveList {
                     if (u + v > 1.0f)
                         return;
                     r.setMax(t);
+                    /* lancelet: some NaNs are crepping in here
+                    if (Float.isNaN(u) || Float.isNaN(v)) {
+                        throw new AssertionError("u or v was NaN");
+                    }
+                    */
                     state.setIntersection(primID, u, v);
                     return;
                 }
@@ -456,6 +462,11 @@ public class TriangleMesh implements PrimitiveList {
                     if (u + v > 1.0f)
                         return;
                     r.setMax(t);
+                    /* lancelet: some NaNs are crepping in here
+                    if (Float.isNaN(u) || Float.isNaN(v)) {
+                        throw new AssertionError("u or v was NaN");
+                    }
+                    */
                     state.setIntersection(primID, u, v);
                     return;
                 }
@@ -475,6 +486,11 @@ public class TriangleMesh implements PrimitiveList {
                     if (u + v > 1.0f)
                         return;
                     r.setMax(t);
+                    /* lancelet: some NaNs are crepping in here
+                    if (Float.isNaN(u) || Float.isNaN(v)) {
+                        throw new AssertionError("u or v was NaN");
+                    }
+                    */
                     state.setIntersection(primID, u, v);
                     return;
                 }
@@ -681,7 +697,6 @@ public class TriangleMesh implements PrimitiveList {
             Vector3 ng = Point3.normal(v0p, v1p, v2p);
             if (parent != null)
                 ng = state.transformNormalObjectToWorld(ng);
-            ng = ng.normalize();
             state.setGeoNormal(ng);
             switch (normals.interp) {
                 case NONE:
@@ -697,11 +712,10 @@ public class TriangleMesh implements PrimitiveList {
                     float snx = w * normals[i30 + 0] + u * normals[i31 + 0] + v * normals[i32 + 0];
                     float sny = w * normals[i30 + 1] + u * normals[i31 + 1] + v * normals[i32 + 1];
                     float snz = w * normals[i30 + 2] + u * normals[i31 + 2] + v * normals[i32 + 2];
-                    Vector3 sn = new Vector3(snx, sny, snz);
+                    Vector3 sn = Vector3J.create(snx, sny, snz);
                     if (parent != null) {
                         sn = state.transformNormalObjectToWorld(sn);
                     }
-                    sn = sn.normalize();
                     state.setNormal(sn);
                     break;
                 }
@@ -711,11 +725,10 @@ public class TriangleMesh implements PrimitiveList {
                     float snx = w * normals[idx + 0] + u * normals[idx + 3] + v * normals[idx + 6];
                     float sny = w * normals[idx + 1] + u * normals[idx + 4] + v * normals[idx + 7];
                     float snz = w * normals[idx + 2] + u * normals[idx + 5] + v * normals[idx + 8];
-                    Vector3 sn = new Vector3(snx, sny, snz);
+                    Vector3 sn = Vector3J.create(snx, sny, snz);
                     if (parent != null) {
                         sn = state.transformNormalObjectToWorld(sn);
                     }
-                    sn = sn.normalize();
                     state.setNormal(sn);
                     break;
                 }
@@ -773,7 +786,7 @@ public class TriangleMesh implements PrimitiveList {
                     // dpdu.x = (dv2 * dp1.x - dv1 * dp2.x) * invdet;
                     // dpdu.y = (dv2 * dp1.y - dv1 * dp2.y) * invdet;
                     // dpdu.z = (dv2 * dp1.z - dv1 * dp2.z) * invdet;
-                    Vector3 dpdv = new Vector3(
+                    Vector3 dpdv = Vector3J.create(
                             (-du2 * dp1.x() + du1 * dp2.x()) * invdet,
                             (-du2 * dp1.y() + du1 * dp2.y()) * invdet,
                             (-du2 * dp1.z() + du1 * dp2.z()) * invdet);

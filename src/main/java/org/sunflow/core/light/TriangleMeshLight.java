@@ -14,6 +14,7 @@ import org.sunflow.math.MathUtils;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class TriangleMeshLight extends TriangleMesh implements Shader, LightSource {
     private Color radiance;
@@ -45,7 +46,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                 Point3 v2p = getPoint(c);
                 ngs[i] = Point3.normal(v0p, v1p, v2p);
                 areas[i] = 0.5f * ngs[i].length();
-                ngs[i] = ngs[i].normalize();
+                ngs[i] = Vector3J.normalize(ngs[i]);
                 totalArea += areas[i];
             }
         } else
@@ -143,9 +144,9 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         u = (float) (2 * Math.PI * randX1);
         s = Math.sqrt(randY1);
         Vector3 dir = onb.transform(
-                new Vector3((float) (Math.cos(u) * s), 
-                            (float) (Math.sin(u) * s), 
-                            (float) (Math.sqrt(1 - randY1)))
+                Vector3J.create((float) (Math.cos(u) * s), 
+                                (float) (Math.sin(u) * s), 
+                                (float) (Math.sqrt(1 - randY1)))
                 );
         Color.mul((float) Math.PI * areas[j], radiance, power);
         return dir;
@@ -171,34 +172,34 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
             // if all three vertices are below the hemisphere, stop
             if (p0.dot(n) <= 0 && p1.dot(n) <= 0 && p2.dot(n) <= 0)
                 continue;
-            p0 = p0.normalize();
-            p1 = p1.normalize();
-            p2 = p2.normalize();
+            p0 = Vector3J.normalize(p0);
+            p1 = Vector3J.normalize(p1);
+            p2 = Vector3J.normalize(p2);
             float dot = p2.dot(p0);
-            Vector3 h = new Vector3(p2.x() - dot * p0.x(),
-                                    p2.y() - dot * p0.y(),
-                                    p2.z() - dot * p0.z());
+            Vector3 h = Vector3J.create(p2.x() - dot * p0.x(),
+                                        p2.y() - dot * p0.y(),
+                                        p2.z() - dot * p0.z());
             float hlen = h.length();
             if (hlen > 1e-6f)
-                h = h.$div(hlen);
+                h = Vector3J.divide(h, hlen);
             else
                 continue;
-            Vector3 n0 = p0.cross(p1);
+            Vector3 n0 = Vector3J.cross(p0, p1);
             float len0 = n0.length();
             if (len0 > 1e-6f)
-                n0 = n0.$div(len0);
+                n0 = Vector3J.divide(n0, len0);
             else
                 continue;
-            Vector3 n1 = p1.cross(p2);
+            Vector3 n1 = Vector3J.cross(p1, p2);
             float len1 = n1.length();
             if (len1 > 1e-6f)
-                n1 = n1.$div(len1);
+                n1 = Vector3J.divide(n1, len1);
             else
                 continue;
-            Vector3 n2 = p2.cross(p0);
+            Vector3 n2 = Vector3J.cross(p2, p0);
             float len2 = n2.length();
             if (len2 > 1e-6f)
-                n2 = n2.$div(len2);
+                n2 = Vector3J.divide(n2, len2);
             else
                 continue;
 
@@ -240,19 +241,19 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                 float ncx = q * p0.x() + sqrtq1 * h.x();
                 float ncy = q * p0.y() + sqrtq1 * h.y();
                 float ncz = q * p0.z() + sqrtq1 * h.z();
-                dot = p1.dot(new Vector3(ncx, ncy, ncz));
+                dot = p1.dot(Vector3J.create(ncx, ncy, ncz));
                 float z = 1.0f - (float) randY * (1.0f - dot);
                 float z1 = 1.0f - z * z;
                 if (z1 < 0.0f)
                     z1 = 0.0f;
-                Vector3 nd = new Vector3(ncx - dot * p1.x(),
-                                         ncy - dot * p1.y(),
-                                         ncz - dot * p1.z());
-                nd.normalize();
+                Vector3 nd = Vector3J.create(ncx - dot * p1.x(),
+                                             ncy - dot * p1.y(),
+                                             ncz - dot * p1.z());
+                nd = Vector3J.normalize(nd);
                 float sqrtz1 = (float) Math.sqrt(z1);
-                Vector3 result = new Vector3(z * p1.x() + sqrtz1 * nd.x(),
-                                             z * p1.y() + sqrtz1 * nd.y(),
-                                             z * p1.z() + sqrtz1 * nd.z());
+                Vector3 result = Vector3J.create(z * p1.x() + sqrtz1 * nd.x(),
+                                                 z * p1.y() + sqrtz1 * nd.y(),
+                                                 z * p1.z() + sqrtz1 * nd.z());
 
                 // make sure the sample is in the right hemisphere - facing in
                 // the right direction

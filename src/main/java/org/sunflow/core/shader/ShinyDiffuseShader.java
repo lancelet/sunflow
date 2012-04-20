@@ -8,6 +8,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class ShinyDiffuseShader implements Shader {
     private Color diff;
@@ -40,7 +41,7 @@ public class ShinyDiffuseShader implements Shader {
             return lr;
         float cos = state.getCosND();
         float dn = 2 * cos;
-        Vector3 refDir = new Vector3(
+        Vector3 refDir = Vector3J.create(
                 (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
                 (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
                 (dn * state.getNormal().z()) + state.getRay().getDirection().z());
@@ -75,7 +76,7 @@ public class ShinyDiffuseShader implements Shader {
             double v = state.getRandom(0, 1, 1);
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0 - v);
-            Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
+            Vector3 w = Vector3J.create((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < d + r) {
@@ -83,7 +84,7 @@ public class ShinyDiffuseShader implements Shader {
             power.mul(diffuse).mul(1.0f / d);
             // photon is reflected
             float dn = 2 * cos;
-            Vector3 dir = new Vector3(
+            Vector3 dir = Vector3J.create(
                     (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
                     (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
                     (dn * state.getNormal().z()) + state.getRay().getDirection().z());

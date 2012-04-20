@@ -18,6 +18,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -75,31 +76,31 @@ public class Hair implements PrimitiveList, Shader {
     }
 
     private Vector3 getTangent(int line, int v0, float v) {
-        Vector3 vcurr = new Vector3(points[v0 + 3] - points[v0 + 0], points[v0 + 4] - points[v0 + 1], points[v0 + 5] - points[v0 + 2]);
-        vcurr.normalize();
+        Vector3 vcurr = Vector3J.create(points[v0 + 3] - points[v0 + 0], points[v0 + 4] - points[v0 + 1], points[v0 + 5] - points[v0 + 2]);
+        vcurr = Vector3J.normalize(vcurr);
         if (line == 0 || line == numSegments - 1)
             return vcurr;
         if (v <= 0.5f) {
             // get previous segment
-            Vector3 vprev = new Vector3(points[v0 + 0] - points[v0 - 3], points[v0 + 1] - points[v0 - 2], points[v0 + 2] - points[v0 - 1]);
-            vprev.normalize();
+            Vector3 vprev = Vector3J.create(points[v0 + 0] - points[v0 - 3], points[v0 + 1] - points[v0 - 2], points[v0 + 2] - points[v0 - 1]);
+            vprev = Vector3J.normalize(vprev);
             float t = v + 0.5f;
             float s = 1 - t;
             float vx = vprev.x() * s + vcurr.x() * t;
             float vy = vprev.y() * s + vcurr.y() * t;
             float vz = vprev.z() * s + vcurr.z() * t;
-            return new Vector3(vx, vy, vz);
+            return Vector3J.create(vx, vy, vz);
         } else {
             // get next segment
             v0 += 3;
-            Vector3 vnext = new Vector3(points[v0 + 3] - points[v0 + 0], points[v0 + 4] - points[v0 + 1], points[v0 + 5] - points[v0 + 2]);
-            vnext.normalize();
+            Vector3 vnext = Vector3J.create(points[v0 + 3] - points[v0 + 0], points[v0 + 4] - points[v0 + 1], points[v0 + 5] - points[v0 + 2]);
+            vnext = Vector3J.normalize(vnext);
             float t = 1.5f - v;
             float s = 1 - t;
             float vx = vnext.x() * s + vcurr.x() * t;
             float vy = vnext.y() * s + vcurr.y() * t;
             float vz = vnext.z() * s + vcurr.z() * t;
-            return new Vector3(vx, vy, vz);
+            return Vector3J.create(vx, vy, vz);
         }
     }
 
@@ -183,10 +184,10 @@ public class Hair implements PrimitiveList, Shader {
         // tangent vector
         Vector3 v = getTangent(line, v0, state.getV());
         v = state.transformVectorObjectToWorld(v);
-        state.setBasis(OrthoNormalBasis.makeFromWV(v, new Vector3(-r.dx, -r.dy, -r.dz)));
+        state.setBasis(OrthoNormalBasis.makeFromWV(v, Vector3J.create(-r.dx, -r.dy, -r.dz)));
         state.getBasis().swapVW();
         // normal
-        state.setNormal(new Vector3(0, 0, 1));
+        state.setNormal(Vector3J.create(0, 0, 1));
         state.getBasis().transform(state.getNormal());
         state.setGeoNormal(state.getNormal());
 
@@ -228,9 +229,9 @@ public class Hair implements PrimitiveList, Shader {
         // gather lights
         state.initLightSamples();
         state.initCausticSamples();
-        Vector3 v = state.getRay().getDirection().unary_$minus();
+        Vector3 v = Vector3J.negate(state.getRay().getDirection());
         Vector3 h;
-        Vector3 t = state.getBasis().transform(new Vector3(0, 1, 0));
+        Vector3 t = state.getBasis().transform(Vector3J.create(0, 1, 0));
         Color diff = Color.black();
         Color spec = Color.black();
         for (LightSample ls : state) {
@@ -239,7 +240,7 @@ public class Hair implements PrimitiveList, Shader {
             float sinTL = (float) Math.sqrt(1 - dotTL * dotTL);
             // float dotVL = Vector3.dot(v, l);
             diff.madd(sinTL, ls.getDiffuseRadiance());
-            h = v.$plus(l).normalize();
+            h = Vector3J.normalize(Vector3J.add(v, l));
             float dotTH = t.dot(h);
             float sinTH = (float) Math.sqrt(1 - dotTH * dotTH);
             float s = (float) Math.pow(sinTH, 10.0f);

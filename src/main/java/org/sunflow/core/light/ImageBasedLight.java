@@ -20,6 +20,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.QMC;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
     private Texture texture;
@@ -36,7 +37,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
 
     public ImageBasedLight() {
         texture = null;
-        updateBasis(new Vector3(0, 0, -1), new Vector3(0, 1, 0));
+        updateBasis(Vector3J.create(0, 0, -1), Vector3J.create(0, 1, 0));
         numSamples = 64;
         numLowSamples = 8;
     }
@@ -232,7 +233,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
     }
 
     public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
-        return new Vector3(0, 0, 0);
+        return null;
     }
 
     public Color getRadiance(ShadingState state) {
@@ -256,9 +257,9 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
         theta = u * 2 * Math.PI;
         phi = v * Math.PI;
         double sin_phi = Math.sin(phi);
-        Vector3 dest = new Vector3((float) (-sin_phi * Math.cos(theta)),
-                                   (float) Math.cos(phi),
-                                   (float) (sin_phi * Math.sin(theta)));
+        Vector3 dest = Vector3J.create((float) (-sin_phi * Math.cos(theta)),
+                                       (float) Math.cos(phi),
+                                       (float) (sin_phi * Math.sin(theta)));
         return dest;
     }
 

@@ -19,6 +19,7 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -269,8 +270,8 @@ public class QuadMesh implements PrimitiveList {
         float ny = tanuz * tanvx - tanux * tanvz;
         float nz = tanux * tanvy - tanuy * tanvx;
 
-        Vector3 ng = new Vector3(nx, ny, nz);
-        ng = state.transformNormalObjectToWorld(ng).normalize();
+        Vector3 ng = Vector3J.create(nx, ny, nz);
+        ng = state.transformNormalObjectToWorld(ng);
         state.setGeoNormal(ng);
 
         float k00 = (1 - u) * (1 - v);
@@ -293,9 +294,8 @@ public class QuadMesh implements PrimitiveList {
                 float snx = k00 * normals[i30 + 0] + k10 * normals[i31 + 0] + k11 * normals[i32 + 0] + k01 * normals[i33 + 0];
                 float sny = k00 * normals[i30 + 1] + k10 * normals[i31 + 1] + k11 * normals[i32 + 1] + k01 * normals[i33 + 1];
                 float snz = k00 * normals[i30 + 2] + k10 * normals[i31 + 2] + k11 * normals[i32 + 2] + k01 * normals[i33 + 2];
-                Vector3 sn = new Vector3(snx, sny, snz);
+                Vector3 sn = Vector3J.create(snx, sny, snz);
                 sn = state.transformNormalObjectToWorld(state.getNormal());
-                sn = sn.normalize();
                 state.setNormal(sn);
                 break;
             }
@@ -305,9 +305,8 @@ public class QuadMesh implements PrimitiveList {
                 float snx = k00 * normals[idx + 0] + k10 * normals[idx + 3] + k11 * normals[idx + 6] + k01 * normals[idx + 9];
                 float sny = k00 * normals[idx + 1] + k10 * normals[idx + 4] + k11 * normals[idx + 7] + k01 * normals[idx + 10];
                 float snz = k00 * normals[idx + 2] + k10 * normals[idx + 5] + k11 * normals[idx + 8] + k01 * normals[idx + 11];
-                Vector3 sn = new Vector3(snx, sny, snz);
+                Vector3 sn = Vector3J.create(snx, sny, snz);
                 sn = state.transformNormalObjectToWorld(state.getNormal());
-                sn = sn.normalize();
                 state.setNormal(sn);
                 break;
             }
@@ -369,7 +368,7 @@ public class QuadMesh implements PrimitiveList {
                 // dpdu.x = (dv2 * dp1.x - dv1 * dp2.x) * invdet;
                 // dpdu.y = (dv2 * dp1.y - dv1 * dp2.y) * invdet;
                 // dpdu.z = (dv2 * dp1.z - dv1 * dp2.z) * invdet;
-                Vector3 dpdv = new Vector3(
+                Vector3 dpdv = Vector3J.create(
                         (-du2 * dp1.x() + du1 * dp2.x()) * invdet,
                         (-du2 * dp1.y() + du1 * dp2.y()) * invdet,
                         (-du2 * dp1.z() + du1 * dp2.z()) * invdet);

@@ -14,6 +14,7 @@ import org.sunflow.SunflowAPIInterface;
 import org.sunflow.core.SceneParser;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.Parser;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -65,17 +66,17 @@ public class RA2Parser implements SceneParser {
             Vector3 up;
             switch (p.getNextInt()) {
                 case 0:
-                    up = new Vector3(1, 0, 0);
+                    up = Vector3J.create(1, 0, 0);
                     break;
                 case 1:
-                    up = new Vector3(0, 1, 0);
+                    up = Vector3J.create(0, 1, 0);
                     break;
                 case 2:
-                    up = new Vector3(0, 0, 1);
+                    up = Vector3J.create(0, 0, 1);
                     break;
                 default:
                     UI.printWarning(Module.USER, "RA2 - Invalid up vector specification - using Z axis");
-                    up = new Vector3(0, 0, 1);
+                    up = Vector3J.create(0, 0, 1);
                     break;
             }
             api.parameter("eye", eye);

@@ -8,6 +8,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.PerlinScalar;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class PerlinModifier implements Modifier {
     private int function = 0;
@@ -32,12 +33,12 @@ public class PerlinModifier implements Modifier {
         double fy = f(p.x, p.y + .0001, p.z);
         double fz = f(p.x, p.y, p.z + .0001);
 
-        normal = new Vector3((float)(normal.x() - scale * (fx - f0) / .0001),
-                             (float)(normal.y() - scale * (fy - f0) / .0001),
-                             (float)(normal.z() - scale * (fz - f0) / .0001)).
-                             normalize(); 
+        normal = Vector3J.normalize(Vector3J.create(
+                (float)(normal.x() - scale * (fx - f0) / .0001),
+                (float)(normal.y() - scale * (fy - f0) / .0001),
+                (float)(normal.z() - scale * (fz - f0) / .0001))); 
 
-        state.setNormal(state.transformNormalObjectToWorld(normal).normalize());
+        state.setNormal(state.transformNormalObjectToWorld(normal));
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
     }
 

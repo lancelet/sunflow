@@ -13,13 +13,14 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class SphereFlake implements PrimitiveList {
     private static final int MAX_LEVEL = 20;
     private static final float[] boundingRadiusOffset = new float[MAX_LEVEL + 1];
     private static final float[] recursivePattern = new float[9 * 3];
     private int level = 2;
-    private Vector3 axis = new Vector3(0, 0, 1);
+    private Vector3 axis = Vector3J.create(0, 0, 1);
     private float baseRadius = 1;
 
     static {
@@ -55,7 +56,7 @@ public class SphereFlake implements PrimitiveList {
     public boolean update(ParameterList pl, SunflowAPI api) {
         level = MathUtils.clamp(pl.getInt("level", level), 0, 20);
         axis = pl.getVector("axis", axis);
-        axis = axis.normalize();
+        axis = Vector3J.normalize(axis);
         baseRadius = Math.abs(pl.getFloat("radius", baseRadius));
         return true;
     }
@@ -86,7 +87,7 @@ public class SphereFlake implements PrimitiveList {
         float cy = state.getV();
         float cz = state.getW();
 
-        state.setNormal(new Vector3(localPoint.x - cx, localPoint.y - cy, localPoint.z - cz).normalize());
+        state.setNormal(Vector3J.create(localPoint.x - cx, localPoint.y - cy, localPoint.z - cz));
 
         float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
         if (phi < 0)
@@ -94,13 +95,14 @@ public class SphereFlake implements PrimitiveList {
         float theta = (float) Math.acos(state.getNormal().z());
         state.getUV().y = theta / (float) Math.PI;
         state.getUV().x = phi / (float) (2 * Math.PI);
-        Vector3 v = new Vector3(-2 * (float) Math.PI * state.getNormal().y(),
-                                 2 * (float) Math.PI * state.getNormal().x(),
-                                 0);
+        Vector3 v = Vector3J.create(
+                -2 * (float) Math.PI * state.getNormal().y(),
+                2 * (float) Math.PI * state.getNormal().x(),
+                0);
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal()).normalize();
+        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
         v = state.transformVectorObjectToWorld(v);
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);

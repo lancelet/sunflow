@@ -11,6 +11,7 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point2;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.Timer;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -261,7 +262,7 @@ public abstract class SCAbstractParser implements SceneParser {
         float x = parseFloat();
         float y = parseFloat();
         float z = parseFloat();
-        return new Vector3(x, y, z);
+        return Vector3J.create(x, y, z);
     }
 
     private Point2 parseTexcoord() throws IOException {

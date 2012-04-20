@@ -12,6 +12,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -117,11 +118,11 @@ public class BezierMesh implements Tesselatable {
                 }
             }
             // surface normal
-            n = new Vector3((dpduy * dpdvz - dpduz * dpdvy),
-                            (dpduz * dpdvx - dpdux * dpdvz),
-                            (dpdux * dpdvy - dpduy * dpdvx));
+            n = Vector3J.create((dpduy * dpdvz - dpduz * dpdvy),
+                                (dpduz * dpdvx - dpdux * dpdvz),
+                                (dpdux * dpdvy - dpduy * dpdvx));
         } else {
-            n = new Vector3(0, 0, 0);
+            n = Vector3J.create(0, 0, 0);
         }
         return n;
     }

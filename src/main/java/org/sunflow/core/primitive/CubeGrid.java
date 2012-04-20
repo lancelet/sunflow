@@ -11,6 +11,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public abstract class CubeGrid implements PrimitiveList {
     private int nx, ny, nz;
@@ -49,25 +50,25 @@ public abstract class CubeGrid implements PrimitiveList {
         Vector3 normal;
         switch (state.getPrimitiveID()) {
             case 0:
-                normal = new Vector3(-1, 0, 0);
+                normal = Vector3J.create(-1, 0, 0);
                 break;
             case 1:
-                normal = new Vector3(1, 0, 0);
+                normal = Vector3J.create(1, 0, 0);
                 break;
             case 2:
-                normal = new Vector3(0, -1, 0);
+                normal = Vector3J.create(0, -1, 0);
                 break;
             case 3:
-                normal = new Vector3(0, 1, 0);
+                normal = Vector3J.create(0, 1, 0);
                 break;
             case 4:
-                normal = new Vector3(0, 0, -1);
+                normal = Vector3J.create(0, 0, -1);
                 break;
             case 5:
-                normal = new Vector3(0, 0, 1);
+                normal = Vector3J.create(0, 0, 1);
                 break;
             default:
-                normal = new Vector3(0, 0, 0);
+                normal = Vector3J.create(0, 0, 0);
                 break;
         }
         state.setNormal(state.transformNormalObjectToWorld(normal));

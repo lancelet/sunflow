@@ -1,6 +1,6 @@
 package org.sunflow.math;
 
-public final class Vector3J {
+public final class Vector3Encoding {
     private static final float[] COS_THETA = new float[256];
     private static final float[] SIN_THETA = new float[256];
     private static final float[] COS_PHI = new float[256];
@@ -17,7 +17,7 @@ public final class Vector3J {
         }
     }
 
-    private Vector3J() {}
+    private Vector3Encoding() {}
     
     public static final Vector3 decode(short n) {
         int t = (n & 0xFF00) >>> 8;
@@ -25,7 +25,7 @@ public final class Vector3J {
         float x = SIN_THETA[t] * COS_PHI[p];
         float y = SIN_THETA[t] * SIN_PHI[p];
         float z = COS_THETA[t];
-        return new Vector3(x, y, z);
+        return Vector3J.create(x, y, z);
     }
 
     public static final short encode(Vector3 v) {

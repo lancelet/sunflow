@@ -8,6 +8,7 @@ import org.sunflow.math.MovingMatrix4;
 import org.sunflow.math.Point2;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 import org.sunflow.util.FastHashMap;
@@ -709,7 +710,7 @@ public class ParameterList {
 
         private Vector3 getVector() {
             float[] floats = (float[]) obj;
-            return new Vector3(floats[0], floats[1], floats[2]);
+            return Vector3J.create(floats[0], floats[1], floats[2]);
         }
 
         private Point2 getTexCoord() {

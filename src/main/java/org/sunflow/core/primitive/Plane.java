@@ -12,6 +12,7 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class Plane implements PrimitiveList {
     private Point3 center;
@@ -22,7 +23,7 @@ public class Plane implements PrimitiveList {
 
     public Plane() {
         center = new Point3(0, 0, 0);
-        normal = new Vector3(0, 1, 0);
+        normal = Vector3J.create(0, 1, 0);
         k = 3;
         bnu = bnv = bnd = 0;
         cnu = cnv = cnd = 0;
@@ -36,7 +37,7 @@ public class Plane implements PrimitiveList {
             Point3 v0 = center;
             Point3 v1 = b;
             Point3 v2 = c;
-            Vector3 ng = normal = v1.sub(v0).cross(v2.sub(v0)).normalize();
+            Vector3 ng = normal = Vector3J.normalize(Vector3J.cross(v1.sub(v0), v2.sub(v0)));
             if (Math.abs(ng.x()) > Math.abs(ng.y()) && Math.abs(ng.x()) > Math.abs(ng.z()))
                 k = 0;
             else if (Math.abs(ng.y()) > Math.abs(ng.z()))
@@ -93,7 +94,7 @@ public class Plane implements PrimitiveList {
         state.init();
         state.getRay().getPoint(state.getPoint());
         Instance parent = state.getInstance();
-        Vector3 worldNormal = state.transformNormalObjectToWorld(normal).normalize();
+        Vector3 worldNormal = state.transformNormalObjectToWorld(normal);
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         state.setShader(parent.getShader(0));

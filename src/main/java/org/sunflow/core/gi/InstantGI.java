@@ -13,6 +13,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -105,9 +106,9 @@ public class InstantGI implements GIEngine {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            Vector3 w = new Vector3(cosPhi * sinTheta,
-                                    sinPhi * sinTheta,
-                                    cosTheta);
+            Vector3 w = Vector3J.create(cosPhi * sinTheta,
+                                        sinPhi * sinTheta,
+                                        cosTheta);
             onb.transform(w);
             Ray r = new Ray(state.getPoint(), w);
             r.setMax((float) Math.sqrt(cosTheta / b));

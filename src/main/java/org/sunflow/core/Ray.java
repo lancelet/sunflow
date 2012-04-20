@@ -3,6 +3,7 @@ package org.sunflow.core;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 /**
  * This class represents a ray as a oriented half line segment. The ray
@@ -151,7 +152,7 @@ public final class Ray {
      * @return a vector equal to the direction of this ray
      */
     public final Vector3 getDirection() {
-        return new Vector3(dx, dy, dz);
+        return Vector3J.create(dx, dy, dz);
     }
 
     /**

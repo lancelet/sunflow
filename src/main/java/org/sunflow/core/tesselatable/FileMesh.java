@@ -24,6 +24,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.Memory;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -198,7 +199,8 @@ public class FileMesh implements Tesselatable {
             }
             // normalize all the vectors
             for (int i3 = 0; i3 < normals.length; i3 += 3) {
-                Vector3 n = new Vector3(normals[i3 + 0], normals[i3 + 1], normals[i3 + 2]).normalize();
+                Vector3 n = Vector3J.normalize(
+                        Vector3J.create(normals[i3 + 0], normals[i3 + 1], normals[i3 + 2]));
                 normals[i3 + 0] = n.x();
                 normals[i3 + 1] = n.y();
                 normals[i3 + 2] = n.z();

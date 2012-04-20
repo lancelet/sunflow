@@ -8,6 +8,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -37,9 +38,9 @@ public class PathTracingGIEngine implements GIEngine {
             float sinPhi = (float) Math.sin(phi);
             float sinTheta = (float) Math.sqrt(xj);
             float cosTheta = (float) Math.sqrt(1.0f - xj);
-            Vector3 w = new Vector3(cosPhi * sinTheta,
-                                    sinPhi * sinTheta,
-                                    cosTheta);
+            Vector3 w = Vector3J.create(cosPhi * sinTheta,
+                                        sinPhi * sinTheta,
+                                        cosTheta);
             onb.transform(w);
             ShadingState temp = state.traceFinalGather(new Ray(state.getPoint(), w), i);
             if (temp != null) {

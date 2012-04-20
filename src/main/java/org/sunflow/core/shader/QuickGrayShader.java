@@ -8,6 +8,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class QuickGrayShader implements Shader {
     public QuickGrayShader() {
@@ -36,8 +37,8 @@ public class QuickGrayShader implements Shader {
         Color diffuse;
         // make sure we are on the right side of the material
         if (state.getNormal().dot(state.getRay().getDirection()) > 0.0) {
-            state.setNormal(state.getNormal().unary_$minus());
-            state.setGeoNormal(state.getGeoNormal().unary_$minus());
+            state.setNormal(Vector3J.negate(state.getNormal()));
+            state.setGeoNormal(Vector3J.negate(state.getGeoNormal()));
         }
         diffuse = Color.GRAY;
         state.storePhoton(state.getRay().getDirection(), power, diffuse);
@@ -51,7 +52,7 @@ public class QuickGrayShader implements Shader {
             double v = state.getRandom(0, 1, 1);
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0 - v);
-            Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
+            Vector3 w = Vector3J.create((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }

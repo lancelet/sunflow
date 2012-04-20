@@ -6,6 +6,7 @@ import org.sunflow.core.Scene;
 import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 /**
  * This is a quick way to get a bit of ambient lighting into your scene with
@@ -33,7 +34,8 @@ public class FakeGIEngine implements GIEngine {
     }
 
     public boolean init(Options options, Scene scene) {
-        up = options.getVector("gi.fake.up", new Vector3(0, 1, 0)).normalize();
+        up = Vector3J.normalize(options.getVector(
+                "gi.fake.up", Vector3J.create(0, 1, 0)));
         sky = options.getColor("gi.fake.sky", Color.WHITE).copy();
         ground = options.getColor("gi.fake.ground", Color.BLACK).copy();
         sky.mul((float) Math.PI);

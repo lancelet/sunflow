@@ -6,6 +6,7 @@ import org.sunflow.core.display.FileDisplay;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.Timer;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -32,7 +33,7 @@ public class RealtimeBenchmark extends SunflowAPI {
         // camera
         Point3 eye = new Point3(30, 0, 10.967f);
         Point3 target = new Point3(0, 0, 5.4f);
-        Vector3 up = new Vector3(0, 0, 1);
+        Vector3 up = Vector3J.create(0, 0, 1);
         parameter("transform", Matrix4.lookAt(eye, target, up));
         parameter("fov", 45.0f);
         camera("camera", "pinhole");
@@ -71,7 +72,7 @@ public class RealtimeBenchmark extends SunflowAPI {
     private void createGeometry() {
         // light source
         parameter("source", new Point3(-15.5945f, -30.0581f, 45.967f));
-        parameter("dir", new Vector3(15.5945f, 30.0581f, -45.967f));
+        parameter("dir", Vector3J.create(15.5945f, 30.0581f, -45.967f));
         parameter("radius", 60.0f);
         parameter("radiance", null, 3, 3, 3);
         light("light", "directional");
@@ -80,7 +81,7 @@ public class RealtimeBenchmark extends SunflowAPI {
         parameter("gi.engine", "fake");
         parameter("gi.fake.sky", null, 0.25f, 0.25f, 0.25f);
         parameter("gi.fake.ground", null, 0.01f, 0.01f, 0.5f);
-        parameter("gi.fake.up", new Vector3(0, 0, 1));
+        parameter("gi.fake.up", Vector3J.create(0, 0, 1));
         options(DEFAULT_OPTIONS);
 
         // shaders
@@ -115,7 +116,7 @@ public class RealtimeBenchmark extends SunflowAPI {
 
         // ground plane
         parameter("center", new Point3(0, 0, 0));
-        parameter("normal", new Vector3(0, 0, 1));
+        parameter("normal", Vector3J.create(0, 0, 1));
         geometry("ground", "plane");
         parameter("shaders", "refl");
         instance("ground.instance", "ground");

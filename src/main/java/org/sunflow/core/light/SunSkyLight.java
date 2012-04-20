@@ -24,6 +24,7 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class SunSkyLight implements LightSource, PrimitiveList, Shader {
     // sunflow parameters
@@ -82,9 +83,10 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
 
     public SunSkyLight() {
         numSkySamples = 64;
-        sunDirWorld = new Vector3(1, 1, 1);
+        sunDirWorld = Vector3J.create(1, 1, 1);
         turbidity = 6;
-        basis = OrthoNormalBasis.makeFromWV(new Vector3(0, 0, 1), new Vector3(0, 1, 0));
+        basis = OrthoNormalBasis.makeFromWV(
+                Vector3J.create(0, 0, 1), Vector3J.create(0, 1, 0));
         groundExtendSky = false;
         groundColor = Color.BLACK;
         initSunSky();
@@ -124,8 +126,8 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
 
     private void initSunSky() {
         // perform all the required initialization of constants
-        sunDirWorld = sunDirWorld.normalize();
-        sunDir = basis.untransform(sunDirWorld).normalize();
+        sunDirWorld = Vector3J.normalize(sunDirWorld);
+        sunDir = Vector3J.normalize(basis.untransform(sunDirWorld));
         sunTheta = (float) Math.acos(MathUtils.clamp(sunDir.z(), -1, 1));
         if (sunDir.z() > 0) {
             sunSpectralRadiance = computeAttenuatedSunlight(sunTheta, turbidity);
@@ -209,8 +211,8 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
         if (dir.z() < 0 && !groundExtendSky)
             return groundColor;
         if (dir.z() < 0.001f)
-            dir = new Vector3(dir.x(), dir.y(), 0.001f);
-        dir = dir.normalize();
+            dir = Vector3J.create(dir.x(), dir.y(), 0.001f);
+        dir = Vector3J.normalize(dir);
         double theta = Math.acos(MathUtils.clamp(dir.z(), -1, 1));
         double gamma = Math.acos(MathUtils.clamp(dir.dot(sunDir), -1, 1));
         double x = perezFunction(perezx, theta, gamma, zenithx);
@@ -324,9 +326,9 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
         theta = u * 2 * Math.PI;
         phi = v * Math.PI;
         double sin_phi = Math.sin(phi);
-        Vector3 dest = new Vector3((float) (-sin_phi * Math.cos(theta)),
-                                   (float) Math.cos(phi),
-                                   (float) (sin_phi * Math.sin(theta)));
+        Vector3 dest = Vector3J.create((float) (-sin_phi * Math.cos(theta)),
+                                       (float) Math.cos(phi),
+                                       (float) (sin_phi * Math.sin(theta)));
         return dest;
     }
 

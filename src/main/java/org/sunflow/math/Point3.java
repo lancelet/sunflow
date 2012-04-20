@@ -79,7 +79,7 @@ public final class Point3 {
     }
 
     public final Vector3 sub(Point3 p) {
-        return new Vector3(x - p.x, y - p.y, z - p.z);
+        return Vector3J.create(x - p.x, y - p.y, z - p.z);
     }
 
     public static final Point3 mid(Point3 p1, Point3 p2, Point3 dest) {
@@ -97,16 +97,20 @@ public final class Point3 {
     }
 
     public static final Vector3 normal(Point3 p0, Point3 p1, Point3 p2) {
-        float edge1x = p1.x - p0.x;
-        float edge1y = p1.y - p0.y;
-        float edge1z = p1.z - p0.z;
-        float edge2x = p2.x - p0.x;
-        float edge2y = p2.y - p0.y;
-        float edge2z = p2.z - p0.z;
-        float nx = edge1y * edge2z - edge1z * edge2y;
-        float ny = edge1z * edge2x - edge1x * edge2z;
-        float nz = edge1x * edge2y - edge1y * edge2x;
-        return new Vector3(nx, ny, nz).normalize();
+        Vector3 edge1 = p1.sub(p0);
+        Vector3 edge2 = p2.sub(p0);
+        Vector3 c = Vector3J.cross(edge1, edge2);
+        /** TODO: Ideally, we shouldn't be trying to compute the normal for
+         *  collinear points (it's impossible).
+        if (c.length() <= 0) {
+            n = Vector3J.create(1, 0, 0);
+            UI.printWarning(Module.GEOM, "Was asked for the normal to three collinear points!");
+        } else {
+            
+        }
+        */
+        Vector3 n = Vector3J.normalize(c); 
+        return n; 
     }
 
     @Override

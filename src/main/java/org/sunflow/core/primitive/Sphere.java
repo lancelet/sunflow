@@ -13,6 +13,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class Sphere implements PrimitiveList {
     public boolean update(ParameterList pl, SunflowAPI api) {
@@ -39,7 +40,7 @@ public class Sphere implements PrimitiveList {
         state.getRay().getPoint(state.getPoint());
         Instance parent = state.getInstance();
         Point3 localPoint = state.transformWorldToObject(state.getPoint());
-        state.setNormal(new Vector3(localPoint.x, localPoint.y, localPoint.z).normalize());
+        state.setNormal(Vector3J.create(localPoint.x, localPoint.y, localPoint.z));
 
         float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
         if (phi < 0)
@@ -47,13 +48,14 @@ public class Sphere implements PrimitiveList {
         float theta = (float) Math.acos(state.getNormal().z());
         state.getUV().y = theta / (float) Math.PI;
         state.getUV().x = phi / (float) (2 * Math.PI);
-        Vector3 v = new Vector3(-2 * (float) Math.PI * state.getNormal().y(),
-                                 2 * (float) Math.PI * state.getNormal().x(),
-                                 0);
+        Vector3 v = Vector3J.create(
+                -2 * (float) Math.PI * state.getNormal().y(),
+                2 * (float) Math.PI * state.getNormal().x(),
+                0);
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal()).normalize();
+        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
         v = state.transformVectorObjectToWorld(v);
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);

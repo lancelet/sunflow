@@ -13,6 +13,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class JuliaFractal implements PrimitiveList {
     private static float BOUNDING_RADIUS = (float) Math.sqrt(3);
@@ -219,8 +220,8 @@ public class JuliaFractal implements PrimitiveList {
         float gradX = length(gx2w, gx2x, gx2y, gx2z) - length(gx1w, gx1x, gx1y, gx1z);
         float gradY = length(gy2w, gy2x, gy2y, gy2z) - length(gy1w, gy1x, gy1y, gy1z);
         float gradZ = length(gz2w, gz2x, gz2y, gz2z) - length(gz1w, gz1x, gz1y, gz1z);
-        Vector3 n = new Vector3(gradX, gradY, gradZ);
-        state.setNormal(state.transformNormalObjectToWorld(n).normalize());
+        Vector3 n = Vector3J.create(gradX, gradY, gradZ);
+        state.setNormal(state.transformNormalObjectToWorld(n));
         state.setGeoNormal(state.getNormal());
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
 

@@ -10,6 +10,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class PointLight implements LightSource {
     private Point3 lightPoint;
@@ -49,9 +50,9 @@ public class PointLight implements LightSource {
         p.set(lightPoint);
         float phi = (float) (2 * Math.PI * randX1);
         float s = (float) Math.sqrt(randY1 * (1.0f - randY1));
-        Vector3 dir = new Vector3((float) Math.cos(phi) * s,
-                                  (float) Math.sin(phi) * s,
-                                  (float) (1 - 2 * randY1));
+        Vector3 dir = Vector3J.create((float) Math.cos(phi) * s,
+                                      (float) Math.sin(phi) * s,
+                                      (float) (1 - 2 * randY1));
         power.set(this.power);
         return dir;
     }

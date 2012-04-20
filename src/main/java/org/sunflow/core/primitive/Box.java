@@ -10,7 +10,7 @@ import org.sunflow.core.ParameterList.FloatParameter;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
-import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class Box implements PrimitiveList {
     private float minX, minY, minZ;
@@ -44,25 +44,25 @@ public class Box implements PrimitiveList {
         int n = state.getPrimitiveID();
         switch (n) {
             case 0:
-                state.setNormal(new Vector3(1, 0, 0));
+                state.setNormal(Vector3J.create(1, 0, 0));
                 break;
             case 1:
-                state.setNormal(new Vector3(-1, 0, 0));
+                state.setNormal(Vector3J.create(-1, 0, 0));
                 break;
             case 2:
-                state.setNormal(new Vector3(0, 1, 0));
+                state.setNormal(Vector3J.create(0, 1, 0));
                 break;
             case 3:
-                state.setNormal(new Vector3(0, -1, 0));
+                state.setNormal(Vector3J.create(0, -1, 0));
                 break;
             case 4:
-                state.setNormal(new Vector3(0, 0, 1));
+                state.setNormal(Vector3J.create(0, 0, 1));
                 break;
             case 5:
-                state.setNormal(new Vector3(0, 0, -1));
+                state.setNormal(Vector3J.create(0, 0, -1));
                 break;
             default:
-                state.setNormal(new Vector3(0, 0, 0));
+                state.setNormal(Vector3J.create(0, 0, 0));
                 break;
         }
         state.setGeoNormal(state.getNormal());

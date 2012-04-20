@@ -9,6 +9,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class AnisotropicWardShader implements Shader {
     private Color rhoD; // diffuse reflectance
@@ -45,7 +46,7 @@ public class AnisotropicWardShader implements Shader {
             fr *= (float) Math.sqrt(p);
         else
             fr = 0;
-        Vector3 h = i.$plus(o);
+        Vector3 h = Vector3J.add(i, o);
         h = basis.untransform(h);
         float hx = h.x() / alphaX;
         hx *= hx;
@@ -67,7 +68,7 @@ public class AnisotropicWardShader implements Shader {
         Color lr = Color.black();
         // compute specular contribution
         if (state.includeSpecular()) {
-            Vector3 in = state.getRay().getDirection().unary_$minus();
+            Vector3 in = Vector3J.negate(state.getRay().getDirection());
             for (LightSample sample : state) {
                 float cosNL = sample.dot(state.getNormal());
                 float fr = brdf(in, sample.getShadowRay().getDirection(), onb);
@@ -110,15 +111,15 @@ public class AnisotropicWardShader implements Shader {
                     float sinTheta = (float) Math.sin(theta);
                     float cosTheta = (float) Math.cos(theta);
 
-                    Vector3 h = new Vector3(sinTheta * cosPhi,
-                                            sinTheta * sinPhi,
-                                            cosTheta);
+                    Vector3 h = Vector3J.create(sinTheta * cosPhi,
+                                                sinTheta * sinPhi,
+                                                cosTheta);
                     h = onb.transform(h);
 
                     float ih = h.dot(in);
-                    Vector3 o = new Vector3(2 * ih * h.x() - in.x(),
-                                            2 * ih * h.y() - in.y(),
-                                            2 * ih * h.z() - in.z());
+                    Vector3 o = Vector3J.create(2 * ih * h.x() - in.x(),
+                                                2 * ih * h.y() - in.y(),
+                                                2 * ih * h.z() - in.z());
 
                     float no = onb.untransformZ(o);
                     float ni = onb.untransformZ(in);
@@ -151,14 +152,14 @@ public class AnisotropicWardShader implements Shader {
             double v = state.getRandom(0, 1, 1);
             float s = (float) Math.sqrt(v);
             float s1 = (float) Math.sqrt(1.0f - v);
-            Vector3 w = new Vector3((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
+            Vector3 w = Vector3J.create((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < avgD + avgS) {
             // photon is scattered specularly
             power.mul(rhoS).mul(1 / avgS);
             OrthoNormalBasis basis = state.getBasis();
-            Vector3 in = state.getRay().getDirection().unary_$minus();
+            Vector3 in = Vector3J.negate(state.getRay().getDirection());
             double r1 = rnd / avgS;
             double r2 = state.getRandom(0, 1, 1);
 
@@ -190,15 +191,15 @@ public class AnisotropicWardShader implements Shader {
             float sinTheta = (float) Math.sin(theta);
             float cosTheta = (float) Math.cos(theta);
 
-            Vector3 h = new Vector3(sinTheta * cosPhi,
-                                    sinTheta * sinPhi,
-                                    cosTheta);
+            Vector3 h = Vector3J.create(sinTheta * cosPhi,
+                                        sinTheta * sinPhi,
+                                        cosTheta);
             h = basis.transform(h);
 
             float ih = h.dot(in);
-            Vector3 o = new Vector3(2 * ih * h.x() - in.x(),
-                                    2 * ih * h.y() - in.y(),
-                                    2 * ih * h.z() - in.z());
+            Vector3 o = Vector3J.create(2 * ih * h.x() - in.x(),
+                                        2 * ih * h.y() - in.y(),
+                                        2 * ih * h.z() - in.z());
 
             Ray r = new Ray(state.getPoint(), o);
             state.traceReflectionPhoton(r, power);

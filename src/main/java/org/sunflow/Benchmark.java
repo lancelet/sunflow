@@ -12,7 +12,7 @@ import org.sunflow.core.display.FrameDisplay;
 import org.sunflow.image.Color;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
-import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 import org.sunflow.system.BenchmarkFramework;
 import org.sunflow.system.BenchmarkTest;
 import org.sunflow.system.UI;
@@ -140,7 +140,7 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
             parameter("transform", 
                     Matrix4.lookAt(new Point3(0, 0, -600), 
                                    new Point3(0, 0, 0), 
-                                   new Vector3(0, 1, 0)));
+                                   Vector3J.create(0, 1, 0)));
             parameter("fov", 45.0f);
             camera("main_camera", "pinhole");
             parameter("camera", "main_camera");

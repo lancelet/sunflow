@@ -11,6 +11,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class DirectionalSpotlight implements LightSource {
     private Point3 src;
@@ -21,7 +22,7 @@ public class DirectionalSpotlight implements LightSource {
 
     public DirectionalSpotlight() {
         src = new Point3(0, 0, 0);
-        dir = new Vector3(0, 0, -1);
+        dir = Vector3J.create(0, 0, -1);
         basis = OrthoNormalBasis.makeFromW(dir);
         r = 1;
         r2 = r * r;
@@ -30,7 +31,7 @@ public class DirectionalSpotlight implements LightSource {
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         src = pl.getPoint("source", src);
-        dir = pl.getVector("dir", dir).normalize();
+        dir = Vector3J.normalize(pl.getVector("dir", dir));
         r = pl.getFloat("radius", r);
         basis = OrthoNormalBasis.makeFromW(dir);
         r2 = r * r;
@@ -75,9 +76,9 @@ public class DirectionalSpotlight implements LightSource {
     public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
         float phi = (float) (2 * Math.PI * randX1);
         float s = (float) Math.sqrt(1.0f - randY1);
-        Vector3 ldir = new Vector3(r * (float) Math.cos(phi) * s,
-                                   r * (float) Math.sin(phi) * s,
-                                   0);
+        Vector3 ldir = Vector3J.create(r * (float) Math.cos(phi) * s,
+                                       r * (float) Math.sin(phi) * s,
+                                       0);
         ldir = basis.transform(ldir);
         Point3.add(src, ldir, p);
         power.set(radiance).mul((float) Math.PI * r2);

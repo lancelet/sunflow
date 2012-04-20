@@ -13,6 +13,7 @@ import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class Cylinder implements PrimitiveList {
     public boolean update(ParameterList pl, SunflowAPI api) {
@@ -39,7 +40,7 @@ public class Cylinder implements PrimitiveList {
         state.getRay().getPoint(state.getPoint());
         Instance parent = state.getInstance();
         Point3 localPoint = state.transformWorldToObject(state.getPoint());
-        state.setNormal(new Vector3(localPoint.x, localPoint.y, 0).normalize());
+        state.setNormal(Vector3J.create(localPoint.x, localPoint.y, 0));
 
         float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
         if (phi < 0)
@@ -49,8 +50,8 @@ public class Cylinder implements PrimitiveList {
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal()).normalize();
-        Vector3 v = state.transformVectorObjectToWorld(new Vector3(0, 0, 1));
+        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
+        Vector3 v = state.transformVectorObjectToWorld(Vector3J.create(0, 0, 1));
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         // compute basis in world space

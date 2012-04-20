@@ -7,6 +7,7 @@ import org.sunflow.core.Shader;
 import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.Vector3;
+import org.sunflow.math.Vector3J;
 
 public class MirrorShader implements Shader {
     private Color color;
@@ -26,7 +27,7 @@ public class MirrorShader implements Shader {
         state.faceforward();
         float cos = state.getCosND();
         float dn = 2 * cos;
-        Vector3 refDir = new Vector3(
+        Vector3 refDir = Vector3J.create(
                 (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
                 (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
                 (dn * state.getNormal().z()) + state.getRay().getDirection().z());
@@ -53,7 +54,7 @@ public class MirrorShader implements Shader {
         power.mul(color).mul(1.0f / avg);
         // photon is reflected
         float dn = 2 * cos;
-        Vector3 dir = new Vector3(
+        Vector3 dir = Vector3J.create(
                 (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
                 (dn * state.getNormal().y()) + state.getRay().getDirection().y(),
                 (dn * state.getNormal().z()) + state.getRay().getDirection().z());
