@@ -64,6 +64,7 @@ public class PhongShader implements Shader {
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < avgD + avgS) {
+            /* lancelet: this does not seem to be used
             // photon is scattered specularly
             float dn = 2.0f * state.getCosND();
             // reflected direction
@@ -71,6 +72,7 @@ public class PhongShader implements Shader {
                     (dn * state.getNormal().x()) + state.getRay().dx,
                     (dn * state.getNormal().y()) + state.getRay().dy,
                     (dn * state.getNormal().z()) + state.getRay().dz);
+            */
             power.mul(spec).mul(1.0f / avgS);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * (rnd - avgD) / avgS;

@@ -120,12 +120,14 @@ public class UberShader implements Shader {
                         (dn * state.getNormal().z()) + state.getRay().getDirection().z());
                 state.traceReflectionPhoton(new Ray(state.getPoint(), dir), power);
             } else {
+                /* lancelet: this does not seem to be used
                 float dn = 2.0f * state.getCosND();
                 // reflected direction
                 Vector3 refDir = new Vector3(
                         (dn * state.getNormal().x()) + state.getRay().dx,
                         (dn * state.getNormal().y()) + state.getRay().dy,
                         (dn * state.getNormal().z()) + state.getRay().dz);
+                */
                 power.mul(spec).mul(1.0f / r);
                 OrthoNormalBasis onb = state.getBasis();
                 double u = 2 * Math.PI * (rnd - r) / r;
