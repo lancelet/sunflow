@@ -21,6 +21,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -57,9 +58,10 @@ import org.sunflow.system.UI.Module;
 import org.sunflow.system.UI.PrintLevel;
 
 @SuppressWarnings("serial")
-public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
+public class SunflowGUI implements UserInterface {
     private static final int DEFAULT_WIDTH = 1024;
     private static final int DEFAULT_HEIGHT = 768;
+    private JFrame jTopFrame;
     private JPanel jPanel3;
     private JScrollPane jScrollPane1;
     private JMenuItem exitMenuItem;
@@ -360,6 +362,9 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
                     i++;
                 }
             }
+            if (!showFrame) {  // run headless if we're not using the GUI
+                System.setProperty("java.awt.headless", "true");
+            }
             if (runBenchmark) {
                 SunflowAPI.runSystemCheck();
                 new Benchmark().execute();
@@ -448,34 +453,35 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
             }
         } else {
             MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
-            SunflowGUI gui = new SunflowGUI();
-            gui.setVisible(true);
-            Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
-            if (screenRes.getWidth() <= DEFAULT_WIDTH || screenRes.getHeight() <= DEFAULT_HEIGHT)
-                gui.setExtendedState(MAXIMIZED_BOTH);
-            gui.tileWindowMenuItem.doClick();
+            new SunflowGUI();
             SunflowAPI.runSystemCheck();
         }
     }
-
+    
     public SunflowGUI() {
-        super();
+        super();        
         currentFile = null;
         lastSaveDirectory = null;
         api = null;
+        UI.set(this);        
+        jTopFrame = new JFrame();
+        Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
+        if (screenRes.getWidth() <= DEFAULT_WIDTH || screenRes.getHeight() <= DEFAULT_HEIGHT)
+            jTopFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         initGUI();
-        pack();
-        setLocationRelativeTo(null);
+        jTopFrame.pack();
+        jTopFrame.setLocationRelativeTo(null);
+        jTopFrame.setVisible(true);
+        tileWindowMenuItem.doClick();
         newFileMenuItemActionPerformed(null);
-        UI.set(this);
     }
-
+    
     private void initGUI() {
-        setTitle("Sunflow v" + SunflowAPI.VERSION);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        jTopFrame.setTitle("Sunflow v" + SunflowAPI.VERSION);
+        jTopFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         {
             desktop = new JDesktopPane();
-            getContentPane().add(desktop, BorderLayout.CENTER);
+            jTopFrame.getContentPane().add(desktop, BorderLayout.CENTER);
             Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
             if (screenRes.getWidth() <= DEFAULT_WIDTH || screenRes.getHeight() <= DEFAULT_HEIGHT)
                 desktop.setPreferredSize(new java.awt.Dimension(640, 480));
@@ -636,7 +642,7 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
         }
         {
             jMenuBar1 = new JMenuBar();
-            setJMenuBar(jMenuBar1);
+            jTopFrame.setJMenuBar(jMenuBar1);
             {
                 fileMenu = new JMenu();
                 jMenuBar1.add(fileMenu);
@@ -825,7 +831,7 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
                                     return (f.isDirectory() || f.getName().endsWith(".png") || f.getName().endsWith(".tga"));
                                 }
                             });
-                            if (fc.showSaveDialog(SunflowGUI.this) == JFileChooser.APPROVE_OPTION) {
+                            if (fc.showSaveDialog(jTopFrame) == JFileChooser.APPROVE_OPTION) {
                                 String filename = fc.getSelectedFile().getAbsolutePath();
                                 imagePanel.save(filename);
                             }
@@ -914,7 +920,7 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
             }
         });
 
-        if (fc.showOpenDialog(SunflowGUI.this) == JFileChooser.APPROVE_OPTION) {
+        if (fc.showOpenDialog(jTopFrame) == JFileChooser.APPROVE_OPTION) {
             final String f = fc.getSelectedFile().getAbsolutePath();
             openFile(f);
             lastSaveDirectory = fc.getSelectedFile().getParentFile();
@@ -985,7 +991,9 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
 
     public void print(Module m, PrintLevel level, String s) {
         if (level == PrintLevel.ERROR)
-            JOptionPane.showMessageDialog(SunflowGUI.this, s, String.format("Error - %s", m.name()), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(jTopFrame, s, 
+                    String.format("Error - %s", m.name()), 
+                    JOptionPane.ERROR_MESSAGE);
         println(UI.formatOutput(m, level, s));
     }
 
@@ -1092,12 +1100,15 @@ public class SunflowGUI extends javax.swing.JFrame implements UserInterface {
             }
         });
 
-        if (fc.showSaveDialog(SunflowGUI.this) == JFileChooser.APPROVE_OPTION) {
+        if (fc.showSaveDialog(jTopFrame) == JFileChooser.APPROVE_OPTION) {
             String f = fc.getSelectedFile().getAbsolutePath();
             if (!f.endsWith(".java"))
                 f += ".java";
             File file = new File(f);
-            if (!file.exists() || JOptionPane.showConfirmDialog(SunflowGUI.this, "This file already exists.\nOverwrite?", "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            if (!file.exists() || JOptionPane.showConfirmDialog(jTopFrame, 
+                    "This file already exists.\nOverwrite?", 
+                    "Warning", JOptionPane.YES_NO_OPTION) == 
+                    JOptionPane.YES_OPTION) {
                 // save file
                 saveCurrentFile(f);
                 lastSaveDirectory = file.getParentFile();
