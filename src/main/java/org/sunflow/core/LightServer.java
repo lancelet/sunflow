@@ -2,9 +2,7 @@ package org.sunflow.core;
 
 import org.sunflow.PluginRegistry;
 import org.sunflow.image.Color;
-import org.sunflow.math.Point3;
 import org.sunflow.math.QMC;
-import org.sunflow.math.Vector3;
 import org.sunflow.system.Timer;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
@@ -161,14 +159,13 @@ class LightServer {
                         double randY1 = QMC.halton(1, qmcI);
                         double randX2 = QMC.halton(2, qmcI);
                         double randY2 = QMC.halton(3, qmcI);
-                        Point3 pt = new Point3();
-                        Color power = new Color();
-                        Vector3 dir = lights[j].getPhoton(randX1, randY1, randX2, randY2, pt, power);
-                        power.mul(scale);
-                        Ray r = new Ray(pt, dir);
+                        Photon photon = lights[j].getPhoton(randX1, randY1, randX2, randY2);
+                        Color scaledPower = photon.power();
+                        scaledPower.mul(scale);
+                        Ray r = new Ray(photon.position(), photon.direction());
                         scene.trace(r, istate);
                         if (istate.hit())
-                            shadePhoton(ShadingState.createPhotonState(r, istate, qmcI, map, LightServer.this), power);
+                            shadePhoton(ShadingState.createPhotonState(r, istate, qmcI, map, LightServer.this), scaledPower);
                     }
                 }
             });

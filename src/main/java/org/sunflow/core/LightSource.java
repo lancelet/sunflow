@@ -1,9 +1,5 @@
 package org.sunflow.core;
 
-import org.sunflow.image.Color;
-import org.sunflow.math.Point3;
-import org.sunflow.math.Vector3;
-
 /**
  * This interface is used to represent any light emitting primitive. It permits
  * efficient sampling of direct illumination and photon shooting.
@@ -40,14 +36,10 @@ public interface LightSource extends RenderObject {
      * @param randY1 sampling parameter
      * @param randX2 sampling parameter
      * @param randY2 sampling parameter
-     * @param p position to shoot the photon from
-     * @param power power of the photon
-     * 
-     * @return direction to shoot the photon
-     * 
-     * TODO: Eventually, I'll bundle all returns from this method.
+     * @return photon to emit
      */
-    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power);
+    public Photon getPhoton(double randX1, double randY1, 
+                            double randX2, double randY2);
 
     /**
      * Get the total power emitted by this light source. Lights that have 0

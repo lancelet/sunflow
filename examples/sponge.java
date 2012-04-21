@@ -13,14 +13,14 @@ boolean preview = false;
 public void build() {
     parameter("eye", new Point3(2.0f, 2.0f, -5.0f));
     parameter("target", new Point3(0, 0, 0));
-    parameter("up", new Vector3(0.0f, 1.0f, 0.0f));
+    parameter("up", Vector3J.create(0.0f, 1.0f, 0.0f));
     parameter("fov", 45.0f);
     parameter("aspect", 2.0f);
     camera("camera_outside", "pinhole");
 
     parameter("eye", new Point3(0, 0.2f, 0));
     parameter("target", new Point3(-1.0f, -0.5f, 0.5f));
-    parameter("up", new Vector3(0.0f, 1.0f, 0.0f));
+    parameter("up", Vector3J.create(0.0f, 1.0f, 0.0f));
     camera("camera_inside", "spherical");
     
     parameter("maxdist", 0.4f);
@@ -42,7 +42,7 @@ public void build() {
     instance("sponge.instance", "sponge");
     
     parameter("center", new Point3(0, -1.25f, 0.0f));
-    parameter("normal", new Vector3(0.0f, 1.0f, 0.0f));
+    parameter("normal", Vector3J.create(0.0f, 1.0f, 0.0f));
     geometry("ground", "plane");
     parameter("shaders", "ao_ground");
     instance("ground.instance", "ground");

@@ -6,6 +6,7 @@ import org.sunflow.core.IntersectionState;
 import org.sunflow.core.LightSample;
 import org.sunflow.core.LightSource;
 import org.sunflow.core.ParameterList;
+import org.sunflow.core.Photon;
 import org.sunflow.core.PrimitiveList;
 import org.sunflow.core.Ray;
 import org.sunflow.core.Shader;
@@ -22,7 +23,6 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.MathUtils;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
-import org.sunflow.math.Point3;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -229,7 +229,7 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
         return 1 + numSkySamples;
     }
 
-    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
+    public Photon getPhoton(double randX1, double randY1, double randX2, double randY2) {
         // FIXME: not implemented
         return null;
     }

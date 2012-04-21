@@ -5,6 +5,8 @@ import org.sunflow.core.Instance;
 import org.sunflow.core.LightSample;
 import org.sunflow.core.LightSource;
 import org.sunflow.core.ParameterList;
+import org.sunflow.core.Photon;
+import org.sunflow.core.PhotonJ;
 import org.sunflow.core.Ray;
 import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
@@ -46,15 +48,18 @@ public class PointLight implements LightSource {
         }
     }
 
-    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
-        p.set(lightPoint);
+    public Photon getPhoton(double randX1, double randY1, double randX2, double randY2) {
+        Point3 position = new Point3(lightPoint);
+        
         float phi = (float) (2 * Math.PI * randX1);
         float s = (float) Math.sqrt(randY1 * (1.0f - randY1));
-        Vector3 dir = Vector3J.create((float) Math.cos(phi) * s,
-                                      (float) Math.sin(phi) * s,
-                                      (float) (1 - 2 * randY1));
-        power.set(this.power);
-        return dir;
+        Vector3 direction = Vector3J.create((float) Math.cos(phi) * s,
+                                            (float) Math.sin(phi) * s,
+                                            (float) (1 - 2 * randY1));
+        
+        Color power = new Color(this.power);
+
+        return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {

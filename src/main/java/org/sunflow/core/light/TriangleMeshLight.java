@@ -5,6 +5,8 @@ import org.sunflow.core.Instance;
 import org.sunflow.core.LightSample;
 import org.sunflow.core.LightSource;
 import org.sunflow.core.ParameterList;
+import org.sunflow.core.Photon;
+import org.sunflow.core.PhotonJ;
 import org.sunflow.core.Ray;
 import org.sunflow.core.Shader;
 import org.sunflow.core.ShadingState;
@@ -114,7 +116,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         return numSamples * getNumPrimitives();
     }
 
-    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
+    public Photon getPhoton(double randX1, double randY1, double randX2, double randY2) {
         double rnd = randX1 * totalArea;
         int j = areas.length - 1;
         for (int i = 0; i < areas.length; i++) {
@@ -134,22 +136,27 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         int index0 = 3 * triangles[tri3 + 0];
         int index1 = 3 * triangles[tri3 + 1];
         int index2 = 3 * triangles[tri3 + 2];
-        p.x = w * points[index0 + 0] + u * points[index1 + 0] + v * points[index2 + 0];
-        p.y = w * points[index0 + 1] + u * points[index1 + 1] + v * points[index2 + 1];
-        p.z = w * points[index0 + 2] + u * points[index1 + 2] + v * points[index2 + 2];
-        p.x += 0.001f * ngs[j].x();
-        p.y += 0.001f * ngs[j].y();
-        p.z += 0.001f * ngs[j].z();
+        float px = w * points[index0 + 0] + u * points[index1 + 0] + v * points[index2 + 0];
+        float py = w * points[index0 + 1] + u * points[index1 + 1] + v * points[index2 + 1];
+        float pz = w * points[index0 + 2] + u * points[index1 + 2] + v * points[index2 + 2];
+        px += 0.001f * ngs[j].x();
+        py += 0.001f * ngs[j].y();
+        pz += 0.001f * ngs[j].z();
+        Point3 position = new Point3(px, py, pz);
+        
         OrthoNormalBasis onb = OrthoNormalBasis.makeFromW(ngs[j]);
         u = (float) (2 * Math.PI * randX1);
         s = Math.sqrt(randY1);
-        Vector3 dir = onb.transform(
+        Vector3 direction = onb.transform(
                 Vector3J.create((float) (Math.cos(u) * s), 
                                 (float) (Math.sin(u) * s), 
                                 (float) (Math.sqrt(1 - randY1)))
                 );
-        Color.mul((float) Math.PI * areas[j], radiance, power);
-        return dir;
+        
+        Color power = new Color(radiance);
+        power.mul((float) Math.PI * areas[j]);
+        
+        return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {

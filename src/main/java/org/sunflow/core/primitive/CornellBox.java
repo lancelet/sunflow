@@ -6,6 +6,8 @@ import org.sunflow.core.IntersectionState;
 import org.sunflow.core.LightSample;
 import org.sunflow.core.LightSource;
 import org.sunflow.core.ParameterList;
+import org.sunflow.core.Photon;
+import org.sunflow.core.PhotonJ;
 import org.sunflow.core.PrimitiveList;
 import org.sunflow.core.Ray;
 import org.sunflow.core.Shader;
@@ -391,16 +393,20 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         }
     }
 
-    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
-        p.x = (float) (lxmin * (1 - randX2) + lxmax * randX2);
-        p.y = (float) (lymin * (1 - randY2) + lymax * randY2);
-        p.z = maxZ - 0.001f;
+    public Photon getPhoton(double randX1, double randY1, double randX2, double randY2) {
+        float px = (float) (lxmin * (1 - randX2) + lxmax * randX2);
+        float py = (float) (lymin * (1 - randY2) + lymax * randY2);
+        float pz = maxZ - 0.001f;
+        Point3 position = new Point3(px, py, pz);
 
         double u = 2 * Math.PI * randX1;
         double s = Math.sqrt(randY1);
-        Vector3 dir = Vector3J.create((float) (Math.cos(u) * s), (float) (Math.sin(u) * s), (float) -Math.sqrt(1.0f - randY1));
-        Color.mul((float) Math.PI * area, radiance, power);
-        return dir;
+        Vector3 direction = Vector3J.create((float) (Math.cos(u) * s), (float) (Math.sin(u) * s), (float) -Math.sqrt(1.0f - randY1));
+        
+        Color power = new Color(radiance);
+        power.mul((float) Math.PI * area);
+
+        return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {

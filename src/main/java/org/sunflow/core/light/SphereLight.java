@@ -5,6 +5,8 @@ import org.sunflow.core.Instance;
 import org.sunflow.core.LightSample;
 import org.sunflow.core.LightSource;
 import org.sunflow.core.ParameterList;
+import org.sunflow.core.Photon;
+import org.sunflow.core.PhotonJ;
 import org.sunflow.core.Ray;
 import org.sunflow.core.Shader;
 import org.sunflow.core.ShadingState;
@@ -111,15 +113,16 @@ public class SphereLight implements LightSource, Shader {
         }
     }
 
-    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
+    public Photon getPhoton(double randX1, double randY1, double randX2, double randY2) {
         float z = (float) (1 - 2 * randX2);
         float r = (float) Math.sqrt(Math.max(0, 1 - z * z));
         float phi = (float) (2 * Math.PI * randY2);
         float x = r * (float) Math.cos(phi);
-        float y = r * (float) Math.sin(phi);
-        p.x = center.x + x * radius;
-        p.y = center.y + y * radius;
-        p.z = center.z + z * radius;
+        float y = r * (float) Math.sin(phi);        
+        Point3 position = new Point3(center.x + x * radius,
+                                     center.y + y * radius,
+                                     center.z + z * radius);
+
         OrthoNormalBasis basis = OrthoNormalBasis.makeFromW(
                 Vector3J.create(x, y, z));
         phi = (float) (2 * Math.PI * randX1);
@@ -127,13 +130,15 @@ public class SphereLight implements LightSource, Shader {
         float sinPhi = (float) Math.sin(phi);
         float sinTheta = (float) Math.sqrt(randY1);
         float cosTheta = (float) Math.sqrt(1 - randY1);
-        Vector3 dir = Vector3J.create(cosPhi * sinTheta,
-                                      sinPhi * sinTheta,
-                                      cosTheta);
-        dir = basis.transform(dir);
-        power.set(radiance);
+        Vector3 direction = Vector3J.create(cosPhi * sinTheta,
+                                            sinPhi * sinTheta,
+                                            cosTheta);
+        direction = basis.transform(direction);
+        
+        Color power = new Color(radiance);
         power.mul((float) (Math.PI * Math.PI * 4 * r2));
-        return dir;
+        
+        return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {

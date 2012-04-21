@@ -8,6 +8,8 @@ organization := "com.github.sunflow"
 
 scalaVersion := "2.9.1-1"
 
+javaOptions += "-server -XX:+DoEscapeAnalysis -XX:+UseCompressedOops"
+
 assemblySettings
 
 mainClass := Some("SunflowGUI")

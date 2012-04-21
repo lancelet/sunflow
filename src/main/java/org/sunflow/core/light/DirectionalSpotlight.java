@@ -5,6 +5,8 @@ import org.sunflow.core.Instance;
 import org.sunflow.core.LightSample;
 import org.sunflow.core.LightSource;
 import org.sunflow.core.ParameterList;
+import org.sunflow.core.Photon;
+import org.sunflow.core.PhotonJ;
 import org.sunflow.core.Ray;
 import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
@@ -73,16 +75,21 @@ public class DirectionalSpotlight implements LightSource {
         }
     }
 
-    public Vector3 getPhoton(double randX1, double randY1, double randX2, double randY2, Point3 p, Color power) {
+    public Photon getPhoton(double randX1, double randY1, double randX2, double randY2) {
         float phi = (float) (2 * Math.PI * randX1);
         float s = (float) Math.sqrt(1.0f - randY1);
-        Vector3 ldir = Vector3J.create(r * (float) Math.cos(phi) * s,
-                                       r * (float) Math.sin(phi) * s,
-                                       0);
-        ldir = basis.transform(ldir);
-        Point3.add(src, ldir, p);
-        power.set(radiance).mul((float) Math.PI * r2);
-        return dir;
+        Vector3 direction = Vector3J.create(r * (float) Math.cos(phi) * s,
+                                            r * (float) Math.sin(phi) * s,
+                                            0);
+        direction = basis.transform(direction);
+        
+        Point3 position = new Point3();
+        Point3.add(src, direction, position);
+        
+        Color power = new Color(radiance);
+        power.mul((float) Math.PI * r2);
+        
+        return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {
