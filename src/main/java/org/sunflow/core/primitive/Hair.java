@@ -17,6 +17,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
@@ -191,7 +192,7 @@ public class Hair implements PrimitiveList, Shader {
         state.getBasis().transform(state.getNormal());
         state.setGeoNormal(state.getNormal());
 
-        state.getUV().set(0, (line + state.getV()) / numSegments);
+        state.setUV(Point2J.create(0, (line + state.getV()) / numSegments));
     }
 
     public boolean update(ParameterList pl, SunflowAPI api) {

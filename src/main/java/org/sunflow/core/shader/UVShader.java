@@ -14,7 +14,7 @@ public class UVShader implements Shader {
     public Color getRadiance(ShadingState state) {
         if (state.getUV() == null)
             return Color.BLACK;
-        return new Color(state.getUV().x, state.getUV().y, 0);
+        return new Color(state.getUV().x(), state.getUV().y(), 0);
     }
 
     public void scatterPhoton(ShadingState state, Color power) {

@@ -125,7 +125,7 @@ public final class PerlinScalar {
     }
 
     public static final float snoise(Point2 p) {
-        return snoise(p.x, p.y);
+        return snoise(p.x(), p.y());
     }
 
     public static final float snoise(Point3 p) {
@@ -153,7 +153,7 @@ public final class PerlinScalar {
     }
 
     public static final float noise(Point2 p) {
-        return 0.5f + 0.5f * snoise(p.x, p.y);
+        return 0.5f + 0.5f * snoise(p.x(), p.y());
     }
 
     public static final float noise(Point3 p) {
@@ -221,7 +221,7 @@ public final class PerlinScalar {
     }
 
     public static final float pnoise(Point2 p, float periodx, float periody) {
-        return pnoise(p.x, p.y, periodx, periody);
+        return pnoise(p.x(), p.y(), periodx, periody);
     }
 
     public static final float pnoise(Point3 p, Vector3 period) {
@@ -289,7 +289,7 @@ public final class PerlinScalar {
     }
 
     public static final float spnoise(Point2 p, float periodx, float periody) {
-        return spnoise(p.x, p.y, periodx, periody);
+        return spnoise(p.x(), p.y(), periodx, periody);
     }
 
     public static final float spnoise(Point3 p, Vector3 period) {

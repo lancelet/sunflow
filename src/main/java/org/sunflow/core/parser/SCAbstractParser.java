@@ -9,6 +9,7 @@ import org.sunflow.core.ParameterList.InterpolationType;
 import org.sunflow.image.ColorFactory;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point2;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
@@ -269,7 +270,7 @@ public abstract class SCAbstractParser implements SceneParser {
     private Point2 parseTexcoord() throws IOException {
         float x = parseFloat();
         float y = parseFloat();
-        return new Point2(x, y);
+        return Point2J.create(x, y);
     }
 
     protected abstract InterpolationType parseInterpolationType() throws IOException;

@@ -11,6 +11,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
@@ -122,8 +123,9 @@ public class Plane implements PrimitiveList {
             default:
                 hu = hv = 0;
         }
-        state.getUV().x = hu * bnu + hv * bnv + bnd;
-        state.getUV().y = hu * cnu + hv * cnv + cnd;
+        float uvx = hu * bnu + hv * bnv + bnd;
+        float uvy = hu * cnu + hv * cnv + cnd;
+        state.setUV(Point2J.create(uvx, uvy));
         state.setBasis(OrthoNormalBasis.makeFromW(normal));
     }
 

@@ -11,6 +11,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
@@ -47,8 +48,9 @@ public class Sphere implements PrimitiveList {
         if (phi < 0)
             phi += 2 * Math.PI;
         float theta = (float) Math.acos(state.getNormal().z());
-        state.getUV().y = theta / (float) Math.PI;
-        state.getUV().x = phi / (float) (2 * Math.PI);
+        float uvy = theta / (float) Math.PI;
+        float uvx = phi / (float) (2 * Math.PI);
+        state.setUV(Point2J.create(uvx, uvy));
         Vector3 v = Vector3J.create(
                 -2 * (float) Math.PI * state.getNormal().y(),
                 2 * (float) Math.PI * state.getNormal().x(),

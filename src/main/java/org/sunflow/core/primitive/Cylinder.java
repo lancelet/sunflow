@@ -11,6 +11,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
@@ -46,8 +47,9 @@ public class Cylinder implements PrimitiveList {
         float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
         if (phi < 0)
             phi += 2 * Math.PI;
-        state.getUV().x = phi / (float) (2 * Math.PI);
-        state.getUV().y = (localPoint.z() + 1) * 0.5f;
+        float uvx = phi / (float) (2 * Math.PI);
+        float uvy = (localPoint.z() + 1) * 0.5f;
+        state.setUV(Point2J.create(uvx, uvy));
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space

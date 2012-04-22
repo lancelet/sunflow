@@ -151,7 +151,7 @@ public final class ShadingState implements Iterable<LightSample> {
     public final void init() {
         //p = Point3J.zero();
         //n = new Vector3();
-        tex = new Point2();
+        //tex = new Point2();
         //ng = new Vector3();
         basis = null;
     }
@@ -563,6 +563,15 @@ public final class ShadingState implements Iterable<LightSample> {
         return tex;
     }
 
+    /**
+     * Set texture coordinates at the hit point.
+     * 
+     * @param tex texture coordinates
+     */
+    public final void setUV(Point2 tex) {
+        this.tex = tex;
+    }
+    
     /**
      * Gets the geometric normal of the current hit point.
      * 

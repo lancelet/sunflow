@@ -18,6 +18,7 @@ import org.sunflow.math.MathUtils;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
@@ -261,8 +262,7 @@ public class TriangleMesh implements PrimitiveList {
         switch (uvs.interp) {
             case NONE:
             case FACE: {
-                state.getUV().x = 0;
-                state.getUV().y = 0;
+                state.setUV(Point2J.zero());
                 break;
             }
             case VERTEX: {
@@ -292,8 +292,9 @@ public class TriangleMesh implements PrimitiveList {
         }
         if (uvs.interp != InterpolationType.NONE) {
             // get exact uv coords and compute tangent vectors
-            state.getUV().x = w * uv00 + u * uv10 + v * uv20;
-            state.getUV().y = w * uv01 + u * uv11 + v * uv21;
+            float uvx = w * uv00 + u * uv10 + v * uv20;
+            float uvy = w * uv01 + u * uv11 + v * uv21;
+            state.setUV(Point2J.create(uvx, uvy));
             float du1 = uv00 - uv20;
             float du2 = uv10 - uv20;
             float dv1 = uv01 - uv21;
@@ -740,8 +741,7 @@ public class TriangleMesh implements PrimitiveList {
             switch (uvs.interp) {
                 case NONE:
                 case FACE: {
-                    state.getUV().x = 0;
-                    state.getUV().y = 0;
+                    state.setUV(Point2J.zero());
                     break;
                 }
                 case VERTEX: {
@@ -771,8 +771,9 @@ public class TriangleMesh implements PrimitiveList {
             }
             if (uvs.interp != InterpolationType.NONE) {
                 // get exact uv coords and compute tangent vectors
-                state.getUV().x = w * uv00 + u * uv10 + v * uv20;
-                state.getUV().y = w * uv01 + u * uv11 + v * uv21;
+                float uvx = w * uv00 + u * uv10 + v * uv20;
+                float uvy = w * uv01 + u * uv11 + v * uv21;
+                state.setUV(Point2J.create(uvx, uvy));
                 float du1 = uv00 - uv20;
                 float du2 = uv10 - uv20;
                 float dv1 = uv01 - uv21;

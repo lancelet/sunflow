@@ -24,6 +24,6 @@ public class TexturedWardShader extends AnisotropicWardShader {
 
     @Override
     public Color getDiffuse(ShadingState state) {
-        return tex.getPixel(state.getUV().x, state.getUV().y);
+        return tex.getPixel(state.getUV().x(), state.getUV().y());
     }
 }

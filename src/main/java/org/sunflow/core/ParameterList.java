@@ -6,6 +6,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.MovingMatrix4;
 import org.sunflow.math.Point2;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
@@ -716,7 +717,7 @@ public class ParameterList {
 
         private Point2 getTexCoord() {
             float[] floats = (float[]) obj;
-            return new Point2(floats[0], floats[1]);
+            return Point2J.create(floats[0], floats[1]);
         }
 
         private Matrix4 getMatrix() {

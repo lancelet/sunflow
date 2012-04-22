@@ -24,6 +24,6 @@ public class TexturedAmbientOcclusionShader extends AmbientOcclusionShader {
 
     @Override
     public Color getBrightColor(ShadingState state) {
-        return tex.getPixel(state.getUV().x, state.getUV().y);
+        return tex.getPixel(state.getUV().x(), state.getUV().y());
     }
 }

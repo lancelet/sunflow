@@ -12,6 +12,7 @@ import org.sunflow.math.MathUtils;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
+import org.sunflow.math.Point2J;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3J;
@@ -80,8 +81,9 @@ public class Torus implements PrimitiveList {
         double theta = Math.atan2(p.y(), p.x());
         if (theta < 0)
             theta += 2 * Math.PI;
-        state.getUV().x = (float) (theta / (2 * Math.PI));
-        state.getUV().y = (float) ((phi + Math.PI / 2) / Math.PI);
+        float uvx = (float) (theta / (2 * Math.PI));
+        float uvy = (float) ((phi + Math.PI / 2) / Math.PI);
+        state.setUV(Point2J.create(uvx, uvy));
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space

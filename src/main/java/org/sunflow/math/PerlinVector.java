@@ -34,7 +34,7 @@ public class PerlinVector {
     }
 
     public static final Vector3 snoise(Point2 p) {
-        return snoise(p.x, p.y);
+        return snoise(p.x(), p.y());
     }
 
     public static final Vector3 snoise(Point3 p) {
@@ -62,7 +62,7 @@ public class PerlinVector {
     }
 
     public static final Vector3 noise(Point2 p) {
-        return noise(p.x, p.y);
+        return noise(p.x(), p.y());
     }
 
     public static final Vector3 noise(Point3 p) {
@@ -90,7 +90,7 @@ public class PerlinVector {
     }
 
     public static final Vector3 pnoise(Point2 p, float periodx, float periody) {
-        return pnoise(p.x, p.y, periodx, periody);
+        return pnoise(p.x(), p.y(), periodx, periody);
     }
 
     public static final Vector3 pnoise(Point3 p, Vector3 period) {
@@ -118,7 +118,7 @@ public class PerlinVector {
     }
 
     public static final Vector3 spnoise(Point2 p, float periodx, float periody) {
-        return spnoise(p.x, p.y, periodx, periody);
+        return spnoise(p.x(), p.y(), periodx, periody);
     }
 
     public static final Vector3 spnoise(Point3 p, Vector3 period) {

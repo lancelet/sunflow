@@ -165,7 +165,7 @@ public class SunflowAPI implements SunflowAPIInterface {
 
     public final void parameter(String name, Point2 value) {
         parameterList.addTexCoords(name, InterpolationType.NONE, new float[] {
-                value.x, value.y });
+                value.x(), value.y() });
     }
 
     public final void parameter(String name, Matrix4 value) {

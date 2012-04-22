@@ -24,6 +24,6 @@ public class TexturedDiffuseShader extends DiffuseShader {
 
     @Override
     public Color getDiffuse(ShadingState state) {
-        return tex.getPixel(state.getUV().x, state.getUV().y);
+        return tex.getPixel(state.getUV().x(), state.getUV().y());
     }
 }

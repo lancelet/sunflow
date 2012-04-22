@@ -29,7 +29,7 @@ public class BumpMappingModifier implements Modifier {
     public void modify(ShadingState state) {
         // apply bump
         state.setNormal(Vector3J.normalize(
-                bumpTexture.getBump(state.getUV().x, state.getUV().y, state.getBasis(), scale)));
+                bumpTexture.getBump(state.getUV().x(), state.getUV().y(), state.getBasis(), scale)));
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
     }
 }

@@ -49,11 +49,11 @@ public class UberShader implements Shader {
     }
 
     public Color getDiffuse(ShadingState state) {
-        return diffmap == null ? diff : Color.blend(diff, diffmap.getPixel(state.getUV().x, state.getUV().y), diffBlend);
+        return diffmap == null ? diff : Color.blend(diff, diffmap.getPixel(state.getUV().x(), state.getUV().y()), diffBlend);
     }
 
     public Color getSpecular(ShadingState state) {
-        return specmap == null ? spec : Color.blend(spec, specmap.getPixel(state.getUV().x, state.getUV().y), specBlend);
+        return specmap == null ? spec : Color.blend(spec, specmap.getPixel(state.getUV().x(), state.getUV().y()), specBlend);
     }
 
     public Color getRadiance(ShadingState state) {
