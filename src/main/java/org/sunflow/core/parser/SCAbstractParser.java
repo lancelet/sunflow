@@ -10,6 +10,7 @@ import org.sunflow.image.ColorFactory;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point2;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.Timer;
@@ -255,7 +256,7 @@ public abstract class SCAbstractParser implements SceneParser {
         float x = parseFloat();
         float y = parseFloat();
         float z = parseFloat();
-        return new Point3(x, y, z);
+        return Point3J.create(x, y, z);
     }
 
     private Vector3 parseVector() throws IOException {

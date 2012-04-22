@@ -105,8 +105,8 @@ public final class UniformGrid implements AccelerationStructure {
         float orgX = r.ox;
         float dirX = r.dx, invDirX = 1 / dirX;
         float t1, t2;
-        t1 = (bounds.getMinimum().x - orgX) * invDirX;
-        t2 = (bounds.getMaximum().x - orgX) * invDirX;
+        t1 = (bounds.getMinimum().x() - orgX) * invDirX;
+        t2 = (bounds.getMaximum().x() - orgX) * invDirX;
         if (invDirX > 0) {
             if (t1 > intervalMin)
                 intervalMin = t1;
@@ -122,8 +122,8 @@ public final class UniformGrid implements AccelerationStructure {
             return;
         float orgY = r.oy;
         float dirY = r.dy, invDirY = 1 / dirY;
-        t1 = (bounds.getMinimum().y - orgY) * invDirY;
-        t2 = (bounds.getMaximum().y - orgY) * invDirY;
+        t1 = (bounds.getMinimum().y() - orgY) * invDirY;
+        t2 = (bounds.getMaximum().y() - orgY) * invDirY;
         if (invDirY > 0) {
             if (t1 > intervalMin)
                 intervalMin = t1;
@@ -139,8 +139,8 @@ public final class UniformGrid implements AccelerationStructure {
             return;
         float orgZ = r.oz;
         float dirZ = r.dz, invDirZ = 1 / dirZ;
-        t1 = (bounds.getMinimum().z - orgZ) * invDirZ;
-        t2 = (bounds.getMaximum().z - orgZ) * invDirZ;
+        t1 = (bounds.getMinimum().z() - orgZ) * invDirZ;
+        t2 = (bounds.getMaximum().z() - orgZ) * invDirZ;
         if (invDirZ > 0) {
             if (t1 > intervalMin)
                 intervalMin = t1;
@@ -166,7 +166,7 @@ public final class UniformGrid implements AccelerationStructure {
         float deltaX, deltaY, deltaZ;
         float tnextX, tnextY, tnextZ;
         // stepping factors along X
-        indxX = (int) ((orgX - bounds.getMinimum().x) * invVoxelwx);
+        indxX = (int) ((orgX - bounds.getMinimum().x()) * invVoxelwx);
         if (indxX < 0)
             indxX = 0;
         else if (indxX >= nx)
@@ -180,15 +180,15 @@ public final class UniformGrid implements AccelerationStructure {
             stepX = 1;
             stopX = nx;
             deltaX = voxelwx * invDirX;
-            tnextX = intervalMin + ((indxX + 1) * voxelwx + bounds.getMinimum().x - orgX) * invDirX;
+            tnextX = intervalMin + ((indxX + 1) * voxelwx + bounds.getMinimum().x() - orgX) * invDirX;
         } else {
             stepX = -1;
             stopX = -1;
             deltaX = -voxelwx * invDirX;
-            tnextX = intervalMin + (indxX * voxelwx + bounds.getMinimum().x - orgX) * invDirX;
+            tnextX = intervalMin + (indxX * voxelwx + bounds.getMinimum().x() - orgX) * invDirX;
         }
         // stepping factors along Y
-        indxY = (int) ((orgY - bounds.getMinimum().y) * invVoxelwy);
+        indxY = (int) ((orgY - bounds.getMinimum().y()) * invVoxelwy);
         if (indxY < 0)
             indxY = 0;
         else if (indxY >= ny)
@@ -202,15 +202,15 @@ public final class UniformGrid implements AccelerationStructure {
             stepY = 1;
             stopY = ny;
             deltaY = voxelwy * invDirY;
-            tnextY = intervalMin + ((indxY + 1) * voxelwy + bounds.getMinimum().y - orgY) * invDirY;
+            tnextY = intervalMin + ((indxY + 1) * voxelwy + bounds.getMinimum().y() - orgY) * invDirY;
         } else {
             stepY = -1;
             stopY = -1;
             deltaY = -voxelwy * invDirY;
-            tnextY = intervalMin + (indxY * voxelwy + bounds.getMinimum().y - orgY) * invDirY;
+            tnextY = intervalMin + (indxY * voxelwy + bounds.getMinimum().y() - orgY) * invDirY;
         }
         // stepping factors along Z
-        indxZ = (int) ((orgZ - bounds.getMinimum().z) * invVoxelwz);
+        indxZ = (int) ((orgZ - bounds.getMinimum().z()) * invVoxelwz);
         if (indxZ < 0)
             indxZ = 0;
         else if (indxZ >= nz)
@@ -224,12 +224,12 @@ public final class UniformGrid implements AccelerationStructure {
             stepZ = 1;
             stopZ = nz;
             deltaZ = voxelwz * invDirZ;
-            tnextZ = intervalMin + ((indxZ + 1) * voxelwz + bounds.getMinimum().z - orgZ) * invDirZ;
+            tnextZ = intervalMin + ((indxZ + 1) * voxelwz + bounds.getMinimum().z() - orgZ) * invDirZ;
         } else {
             stepZ = -1;
             stopZ = -1;
             deltaZ = -voxelwz * invDirZ;
-            tnextZ = intervalMin + (indxZ * voxelwz + bounds.getMinimum().z - orgZ) * invDirZ;
+            tnextZ = intervalMin + (indxZ * voxelwz + bounds.getMinimum().z() - orgZ) * invDirZ;
         }
         int cellstepX = stepX;
         int cellstepY = stepY * nx;
@@ -287,8 +287,8 @@ public final class UniformGrid implements AccelerationStructure {
     }
 
     private void getGridIndex(float x, float y, float z, int[] i) {
-        i[0] = MathUtils.clamp((int) ((x - bounds.getMinimum().x) * invVoxelwx), 0, nx - 1);
-        i[1] = MathUtils.clamp((int) ((y - bounds.getMinimum().y) * invVoxelwy), 0, ny - 1);
-        i[2] = MathUtils.clamp((int) ((z - bounds.getMinimum().z) * invVoxelwz), 0, nz - 1);
+        i[0] = MathUtils.clamp((int) ((x - bounds.getMinimum().x()) * invVoxelwx), 0, nx - 1);
+        i[1] = MathUtils.clamp((int) ((y - bounds.getMinimum().y()) * invVoxelwy), 0, ny - 1);
+        i[2] = MathUtils.clamp((int) ((z - bounds.getMinimum().z()) * invVoxelwz), 0, nz - 1);
     }
 }

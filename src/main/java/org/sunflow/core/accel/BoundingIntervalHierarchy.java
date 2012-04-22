@@ -149,12 +149,12 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
         if (objects.length == 0)
             return;
         // seed bbox
-        float[] gridBox = { bounds.getMinimum().x, bounds.getMaximum().x,
-                bounds.getMinimum().y, bounds.getMaximum().y,
-                bounds.getMinimum().z, bounds.getMaximum().z };
-        float[] nodeBox = { bounds.getMinimum().x, bounds.getMaximum().x,
-                bounds.getMinimum().y, bounds.getMaximum().y,
-                bounds.getMinimum().z, bounds.getMaximum().z };
+        float[] gridBox = { bounds.getMinimum().x(), bounds.getMaximum().x(),
+                bounds.getMinimum().y(), bounds.getMaximum().y(),
+                bounds.getMinimum().z(), bounds.getMaximum().z() };
+        float[] nodeBox = { bounds.getMinimum().x(), bounds.getMaximum().x(),
+                bounds.getMinimum().y(), bounds.getMaximum().y(),
+                bounds.getMinimum().z(), bounds.getMaximum().z() };
         // seed subdivide function
         subdivide(0, objects.length - 1, tempTree, indices, gridBox, nodeBox, 0, 1, stats);
     }
@@ -376,8 +376,8 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
         float orgX = r.ox;
         float dirX = r.dx, invDirX = 1 / dirX;
         float t1, t2;
-        t1 = (bounds.getMinimum().x - orgX) * invDirX;
-        t2 = (bounds.getMaximum().x - orgX) * invDirX;
+        t1 = (bounds.getMinimum().x() - orgX) * invDirX;
+        t2 = (bounds.getMaximum().x() - orgX) * invDirX;
         if (invDirX > 0) {
             if (t1 > intervalMin)
                 intervalMin = t1;
@@ -393,8 +393,8 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
             return;
         float orgY = r.oy;
         float dirY = r.dy, invDirY = 1 / dirY;
-        t1 = (bounds.getMinimum().y - orgY) * invDirY;
-        t2 = (bounds.getMaximum().y - orgY) * invDirY;
+        t1 = (bounds.getMinimum().y() - orgY) * invDirY;
+        t2 = (bounds.getMaximum().y() - orgY) * invDirY;
         if (invDirY > 0) {
             if (t1 > intervalMin)
                 intervalMin = t1;
@@ -410,8 +410,8 @@ public class BoundingIntervalHierarchy implements AccelerationStructure {
             return;
         float orgZ = r.oz;
         float dirZ = r.dz, invDirZ = 1 / dirZ;
-        t1 = (bounds.getMinimum().z - orgZ) * invDirZ;
-        t2 = (bounds.getMaximum().z - orgZ) * invDirZ;
+        t1 = (bounds.getMinimum().z() - orgZ) * invDirZ;
+        t2 = (bounds.getMaximum().z() - orgZ) * invDirZ;
         if (invDirZ > 0) {
             if (t1 > intervalMin)
                 intervalMin = t1;

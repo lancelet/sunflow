@@ -171,7 +171,7 @@ public class Hair implements PrimitiveList, Shader {
     public void prepareShadingState(ShadingState state) {
         state.init();
         Instance i = state.getInstance();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Ray r = state.getRay();
         Shader s = i.getShader(0);
         state.setShader(s != null ? s : this);
@@ -187,7 +187,7 @@ public class Hair implements PrimitiveList, Shader {
         state.setBasis(OrthoNormalBasis.makeFromWV(v, Vector3J.create(-r.dx, -r.dy, -r.dz)));
         state.getBasis().swapVW();
         // normal
-        state.setNormal(Vector3J.create(0, 0, 1));
+        state.setNormal(Vector3J.normalize(Vector3J.create(0, 0, 1)));
         state.getBasis().transform(state.getNormal());
         state.setGeoNormal(state.getNormal());
 

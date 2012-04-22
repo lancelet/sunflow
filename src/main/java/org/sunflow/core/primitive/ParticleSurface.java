@@ -9,10 +9,11 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.core.ParameterList.FloatParameter;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Solvers;
-import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
 public class ParticleSurface implements PrimitiveList {
@@ -39,8 +40,8 @@ public class ParticleSurface implements PrimitiveList {
         BoundingBox bounds = new BoundingBox();
         for (int i = 0, i3 = 0; i < n; i++, i3 += 3)
             bounds.include(particles[i3], particles[i3 + 1], particles[i3 + 2]);
-        bounds.include(bounds.getMinimum().x - r, bounds.getMinimum().y - r, bounds.getMinimum().z - r);
-        bounds.include(bounds.getMaximum().x + r, bounds.getMaximum().y + r, bounds.getMaximum().z + r);
+        bounds.include(bounds.getMinimum().x() - r, bounds.getMinimum().y() - r, bounds.getMinimum().z() - r);
+        bounds.include(bounds.getMaximum().x() + r, bounds.getMaximum().y() + r, bounds.getMaximum().z() + r);
         return o2w == null ? bounds : o2w.transform(bounds);
     }
 
@@ -67,19 +68,21 @@ public class ParticleSurface implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Point3 localPoint = state.transformWorldToObject(state.getPoint());
 
-        localPoint.x -= particles[3 * state.getPrimitiveID() + 0];
-        localPoint.y -= particles[3 * state.getPrimitiveID() + 1];
-        localPoint.z -= particles[3 * state.getPrimitiveID() + 2];
+        localPoint = Point3J.sub(localPoint, Vector3J.create(
+                particles[3 * state.getPrimitiveID() + 0],
+                particles[3 * state.getPrimitiveID() + 1],
+                particles[3 * state.getPrimitiveID() + 2]));
 
-        state.setNormal(Vector3J.create(localPoint.x, localPoint.y, localPoint.z));
+        state.setNormal(Vector3J.normalize(
+                Vector3J.create(localPoint.x(), localPoint.y(), localPoint.z())));
 
         state.setShader(state.getInstance().getShader(0));
         state.setModifier(state.getInstance().getModifier(0));
         // into object space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
+        Normal3 worldNormal = Vector3J.normalize(state.transformNormalObjectToWorld(state.getNormal()));
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));

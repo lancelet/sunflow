@@ -7,6 +7,7 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.MovingMatrix4;
 import org.sunflow.math.Point2;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
@@ -705,7 +706,7 @@ public class ParameterList {
 
         private Point3 getPoint() {
             float[] floats = (float[]) obj;
-            return new Point3(floats[0], floats[1], floats[2]);
+            return Point3J.create(floats[0], floats[1], floats[2]);
         }
 
         private Vector3 getVector() {

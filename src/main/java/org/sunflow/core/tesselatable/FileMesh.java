@@ -23,6 +23,7 @@ import org.sunflow.core.primitive.TriangleMesh;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.Memory;
@@ -173,17 +174,17 @@ public class FileMesh implements Tesselatable {
         pl.addPoints("points", InterpolationType.VERTEX, verts);
         if (smoothNormals) {
             float[] normals = new float[verts.length]; // filled with 0's
-            Point3 p0 = new Point3();
-            Point3 p1 = new Point3();
-            Point3 p2 = new Point3();
+            Point3 p0;
+            Point3 p1;
+            Point3 p2;
             for (int i3 = 0; i3 < tris.length; i3 += 3) {
                 int v0 = tris[i3 + 0];
                 int v1 = tris[i3 + 1];
                 int v2 = tris[i3 + 2];
-                p0.set(verts[3 * v0 + 0], verts[3 * v0 + 1], verts[3 * v0 + 2]);
-                p1.set(verts[3 * v1 + 0], verts[3 * v1 + 1], verts[3 * v1 + 2]);
-                p2.set(verts[3 * v2 + 0], verts[3 * v2 + 1], verts[3 * v2 + 2]);
-                Vector3 n = Point3.normal(p0, p1, p2); // compute normal
+                p0 = Point3J.create(verts[3 * v0 + 0], verts[3 * v0 + 1], verts[3 * v0 + 2]);
+                p1 = Point3J.create(verts[3 * v1 + 0], verts[3 * v1 + 1], verts[3 * v1 + 2]);
+                p2 = Point3J.create(verts[3 * v2 + 0], verts[3 * v2 + 1], verts[3 * v2 + 2]);
+                Vector3 n = Point3J.normal(p0, p1, p2); // compute normal
                 // add face normal to each vertex
                 // note that these are not normalized so this in fact weights
                 // each normal by the area of the triangle

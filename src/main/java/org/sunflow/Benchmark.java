@@ -11,7 +11,7 @@ import org.sunflow.core.display.FileDisplay;
 import org.sunflow.core.display.FrameDisplay;
 import org.sunflow.image.Color;
 import org.sunflow.math.Matrix4;
-import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.BenchmarkFramework;
 import org.sunflow.system.BenchmarkTest;
@@ -138,8 +138,8 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
         private void buildCornellBox() {
             // camera
             parameter("transform", 
-                    Matrix4.lookAt(new Point3(0, 0, -600), 
-                                   new Point3(0, 0, 0), 
+                    Matrix4.lookAt(Point3J.create(0, 0, -600), 
+                                   Point3J.create(0, 0, 0), 
                                    Vector3J.create(0, 1, 0)));
             parameter("fov", 45.0f);
             camera("main_camera", "pinhole");

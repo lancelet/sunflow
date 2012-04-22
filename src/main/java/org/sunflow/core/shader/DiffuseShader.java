@@ -39,8 +39,8 @@ public class DiffuseShader implements Shader {
         Color diffuse;
         // make sure we are on the right side of the material
         if (state.getNormal().dot(state.getRay().getDirection()) > 0.0) {
-            state.setNormal(Vector3J.negate(state.getNormal()));
-            state.setGeoNormal(Vector3J.negate(state.getGeoNormal()));
+            state.setNormal(Vector3J.normalize(Vector3J.negate(state.getNormal())));
+            state.setGeoNormal(Vector3J.normalize(Vector3J.negate(state.getGeoNormal())));
         }
         diffuse = getDiffuse(state);
         state.storePhoton(state.getRay().getDirection(), power, diffuse);

@@ -10,7 +10,9 @@ import org.sunflow.core.primitive.QuadMesh;
 import org.sunflow.core.primitive.TriangleMesh;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
@@ -82,7 +84,20 @@ public class BezierMesh implements Tesselatable {
         return b;
     }
 
-    private Vector3 getPatchPoint(float u, float v, float[] ctrl, float[] bu, float[] bv, float[] bdu, float[] bdv, Point3 p) {
+    /** Mini case class for a PatchPoint, containing both point
+     *  and normal information. */
+    private final class PatchPoint {
+        private final Point3 point;
+        private final Normal3 normal;
+        public PatchPoint(Point3 point, Normal3 normal) {
+            this.point = point;
+            this.normal = normal;
+        }
+        public Point3 getPoint() { return point; }
+        public Normal3 getNormal() { return normal; }
+    }
+    
+    private PatchPoint getPatchPoint(float u, float v, float[] ctrl, float[] bu, float[] bv, float[] bdu, float[] bdv) {
         float px = 0;
         float py = 0;
         float pz = 0;
@@ -94,10 +109,8 @@ public class BezierMesh implements Tesselatable {
                 pz += ctrl[index + 2] * scale;
             }
         }
-        p.x = px;
-        p.y = py;
-        p.z = pz;
-        Vector3 n;
+        Point3 point = Point3J.create(px, py, pz);
+        Vector3 normal;
         if (smooth) {
             float dpdux = 0;
             float dpduy = 0;
@@ -118,13 +131,14 @@ public class BezierMesh implements Tesselatable {
                 }
             }
             // surface normal
-            n = Vector3J.create((dpduy * dpdvz - dpduz * dpdvy),
-                                (dpduz * dpdvx - dpdux * dpdvz),
-                                (dpdux * dpdvy - dpduy * dpdvx));
+            normal = Vector3J.create((dpduy * dpdvz - dpduz * dpdvy),
+                                     (dpduz * dpdvx - dpdux * dpdvz),
+                                     (dpdux * dpdvy - dpduy * dpdvx));
         } else {
-            n = Vector3J.create(0, 0, 0);
+            normal = Vector3J.create(0, 0, 0);
         }
-        return n;
+        
+        return new PatchPoint(point, Vector3J.normalize(normal));
     }
 
     public PrimitiveList tesselate() {
@@ -136,7 +150,6 @@ public class BezierMesh implements Tesselatable {
         int vidx = 0, pidx = 0;
         float step = 1.0f / subdivs;
         int vstride = subdivs + 1;
-        Point3 p = new Point3();
         for (float[] patch : patches) {
             // create patch vertices
             for (int i = 0, voff = 0; i <= subdivs; i++) {
@@ -148,10 +161,12 @@ public class BezierMesh implements Tesselatable {
                     float[] bv = bernstein(v);
                     float[] bdv = bernsteinDeriv(v);
                     //Vector3 n = smooth ? new Vector3() : null;
-                    Vector3 n = getPatchPoint(u, v, patch, bu, bv, bdu, bdv, p);
-                    vertices[vidx + voff + 0] = p.x;
-                    vertices[vidx + voff + 1] = p.y;
-                    vertices[vidx + voff + 2] = p.z;
+                    PatchPoint pp = getPatchPoint(u, v, patch, bu, bv, bdu, bdv);
+                    Point3 p = pp.getPoint();
+                    Normal3 n = pp.getNormal();
+                    vertices[vidx + voff + 0] = p.x();
+                    vertices[vidx + voff + 1] = p.y();
+                    vertices[vidx + voff + 2] = p.z();
                     if (smooth) {
                         normals[vidx + voff + 0] = n.x();
                         normals[vidx + voff + 1] = n.y();

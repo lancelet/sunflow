@@ -28,41 +28,41 @@ public class Box implements PrimitiveList {
             for (int i = 0; i < pts.data.length; i += 3)
                 bounds.include(pts.data[i], pts.data[i + 1], pts.data[i + 2]);
             // cube extents
-            minX = bounds.getMinimum().x;
-            minY = bounds.getMinimum().y;
-            minZ = bounds.getMinimum().z;
-            maxX = bounds.getMaximum().x;
-            maxY = bounds.getMaximum().y;
-            maxZ = bounds.getMaximum().z;
+            minX = bounds.getMinimum().x();
+            minY = bounds.getMinimum().y();
+            minZ = bounds.getMinimum().z();
+            maxX = bounds.getMaximum().x();
+            maxY = bounds.getMaximum().y();
+            maxZ = bounds.getMaximum().z();
         }
         return true;
     }
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         int n = state.getPrimitiveID();
         switch (n) {
             case 0:
-                state.setNormal(Vector3J.create(1, 0, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(1, 0, 0)));
                 break;
             case 1:
-                state.setNormal(Vector3J.create(-1, 0, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(-1, 0, 0)));
                 break;
             case 2:
-                state.setNormal(Vector3J.create(0, 1, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 1, 0)));
                 break;
             case 3:
-                state.setNormal(Vector3J.create(0, -1, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, -1, 0)));
                 break;
             case 4:
-                state.setNormal(Vector3J.create(0, 0, 1));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 0, 1)));
                 break;
             case 5:
-                state.setNormal(Vector3J.create(0, 0, -1));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 0, -1)));
                 break;
             default:
-                state.setNormal(Vector3J.create(0, 0, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 0, 0)));
                 break;
         }
         state.setGeoNormal(state.getNormal());

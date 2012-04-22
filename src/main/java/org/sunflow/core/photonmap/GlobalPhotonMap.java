@@ -8,6 +8,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3Encoding;
 import org.sunflow.system.Timer;
@@ -52,7 +53,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         synchronized (this) {
             storedPhotons++;
             photonList.add(p);
-            bounds.include(new Point3(p.x, p.y, p.z));
+            bounds.include(Point3J.create(p.x, p.y, p.z));
             maxPower = Math.max(maxPower, power.getMax());
         }
     }
@@ -91,13 +92,18 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         photons = photonList.toArray(new Photon[photonList.size()]);
         photonList = null;
         Photon[] temp = new Photon[storedPhotons + 1];
-        balanceSegment(temp, 1, 1, storedPhotons);
+        balanceSegment(temp, 1, 1, storedPhotons, bounds);
         photons = temp;
         halfStoredPhotons = storedPhotons / 2;
         log2n = (int) Math.ceil(Math.log(storedPhotons) / Math.log(2.0));
     }
 
-    private void balanceSegment(Photon[] temp, int index, int start, int end) {
+    private void balanceSegment(Photon[] temp, int index, int start, int end, BoundingBox sBound) {
+        /** TODO: lancelet: intentionally shadow this.bounds to throw an NPE
+         *  if bounds is used.  this is a quick hack to make sure that
+         *  this.bounds is not used in this method. */
+        @SuppressWarnings("unused") BoundingBox bounds = null;        
+        
         int median = 1;
         while ((4 * median) <= (end - start + 1))
             median += median;
@@ -107,7 +113,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         } else
             median = end - median + 1;
         int axis = Photon.SPLIT_Z;
-        Vector3 extents = bounds.getExtents();
+        Vector3 extents = sBound.getExtents();
         if ((extents.x() > extents.y()) && (extents.x() > extents.z()))
             axis = Photon.SPLIT_X;
         else if (extents.y() > extents.z())
@@ -135,55 +141,56 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         }
         temp[index] = photons[median];
         temp[index].setSplitAxis(axis);
+        float minx = sBound.getMinimum().x();
+        float miny = sBound.getMinimum().y();
+        float minz = sBound.getMinimum().z();
+        float maxx = sBound.getMaximum().x();
+        float maxy = sBound.getMaximum().y();
+        float maxz = sBound.getMaximum().z();
+        BoundingBox bBound;        
         if (median > start) {
             if (start < (median - 1)) {
-                float tmp;
                 switch (axis) {
                     case Photon.SPLIT_X:
-                        tmp = bounds.getMaximum().x;
-                        bounds.getMaximum().x = temp[index].x;
-                        balanceSegment(temp, 2 * index, start, median - 1);
-                        bounds.getMaximum().x = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, minz, temp[index].x, maxy, maxz);
+                        balanceSegment(temp, 2 * index, start, median - 1, bBound);
                         break;
                     case Photon.SPLIT_Y:
-                        tmp = bounds.getMaximum().y;
-                        bounds.getMaximum().y = temp[index].y;
-                        balanceSegment(temp, 2 * index, start, median - 1);
-                        bounds.getMaximum().y = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, minz, maxx, temp[index].y, maxz);
+                        balanceSegment(temp, 2 * index, start, median - 1, bBound);
                         break;
                     default:
-                        tmp = bounds.getMaximum().z;
-                        bounds.getMaximum().z = temp[index].z;
-                        balanceSegment(temp, 2 * index, start, median - 1);
-                        bounds.getMaximum().z = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, minz, maxx, maxy, temp[index].z);
+                        balanceSegment(temp, 2 * index, start, median - 1, bBound);
                 }
-            } else
+            } else {
                 temp[2 * index] = photons[start];
+            }
         }
         if (median < end) {
             if ((median + 1) < end) {
-                float tmp;
                 switch (axis) {
                     case Photon.SPLIT_X:
-                        tmp = bounds.getMinimum().x;
-                        bounds.getMinimum().x = temp[index].x;
-                        balanceSegment(temp, (2 * index) + 1, median + 1, end);
-                        bounds.getMinimum().x = tmp;
+                        bBound = new BoundingBox(
+                                temp[index].x, miny, minz, maxx, maxy, maxz);
+                        balanceSegment(temp, (2 * index) + 1, median + 1, end, bBound);
                         break;
                     case Photon.SPLIT_Y:
-                        tmp = bounds.getMinimum().y;
-                        bounds.getMinimum().y = temp[index].y;
-                        balanceSegment(temp, (2 * index) + 1, median + 1, end);
-                        bounds.getMinimum().y = tmp;
+                        bBound = new BoundingBox(
+                                minx, temp[index].y, minz, maxx, maxy, maxz);
+                        balanceSegment(temp, (2 * index) + 1, median + 1, end, bBound);
                         break;
                     default:
-                        tmp = bounds.getMinimum().z;
-                        bounds.getMinimum().z = temp[index].z;
-                        balanceSegment(temp, (2 * index) + 1, median + 1, end);
-                        bounds.getMinimum().z = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, temp[index].z, maxx, maxy, maxz);
+                        balanceSegment(temp, (2 * index) + 1, median + 1, end, bBound);
                 }
-            } else
+            } else {
                 temp[(2 * index) + 1] = photons[end];
+            }
         }
     }
 
@@ -209,9 +216,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         static final int SPLIT_MASK = 3;
 
         Photon(Point3 p, Vector3 n, Vector3 dir, Color power, Color diffuse) {
-            x = p.x;
-            y = p.y;
-            z = p.z;
+            x = p.x();
+            y = p.y();
+            z = p.z();
             this.dir = Vector3Encoding.encode(dir);
             this.power = power.toRGBE();
             flags = 0;
@@ -285,9 +292,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         // precompute the radiance for all photons that are neither
         // leaves nor parents of leaves in the tree.
         int quadStoredPhotons = halfStoredPhotons / 2;
-        Point3 p = new Point3();
+        Point3 p = Point3J.zero();
         Vector3 n;
-        Point3 ppos = new Point3();
+        Point3 ppos;
         Vector3 pdir;
         Vector3 pvec;
         Color irr = new Color();
@@ -299,7 +306,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         for (int i = 1; i <= quadStoredPhotons; i++) {
             UI.taskUpdate(i);
             Photon curr = photons[i];
-            p.set(curr.x, curr.y, curr.z);
+            p = Point3J.create(curr.x, curr.y, curr.z);
             n = Vector3Encoding.decode(curr.normal);
             irr.set(Color.BLACK);
             np.reset(p, maxDist2);
@@ -316,8 +323,8 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                 pdir = Vector3Encoding.decode(phot.dir);
                 float cos = -pdir.dot(n);
                 if (cos > 0.01f) {
-                    ppos.set(phot.x, phot.y, phot.z);
-                    pvec = ppos.sub(p);
+                    ppos = Point3J.create(phot.x, phot.y, phot.z);
+                    pvec = Point3J.sub(ppos, p);
                     float pcos = pvec.dot(n);
                     if ((pcos < maxNDist) && (pcos > -maxNDist))
                         irr.add(pow.setRGBE(phot.power));
@@ -346,9 +353,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
     public Color getRadiance(Point3 p, Vector3 n) {
         if (!hasRadiance || (storedPhotons == 0))
             return Color.BLACK;
-        float px = p.x;
-        float py = p.y;
-        float pz = p.z;
+        float px = p.x();
+        float py = p.y();
+        float pz = p.z();
         int i = 1;
         int level = 0;
         int cameFrom;
@@ -411,9 +418,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             max = n;
             found = 0;
             gotHeap = false;
-            px = p.x;
-            py = p.y;
-            pz = p.z;
+            px = p.x();
+            py = p.y();
+            pz = p.z();
             dist2 = new float[n + 1];
             index = new Photon[n + 1];
             dist2[0] = maxDist2;
@@ -422,9 +429,9 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         void reset(Point3 p, float maxDist2) {
             found = 0;
             gotHeap = false;
-            px = p.x;
-            py = p.y;
-            pz = p.z;
+            px = p.x();
+            py = p.y();
+            pz = p.z();
             dist2[0] = maxDist2;
         }
 

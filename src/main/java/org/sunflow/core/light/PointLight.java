@@ -11,6 +11,7 @@ import org.sunflow.core.Ray;
 import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -19,7 +20,7 @@ public class PointLight implements LightSource {
     private Color power;
 
     public PointLight() {
-        lightPoint = new Point3(0, 0, 0);
+        lightPoint = Point3J.zero();
         power = Color.WHITE;
     }
 
@@ -34,7 +35,7 @@ public class PointLight implements LightSource {
     }
 
     public void getSamples(ShadingState state) {
-        Vector3 d = lightPoint.sub(state.getPoint());
+        Vector3 d = Point3J.sub(lightPoint, state.getPoint());
         if (d.dot(state.getNormal()) > 0 && d.dot(state.getGeoNormal()) > 0) {
             LightSample dest = new LightSample();
             // prepare shadow ray
@@ -49,7 +50,7 @@ public class PointLight implements LightSource {
     }
 
     public Photon getPhoton(double randX1, double randY1, double randX2, double randY2) {
-        Point3 position = new Point3(lightPoint);
+        Point3 position = lightPoint;
         
         float phi = (float) (2 * Math.PI * randX1);
         float s = (float) Math.sqrt(randY1 * (1.0f - randY1));

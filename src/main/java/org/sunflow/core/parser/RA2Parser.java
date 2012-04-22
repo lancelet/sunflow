@@ -13,6 +13,7 @@ import org.sunflow.SunflowAPI;
 import org.sunflow.SunflowAPIInterface;
 import org.sunflow.core.SceneParser;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.Parser;
@@ -55,14 +56,14 @@ public class RA2Parser implements SceneParser {
             filename = filename.replace(".ra2", ".txt");
             UI.printInfo(Module.USER, "RA2 - Reading camera  : \"%s\" ...", filename);
             Parser p = new Parser(filename);
-            Point3 eye = new Point3();
-            eye.x = p.getNextFloat();
-            eye.y = p.getNextFloat();
-            eye.z = p.getNextFloat();
-            Point3 to = new Point3();
-            to.x = p.getNextFloat();
-            to.y = p.getNextFloat();
-            to.z = p.getNextFloat();
+            float eyex = p.getNextFloat();
+            float eyey = p.getNextFloat();
+            float eyez = p.getNextFloat();
+            Point3 eye = Point3J.create(eyex, eyey, eyez);
+            float tox = p.getNextFloat();
+            float toy = p.getNextFloat();
+            float toz = p.getNextFloat();
+            Point3 to = Point3J.create(tox, toy, toz);
             Vector3 up;
             switch (p.getNextInt()) {
                 case 0:

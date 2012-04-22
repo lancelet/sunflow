@@ -5,6 +5,7 @@ import org.sunflow.core.display.FastDisplay;
 import org.sunflow.core.display.FileDisplay;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.Timer;
@@ -31,8 +32,8 @@ public class RealtimeBenchmark extends SunflowAPI {
         parameter("bucket.size", 32);
         options(SunflowAPI.DEFAULT_OPTIONS);
         // camera
-        Point3 eye = new Point3(30, 0, 10.967f);
-        Point3 target = new Point3(0, 0, 5.4f);
+        Point3 eye = Point3J.create(30, 0, 10.967f);
+        Point3 target = Point3J.create(0, 0, 5.4f);
         Vector3 up = Vector3J.create(0, 0, 1);
         parameter("transform", Matrix4.lookAt(eye, target, up));
         parameter("fov", 45.0f);
@@ -53,8 +54,9 @@ public class RealtimeBenchmark extends SunflowAPI {
         float phi = 0;
         int frames = 0;
         while (phi < 4 * Math.PI) {
-            eye.x = 30 * (float) Math.cos(phi);
-            eye.y = 30 * (float) Math.sin(phi);
+            eye = Point3J.create(30 * (float) Math.cos(phi),
+                                 30 * (float) Math.sin(phi),
+                                 eye.z());
             phi += Math.PI / 30;
             frames++;
             // update camera
@@ -71,7 +73,7 @@ public class RealtimeBenchmark extends SunflowAPI {
 
     private void createGeometry() {
         // light source
-        parameter("source", new Point3(-15.5945f, -30.0581f, 45.967f));
+        parameter("source", Point3J.create(-15.5945f, -30.0581f, 45.967f));
         parameter("dir", Vector3J.create(15.5945f, 30.0581f, -45.967f));
         parameter("radius", 60.0f);
         parameter("radiance", null, 3, 3, 3);
@@ -115,7 +117,7 @@ public class RealtimeBenchmark extends SunflowAPI {
         instance("gumbo.instance", "gumbo");
 
         // ground plane
-        parameter("center", new Point3(0, 0, 0));
+        parameter("center", Point3J.create(0, 0, 0));
         parameter("normal", Vector3J.create(0, 0, 1));
         geometry("ground", "plane");
         parameter("shaders", "refl");

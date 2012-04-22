@@ -8,7 +8,9 @@ import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point2;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.QMC;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -22,9 +24,9 @@ public final class ShadingState implements Iterable<LightSample> {
     private float rx, ry, time;
     private Color result;
     private Point3 p;
-    private Vector3 n;
+    private Normal3 n;
     private Point2 tex;
-    private Vector3 ng;
+    private Normal3 ng;
     private OrthoNormalBasis basis;
     private float cosND;
     private float bias;
@@ -147,7 +149,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * coordinates and basis.
      */
     public final void init() {
-        p = new Point3();
+        //p = Point3J.zero();
         //n = new Vector3();
         tex = new Point2();
         //ng = new Vector3();
@@ -166,7 +168,7 @@ public final class ShadingState implements Iterable<LightSample> {
     final void correctShadingNormal() {
         // correct shading normals pointing the wrong way
         if (n.dot(ng) < 0) {
-            n = Vector3J.negate(n);
+            n = Vector3J.normalize(Vector3J.negate(n));
             basis.flipW();
         }
     }
@@ -182,8 +184,8 @@ public final class ShadingState implements Iterable<LightSample> {
         } else {
             // this ensure the ray and the geomtric normal are pointing in the
             // same direction
-            ng = Vector3J.negate(ng);
-            n = Vector3J.negate(n);
+            ng = Vector3J.normalize(Vector3J.negate(ng));
+            n = Vector3J.normalize(Vector3J.negate(n));
             basis.flipW();
             behind = true;
         }
@@ -191,14 +193,14 @@ public final class ShadingState implements Iterable<LightSample> {
         // offset the shaded point away from the surface to prevent
         // self-intersection errors
         if (Math.abs(ng.x()) > Math.abs(ng.y()) && Math.abs(ng.x()) > Math.abs(ng.z()))
-            bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.x)));
+            bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.x())));
         else if (Math.abs(ng.y()) > Math.abs(ng.z()))
-            bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.y)));
+            bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.y())));
         else
-            bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.z)));
-        p.x += bias * ng.x();
-        p.y += bias * ng.y();
-        p.z += bias * ng.z();
+            bias = Math.max(bias, 25 * Math.ulp(Math.abs(p.z())));
+        p = Point3J.add(p, Vector3J.create(bias * ng.x(),
+                                           bias * ng.y(),
+                                           bias * ng.z()));
     }
 
     /**
@@ -296,7 +298,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return transformed position
      */
     public Point3 transformObjectToWorld(Point3 p) {
-        return o2w == null ? new Point3(p) : o2w.transformP(p);
+        return o2w == null ? p : o2w.transformP(p);
     }
 
     /**
@@ -307,7 +309,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return transformed position
      */
     public Point3 transformWorldToObject(Point3 p) {
-        return w2o == null ? new Point3(p) : w2o.transformP(p);
+        return w2o == null ? p : w2o.transformP(p);
     }
 
     /**
@@ -521,6 +523,15 @@ public final class ShadingState implements Iterable<LightSample> {
     public final Point3 getPoint() {
         return p;
     }
+    
+    /**
+     * Set hit point
+     * 
+     * @param p hit point
+     */
+    public final void setPoint(Point3 p) {
+        this.p = p;
+    }
 
     /**
      * Get shading normal at the hit point. This may differ from the geometric
@@ -528,7 +539,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * 
      * @return shading normal
      */
-    public final Vector3 getNormal() {
+    public final Normal3 getNormal() {
         return n;
     }
 
@@ -538,8 +549,8 @@ public final class ShadingState implements Iterable<LightSample> {
      * 
      * @param n shading normal
      */
-    public final void setNormal(Vector3 n) {
-        this.n = Vector3J.normalize(n);
+    public final void setNormal(Normal3 n) {
+        this.n = n;
     }
     
     
@@ -557,7 +568,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * 
      * @return geometric normal of the current hit point
      */
-    public final Vector3 getGeoNormal() {
+    public final Normal3 getGeoNormal() {
         return ng;
     }
     
@@ -566,8 +577,8 @@ public final class ShadingState implements Iterable<LightSample> {
      * 
      * @param ng geometric normal of the current hit point
      */
-    public final void setGeoNormal(Vector3 ng) {
-        this.ng = Vector3J.normalize(ng);
+    public final void setGeoNormal(Normal3 ng) {
+        this.ng = ng;
     }    
 
     /**
@@ -631,9 +642,9 @@ public final class ShadingState implements Iterable<LightSample> {
         PrimitiveList prims = instance.getGeometry().getPrimitiveList();
         if (prims instanceof TriangleMesh) {
             TriangleMesh m = (TriangleMesh) prims;
-            m.getPoint(primitiveID, 0, p[0] = new Point3());
-            m.getPoint(primitiveID, 1, p[1] = new Point3());
-            m.getPoint(primitiveID, 2, p[2] = new Point3());
+            p[0] = m.getPoint(primitiveID, 0);
+            p[1] = m.getPoint(primitiveID, 1);
+            p[2] = m.getPoint(primitiveID, 2);
             return true;
         }
         return false;
@@ -701,7 +712,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return color observed behind the current shading point
      */
     public final Color traceTransparency() {
-        return traceRefraction(new Ray(p.x, p.y, p.z, r.dx, r.dy, r.dz), 0);
+        return traceRefraction(new Ray(p.x(), p.y(), p.z(), r.dx, r.dy, r.dz), 0);
     }
 
     /**

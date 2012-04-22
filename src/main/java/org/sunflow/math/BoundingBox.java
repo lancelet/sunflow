@@ -14,8 +14,29 @@ public class BoundingBox {
      * negative infinity.
      */
     public BoundingBox() {
-        minimum = new Point3(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
-        maximum = new Point3(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+        minimum = Point3J.create(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+        maximum = Point3J.create(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+    }
+    
+    /**
+     * Creates a box from a set of 6 explicit minimum and maximum coordinates.
+     * @param minx minimum x value
+     * @param miny minimum y value
+     * @param minz minimum z value
+     * @param maxx maximum x value
+     * @param maxy maximum y value
+     * @param maxz maximum z value
+     */
+    public BoundingBox(float minx, float miny, float minz, 
+                       float maxx, float maxy, float maxz) 
+    {
+        if ((minx > maxx) || (miny > maxy) || (minz > maxz)) {
+            throw new IllegalArgumentException(
+               "Some of the bounding box values were not ordered correctly."
+            );
+        }
+        minimum = Point3J.create(minx, miny, minz);
+        maximum = Point3J.create(maxx, maxy, maxz);
     }
 
     /**
@@ -24,8 +45,8 @@ public class BoundingBox {
      * @param b bounding box to copy
      */
     public BoundingBox(BoundingBox b) {
-        minimum = new Point3(b.minimum);
-        maximum = new Point3(b.maximum);
+        minimum = b.minimum;
+        maximum = b.maximum;
     }
 
     /**
@@ -34,7 +55,7 @@ public class BoundingBox {
      * @param p point to include
      */
     public BoundingBox(Point3 p) {
-        this(p.x, p.y, p.z);
+        this(p.x(), p.y(), p.z());
     }
 
     /**
@@ -45,8 +66,8 @@ public class BoundingBox {
      * @param z z coordinate of the point to include
      */
     public BoundingBox(float x, float y, float z) {
-        minimum = new Point3(x, y, z);
-        maximum = new Point3(x, y, z);
+        minimum = Point3J.create(x, y, z);
+        maximum = Point3J.create(x, y, z);
     }
 
     /**
@@ -55,8 +76,8 @@ public class BoundingBox {
      * @param size half edge length of the bounding box
      */
     public BoundingBox(float size) {
-        minimum = new Point3(-size, -size, -size);
-        maximum = new Point3(size, size, size);
+        minimum = Point3J.create(-size, -size, -size);
+        maximum = Point3J.create(size, size, size);
     }
 
     /**
@@ -89,7 +110,7 @@ public class BoundingBox {
      * @return a reference to the center of the box
      */
     public final Point3 getCenter() {
-        return Point3.mid(minimum, maximum, new Point3());
+        return Point3J.mid(minimum, maximum);
     }
 
     /**
@@ -101,10 +122,10 @@ public class BoundingBox {
      * @return the corresponding corner
      */
     public final Point3 getCorner(int i) {
-        float x = (i & 1) == 0 ? minimum.x : maximum.x;
-        float y = (i & 2) == 0 ? minimum.y : maximum.y;
-        float z = (i & 4) == 0 ? minimum.z : maximum.z;
-        return new Point3(x, y, z);
+        float x = (i & 1) == 0 ? minimum.x() : maximum.x();
+        float y = (i & 2) == 0 ? minimum.y() : maximum.y();
+        float z = (i & 4) == 0 ? minimum.z() : maximum.z();
+        return Point3J.create(x, y, z);
     }
 
     /**
@@ -116,17 +137,17 @@ public class BoundingBox {
     public final float getBound(int i) {
         switch (i) {
             case 0:
-                return minimum.x;
+                return minimum.x();
             case 1:
-                return maximum.x;
+                return maximum.x();
             case 2:
-                return minimum.y;
+                return minimum.y();
             case 3:
-                return maximum.y;
+                return maximum.y();
             case 4:
-                return minimum.z;
+                return minimum.z();
             case 5:
-                return maximum.z;
+                return maximum.z();
             default:
                 return 0;
         }
@@ -140,7 +161,7 @@ public class BoundingBox {
      * @return a refreence to the extent vector
      * @see org.sunflow.math.Vector3#length()
      */
-    public final Vector3 getExtents() { return maximum.sub(minimum); }
+    public final Vector3 getExtents() { return Point3J.sub(maximum, minimum); }
 
     /**
      * Gets the surface area of the box.
@@ -174,12 +195,14 @@ public class BoundingBox {
      */
     public final void enlargeUlps() {
         final float eps = 0.0001f;
-        minimum.x -= Math.max(eps, Math.ulp(minimum.x));
-        minimum.y -= Math.max(eps, Math.ulp(minimum.y));
-        minimum.z -= Math.max(eps, Math.ulp(minimum.z));
-        maximum.x += Math.max(eps, Math.ulp(maximum.x));
-        maximum.y += Math.max(eps, Math.ulp(maximum.y));
-        maximum.z += Math.max(eps, Math.ulp(maximum.z));
+        minimum = Point3J.sub(minimum, Vector3J.create(
+                Math.max(eps, Math.ulp(minimum.x())),
+                Math.max(eps, Math.ulp(minimum.y())),
+                Math.max(eps, Math.ulp(minimum.z()))));
+        maximum = Point3J.add(maximum, Vector3J.create(
+                Math.max(eps, Math.ulp(maximum.x())),
+                Math.max(eps, Math.ulp(maximum.y())),
+                Math.max(eps, Math.ulp(maximum.z()))));
     }
 
     /**
@@ -192,7 +215,9 @@ public class BoundingBox {
      *         otherwise
      */
     public final boolean isEmpty() {
-        return (maximum.x < minimum.x) || (maximum.y < minimum.y) || (maximum.z < minimum.z);
+        return (maximum.x() < minimum.x()) || 
+               (maximum.y() < minimum.y()) || 
+               (maximum.z() < minimum.z());
     }
 
     /**
@@ -206,7 +231,12 @@ public class BoundingBox {
      *         otherwise
      */
     public final boolean intersects(BoundingBox b) {
-        return ((b != null) && (minimum.x <= b.maximum.x) && (maximum.x >= b.minimum.x) && (minimum.y <= b.maximum.y) && (maximum.y >= b.minimum.y) && (minimum.z <= b.maximum.z) && (maximum.z >= b.minimum.z));
+        return ((b != null) && (minimum.x() <= b.maximum.x()) && 
+                               (maximum.x() >= b.minimum.x()) && 
+                               (minimum.y() <= b.maximum.y()) && 
+                               (maximum.y() >= b.minimum.y()) && 
+                               (minimum.z() <= b.maximum.z()) && 
+                               (maximum.z() >= b.minimum.z()));
     }
 
     /**
@@ -219,7 +249,12 @@ public class BoundingBox {
      *         <code>false</code> otherwise
      */
     public final boolean contains(Point3 p) {
-        return ((p != null) && (p.x >= minimum.x) && (p.x <= maximum.x) && (p.y >= minimum.y) && (p.y <= maximum.y) && (p.z >= minimum.z) && (p.z <= maximum.z));
+        return ((p != null) && (p.x() >= minimum.x()) && 
+                               (p.x() <= maximum.x()) && 
+                               (p.y() >= minimum.y()) && 
+                               (p.y() <= maximum.y()) && 
+                               (p.z() >= minimum.z()) && 
+                               (p.z() <= maximum.z()));
     }
 
     /**
@@ -233,7 +268,9 @@ public class BoundingBox {
      *         <code>false</code> otherwise
      */
     public final boolean contains(float x, float y, float z) {
-        return ((x >= minimum.x) && (x <= maximum.x) && (y >= minimum.y) && (y <= maximum.y) && (z >= minimum.z) && (z <= maximum.z));
+        return ((x >= minimum.x()) && (x <= maximum.x()) && 
+                (y >= minimum.y()) && (y <= maximum.y()) && 
+                (z >= minimum.z()) && (z <= maximum.z()));
     }
 
     /**
@@ -244,20 +281,28 @@ public class BoundingBox {
      * @param p point to be included
      */
     public final void include(Point3 p) {
+        float minx = minimum.x();
+        float miny = minimum.y();
+        float minz = minimum.z();
+        float maxx = maximum.x();
+        float maxy = maximum.y();
+        float maxz = maximum.z();
         if (p != null) {
-            if (p.x < minimum.x)
-                minimum.x = p.x;
-            if (p.x > maximum.x)
-                maximum.x = p.x;
-            if (p.y < minimum.y)
-                minimum.y = p.y;
-            if (p.y > maximum.y)
-                maximum.y = p.y;
-            if (p.z < minimum.z)
-                minimum.z = p.z;
-            if (p.z > maximum.z)
-                maximum.z = p.z;
+            if (p.x() < minx)
+                minx = p.x();
+            if (p.x() > maxx)
+                maxx = p.x();
+            if (p.y() < miny)
+                miny = p.y();
+            if (p.y() > maxy)
+                maxy = p.y();
+            if (p.z() < minz)
+                minz = p.z();
+            if (p.z() > maxz)
+                maxz = p.z();
         }
+        minimum = Point3J.create(minx, miny, minz);
+        maximum = Point3J.create(maxx, maxy, maxz);
     }
 
     /**
@@ -269,18 +314,7 @@ public class BoundingBox {
      * @param z z coordinate of the point
      */
     public final void include(float x, float y, float z) {
-        if (x < minimum.x)
-            minimum.x = x;
-        if (x > maximum.x)
-            maximum.x = x;
-        if (y < minimum.y)
-            minimum.y = y;
-        if (y > maximum.y)
-            maximum.y = y;
-        if (z < minimum.z)
-            minimum.z = z;
-        if (z > maximum.z)
-            maximum.z = z;
+        include(Point3J.create(x, y, z));
     }
 
     /**
@@ -290,24 +324,34 @@ public class BoundingBox {
      * @param b box to be included
      */
     public final void include(BoundingBox b) {
+        float minx = minimum.x();
+        float miny = minimum.y();
+        float minz = minimum.z();
+        float maxx = maximum.x();
+        float maxy = maximum.y();
+        float maxz = maximum.z();
         if (b != null) {
-            if (b.minimum.x < minimum.x)
-                minimum.x = b.minimum.x;
-            if (b.maximum.x > maximum.x)
-                maximum.x = b.maximum.x;
-            if (b.minimum.y < minimum.y)
-                minimum.y = b.minimum.y;
-            if (b.maximum.y > maximum.y)
-                maximum.y = b.maximum.y;
-            if (b.minimum.z < minimum.z)
-                minimum.z = b.minimum.z;
-            if (b.maximum.z > maximum.z)
-                maximum.z = b.maximum.z;
+            if (b.minimum.x() < minx)
+                minx = b.minimum.x();
+            if (b.maximum.x() > maxx)
+                maxx = b.maximum.x();
+            if (b.minimum.y() < miny)
+                miny = b.minimum.y();
+            if (b.maximum.y() > maxy)
+                maxy = b.maximum.y();
+            if (b.minimum.z() < minz)
+                minz = b.minimum.z();
+            if (b.maximum.z() > maxz)
+                maxz = b.maximum.z();
         }
+        minimum = Point3J.create(minx, miny, minz);
+        maximum = Point3J.create(maxx, maxy, maxz);
     }
 
     @Override
     public final String toString() {
-        return String.format("(%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", minimum.x, minimum.y, minimum.z, maximum.x, maximum.y, maximum.z);
+        return String.format("(%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", 
+                minimum.x(), minimum.y(), minimum.z(), 
+                maximum.x(), maximum.y(), maximum.z());
     }
 }

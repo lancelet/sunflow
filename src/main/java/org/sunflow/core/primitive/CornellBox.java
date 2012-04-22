@@ -17,6 +17,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -31,7 +32,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
     private BoundingBox lightBounds;
 
     public CornellBox() {
-        updateGeometry(new Point3(-1, -1, -1), new Point3(1, 1, 1));
+        updateGeometry(Point3J.create(-1, -1, -1), Point3J.create(1, 1, 1));
 
         // cube colors
         left = new Color(0.80f, 0.25f, 0.25f);
@@ -50,12 +51,12 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         lightBounds.include(c1);
 
         // cube extents
-        minX = lightBounds.getMinimum().x;
-        minY = lightBounds.getMinimum().y;
-        minZ = lightBounds.getMinimum().z;
-        maxX = lightBounds.getMaximum().x;
-        maxY = lightBounds.getMaximum().y;
-        maxZ = lightBounds.getMaximum().z;
+        minX = lightBounds.getMinimum().x();
+        minY = lightBounds.getMinimum().y();
+        minZ = lightBounds.getMinimum().z();
+        maxX = lightBounds.getMaximum().x();
+        maxY = lightBounds.getMaximum().y();
+        maxZ = lightBounds.getMaximum().z();
 
         // work around epsilon problems for light test
         lightBounds.enlargeUlps();
@@ -114,25 +115,25 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
     public boolean intersects(BoundingBox box) {
         // this could be optimized
         BoundingBox b = new BoundingBox();
-        b.include(new Point3(minX, minY, minZ));
-        b.include(new Point3(maxX, maxY, maxZ));
+        b.include(Point3J.create(minX, minY, minZ));
+        b.include(Point3J.create(maxX, maxY, maxZ));
         if (b.intersects(box)) {
             // the box is overlapping or enclosed
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMinimum().y, box.getMinimum().z)))
+            if (!b.contains(Point3J.create(box.getMinimum().x(), box.getMinimum().y(), box.getMinimum().z())))
                 return true;
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMinimum().y, box.getMaximum().z)))
+            if (!b.contains(Point3J.create(box.getMinimum().x(), box.getMinimum().y(), box.getMaximum().z())))
                 return true;
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMaximum().y, box.getMinimum().z)))
+            if (!b.contains(Point3J.create(box.getMinimum().x(), box.getMaximum().y(), box.getMinimum().z())))
                 return true;
-            if (!b.contains(new Point3(box.getMinimum().x, box.getMaximum().y, box.getMaximum().z)))
+            if (!b.contains(Point3J.create(box.getMinimum().x(), box.getMaximum().y(), box.getMaximum().z())))
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMinimum().y, box.getMinimum().z)))
+            if (!b.contains(Point3J.create(box.getMaximum().x(), box.getMinimum().y(), box.getMinimum().z())))
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMinimum().y, box.getMaximum().z)))
+            if (!b.contains(Point3J.create(box.getMaximum().x(), box.getMinimum().y(), box.getMaximum().z())))
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMaximum().y, box.getMinimum().z)))
+            if (!b.contains(Point3J.create(box.getMaximum().x(), box.getMaximum().y(), box.getMinimum().z())))
                 return true;
-            if (!b.contains(new Point3(box.getMaximum().x, box.getMaximum().y, box.getMaximum().z)))
+            if (!b.contains(Point3J.create(box.getMaximum().x(), box.getMaximum().y(), box.getMaximum().z())))
                 return true;
             // all vertices of the box are inside - the surface of the box is
             // not intersected
@@ -142,29 +143,29 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         int n = state.getPrimitiveID();
         switch (n) {
             case 0:
-                state.setNormal(Vector3J.create(1, 0, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(1, 0, 0)));
                 break;
             case 1:
-                state.setNormal(Vector3J.create(-1, 0, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(-1, 0, 0)));
                 break;
             case 2:
-                state.setNormal(Vector3J.create(0, 1, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 1, 0)));
                 break;
             case 3:
-                state.setNormal(Vector3J.create(0, -1, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, -1, 0)));
                 break;
             case 4:
-                state.setNormal(Vector3J.create(0, 0, 1));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 0, 1)));
                 break;
             case 5:
-                state.setNormal(Vector3J.create(0, 0, -1));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 0, -1)));
                 break;
             default:
-                state.setNormal(Vector3J.create(0, 0, 0));
+                state.setNormal(Vector3J.normalize(Vector3J.create(0, 0, 0)));
                 break;
         }
         state.setGeoNormal(state.getNormal());
@@ -281,8 +282,8 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 kd = bottom;
                 break;
             case 5:
-                float lx = state.getPoint().x;
-                float ly = state.getPoint().y;
+                float lx = state.getPoint().x();
+                float ly = state.getPoint().y();
                 if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0)
                     return state.includeLights() ? radiance : Color.BLACK;
                 kd = top;
@@ -315,8 +316,8 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 kd = bottom;
                 break;
             case 5:
-                float lx = state.getPoint().x;
-                float ly = state.getPoint().y;
+                float lx = state.getPoint().x();
+                float ly = state.getPoint().y();
                 if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0)
                     return;
                 kd = top;
@@ -326,8 +327,8 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         }
         // make sure we are on the right side of the material
         if (state.getNormal().dot(state.getRay().getDirection()) > 0) {
-            state.setNormal(Vector3J.negate(state.getNormal()));
-            state.setGeoNormal(Vector3J.negate(state.getGeoNormal()));
+            state.setNormal(Vector3J.normalize(Vector3J.negate(state.getNormal())));
+            state.setGeoNormal(Vector3J.normalize(Vector3J.negate(state.getGeoNormal())));
         }
         state.storePhoton(state.getRay().getDirection(), power, kd);
         double avg = kd.getAverage();
@@ -351,17 +352,17 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
     }
 
     public void getSamples(ShadingState state) {
-        if (lightBounds.contains(state.getPoint()) && state.getPoint().z < maxZ) {
+        if (lightBounds.contains(state.getPoint()) && state.getPoint().z() < maxZ) {
             int n = state.getDiffuseDepth() > 0 ? 1 : samples;
             float a = area / n;
             for (int i = 0; i < n; i++) {
                 // random offset on unit square
                 double randX = state.getRandom(i, 0, n);
                 double randY = state.getRandom(i, 1, n);
-                Point3 p = new Point3();
-                p.x = (float) (lxmin * (1 - randX) + lxmax * randX);
-                p.y = (float) (lymin * (1 - randY) + lymax * randY);
-                p.z = maxZ - 0.001f;
+                Point3 p = Point3J.create(
+                        (float) (lxmin * (1 - randX) + lxmax * randX),
+                        (float) (lymin * (1 - randY) + lymax * randY),
+                        maxZ - 0.001f);
 
                 LightSample dest = new LightSample();
                 // prepare shadow ray to sampled point
@@ -397,7 +398,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         float px = (float) (lxmin * (1 - randX2) + lxmax * randX2);
         float py = (float) (lymin * (1 - randY2) + lymax * randY2);
         float pz = maxZ - 0.001f;
-        Point3 position = new Point3(px, py, pz);
+        Point3 position = Point3J.create(px, py, pz);
 
         double u = 2 * Math.PI * randX1;
         double s = Math.sqrt(randY1);

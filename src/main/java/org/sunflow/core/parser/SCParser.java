@@ -19,6 +19,7 @@ import org.sunflow.image.ColorFactory;
 import org.sunflow.image.ColorFactory.ColorSpecificationException;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.Parser;
@@ -1084,7 +1085,7 @@ public class SCParser implements SceneParser {
             api.parameter("source", s);
             p.checkNextToken("target");
             Point3 t = parsePoint();
-            api.parameter("dir", t.sub(s));
+            api.parameter("dir", Point3J.sub(t, s));
             p.checkNextToken("radius");
             api.parameter("radius", p.getNextFloat());
             p.checkNextToken("emit");
@@ -1212,7 +1213,7 @@ public class SCParser implements SceneParser {
         float x = p.getNextFloat();
         float y = p.getNextFloat();
         float z = p.getNextFloat();
-        return new Point3(x, y, z);
+        return Point3J.create(x, y, z);
     }
 
     private Vector3 parseVector() throws IOException {

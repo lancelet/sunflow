@@ -6,6 +6,7 @@ import org.sunflow.core.ParameterList;
 import org.sunflow.core.ShadingState;
 import org.sunflow.core.Texture;
 import org.sunflow.core.TextureCache;
+import org.sunflow.math.Vector3J;
 import org.sunflow.math.OrthoNormalBasis;
 
 public class BumpMappingModifier implements Modifier {
@@ -27,7 +28,8 @@ public class BumpMappingModifier implements Modifier {
 
     public void modify(ShadingState state) {
         // apply bump
-        state.setNormal(bumpTexture.getBump(state.getUV().x, state.getUV().y, state.getBasis(), scale));
+        state.setNormal(Vector3J.normalize(
+                bumpTexture.getBump(state.getUV().x, state.getUV().y, state.getBasis(), scale)));
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
     }
 }

@@ -16,8 +16,10 @@ import org.sunflow.core.ParameterList.InterpolationType;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.MathUtils;
 import org.sunflow.math.Matrix4;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.system.UI;
@@ -248,7 +250,7 @@ public class QuadMesh implements PrimitiveList {
         int primID = state.getPrimitiveID();
         float u = state.getU();
         float v = state.getV();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         int quad = 4 * primID;
         int index0 = quads[quad + 0];
         int index1 = quads[quad + 1];
@@ -258,20 +260,20 @@ public class QuadMesh implements PrimitiveList {
         Point3 v1p = getPoint(index1);
         Point3 v2p = getPoint(index2);
         Point3 v3p = getPoint(index2);
-        float tanux = (1 - v) * (v1p.x - v0p.x) + v * (v2p.x - v3p.x);
-        float tanuy = (1 - v) * (v1p.y - v0p.y) + v * (v2p.y - v3p.y);
-        float tanuz = (1 - v) * (v1p.z - v0p.z) + v * (v2p.z - v3p.z);
+        float tanux = (1 - v) * (v1p.x() - v0p.x()) + v * (v2p.x() - v3p.x());
+        float tanuy = (1 - v) * (v1p.y() - v0p.y()) + v * (v2p.y() - v3p.y());
+        float tanuz = (1 - v) * (v1p.z() - v0p.z()) + v * (v2p.z() - v3p.z());
 
-        float tanvx = (1 - u) * (v3p.x - v0p.x) + u * (v2p.x - v1p.x);
-        float tanvy = (1 - u) * (v3p.y - v0p.y) + u * (v2p.y - v1p.y);
-        float tanvz = (1 - u) * (v3p.z - v0p.z) + u * (v2p.z - v1p.z);
+        float tanvx = (1 - u) * (v3p.x() - v0p.x()) + u * (v2p.x() - v1p.x());
+        float tanvy = (1 - u) * (v3p.y() - v0p.y()) + u * (v2p.y() - v1p.y());
+        float tanvz = (1 - u) * (v3p.z() - v0p.z()) + u * (v2p.z() - v1p.z());
 
         float nx = tanuy * tanvz - tanuz * tanvy;
         float ny = tanuz * tanvx - tanux * tanvz;
         float nz = tanux * tanvy - tanuy * tanvx;
 
-        Vector3 ng = Vector3J.create(nx, ny, nz);
-        ng = state.transformNormalObjectToWorld(ng);
+        Normal3 ng = Vector3J.normalize(
+                state.transformNormalObjectToWorld(Vector3J.create(nx, ny, nz)));
         state.setGeoNormal(ng);
 
         float k00 = (1 - u) * (1 - v);
@@ -294,8 +296,8 @@ public class QuadMesh implements PrimitiveList {
                 float snx = k00 * normals[i30 + 0] + k10 * normals[i31 + 0] + k11 * normals[i32 + 0] + k01 * normals[i33 + 0];
                 float sny = k00 * normals[i30 + 1] + k10 * normals[i31 + 1] + k11 * normals[i32 + 1] + k01 * normals[i33 + 1];
                 float snz = k00 * normals[i30 + 2] + k10 * normals[i31 + 2] + k11 * normals[i32 + 2] + k01 * normals[i33 + 2];
-                Vector3 sn = Vector3J.create(snx, sny, snz);
-                sn = state.transformNormalObjectToWorld(state.getNormal());
+                Normal3 sn = Vector3J.normalize(
+                        state.transformNormalObjectToWorld(Vector3J.create(snx, sny, snz)));
                 state.setNormal(sn);
                 break;
             }
@@ -305,8 +307,8 @@ public class QuadMesh implements PrimitiveList {
                 float snx = k00 * normals[idx + 0] + k10 * normals[idx + 3] + k11 * normals[idx + 6] + k01 * normals[idx + 9];
                 float sny = k00 * normals[idx + 1] + k10 * normals[idx + 4] + k11 * normals[idx + 7] + k01 * normals[idx + 10];
                 float snz = k00 * normals[idx + 2] + k10 * normals[idx + 5] + k11 * normals[idx + 8] + k01 * normals[idx + 11];
-                Vector3 sn = Vector3J.create(snx, sny, snz);
-                sn = state.transformNormalObjectToWorld(state.getNormal());
+                Normal3 sn = Vector3J.normalize(
+                        state.transformNormalObjectToWorld(Vector3J.create(snx, sny, snz)));
                 state.setNormal(sn);
                 break;
             }
@@ -357,7 +359,7 @@ public class QuadMesh implements PrimitiveList {
             float du2 = uv10 - uv20;
             float dv1 = uv01 - uv21;
             float dv2 = uv11 - uv21;
-            Vector3 dp1 = v0p.sub(v2p), dp2 = v1p.sub(v2p);
+            Vector3 dp1 = Point3J.sub(v0p, v2p), dp2 = Point3J.sub(v1p, v2p);
             float determinant = du1 * dv2 - dv1 * du2;
             if (determinant == 0.0f) {
                 // create basis in world space
@@ -385,7 +387,7 @@ public class QuadMesh implements PrimitiveList {
 
     protected Point3 getPoint(int i) {
         i *= 3;
-        return new Point3(points[i], points[i + 1], points[i + 2]);
+        return Point3J.create(points[i], points[i + 1], points[i + 2]);
     }
 
     public PrimitiveList getBakingPrimitives() {

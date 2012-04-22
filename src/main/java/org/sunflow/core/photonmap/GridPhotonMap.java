@@ -74,9 +74,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         if (!bounds.contains(pt))
             return;
         Vector3 ext = bounds.getExtents();
-        int ix = (int) (((pt.x - bounds.getMinimum().x) * nx) / ext.x());
-        int iy = (int) (((pt.y - bounds.getMinimum().y) * ny) / ext.y());
-        int iz = (int) (((pt.z - bounds.getMinimum().z) * nz) / ext.z());
+        int ix = (int) (((pt.x() - bounds.getMinimum().x()) * nx) / ext.x());
+        int iy = (int) (((pt.y() - bounds.getMinimum().y()) * ny) / ext.y());
+        int iz = (int) (((pt.z() - bounds.getMinimum().z()) * nz) / ext.z());
         ix = MathUtils.clamp(ix, 0, nx - 1);
         iy = MathUtils.clamp(iy, 0, ny - 1);
         iz = MathUtils.clamp(iz, 0, nz - 1);
@@ -161,9 +161,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         if (!bounds.contains(p))
             return Color.BLACK;
         Vector3 ext = bounds.getExtents();
-        int ix = (int) (((p.x - bounds.getMinimum().x) * nx) / ext.x());
-        int iy = (int) (((p.y - bounds.getMinimum().y) * ny) / ext.y());
-        int iz = (int) (((p.z - bounds.getMinimum().z) * nz) / ext.z());
+        int ix = (int) (((p.x() - bounds.getMinimum().x()) * nx) / ext.x());
+        int iy = (int) (((p.y() - bounds.getMinimum().y()) * ny) / ext.y());
+        int iz = (int) (((p.z() - bounds.getMinimum().z()) * nz) / ext.z());
         ix = MathUtils.clamp(ix, 0, nx - 1);
         iy = MathUtils.clamp(iy, 0, ny - 1);
         iz = MathUtils.clamp(iz, 0, nz - 1);

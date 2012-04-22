@@ -9,10 +9,10 @@ import org.sunflow.core.Ray;
 import org.sunflow.core.ShadingState;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
-import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
 public class BanchoffSurface implements PrimitiveList {
@@ -37,18 +37,19 @@ public class BanchoffSurface implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Instance parent = state.getInstance();
         Point3 n = state.transformWorldToObject(state.getPoint());
-        Vector3 sn = Vector3J.normalize( 
-                Vector3J.create(n.x * (2 * n.x * n.x - 1), 
-                                n.y * (2 * n.y * n.y - 1), 
-                                n.z * (2 * n.z * n.z - 1)));
+        Normal3 sn = Vector3J.normalize( 
+                Vector3J.create(n.x() * (2 * n.x() * n.x() - 1), 
+                                n.y() * (2 * n.y() * n.y() - 1), 
+                                n.z() * (2 * n.z() * n.z() - 1)));
         state.setNormal(sn);
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
+        Normal3 worldNormal = Vector3J.normalize(
+                state.transformNormalObjectToWorld(state.getNormal()));
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         // create basis in world space

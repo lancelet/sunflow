@@ -9,8 +9,10 @@ import org.sunflow.core.Ray;
 import org.sunflow.core.ShadingState;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -22,7 +24,7 @@ public class Plane implements PrimitiveList {
     private float cnu, cnv, cnd;
 
     public Plane() {
-        center = new Point3(0, 0, 0);
+        center = Point3J.zero();
         normal = Vector3J.create(0, 1, 0);
         k = 3;
         bnu = bnv = bnd = 0;
@@ -37,7 +39,7 @@ public class Plane implements PrimitiveList {
             Point3 v0 = center;
             Point3 v1 = b;
             Point3 v2 = c;
-            Vector3 ng = normal = Vector3J.normalize(Vector3J.cross(v1.sub(v0), v2.sub(v0)));
+            Vector3 ng = normal = Vector3J.normalize(Vector3J.cross(Point3J.sub(v1, v0), Point3J.sub(v2, v0)));
             if (Math.abs(ng.x()) > Math.abs(ng.y()) && Math.abs(ng.x()) > Math.abs(ng.z()))
                 k = 0;
             else if (Math.abs(ng.y()) > Math.abs(ng.z()))
@@ -47,31 +49,31 @@ public class Plane implements PrimitiveList {
             float ax, ay, bx, by, cx, cy;
             switch (k) {
                 case 0: {
-                    ax = v0.y;
-                    ay = v0.z;
-                    bx = v2.y - ax;
-                    by = v2.z - ay;
-                    cx = v1.y - ax;
-                    cy = v1.z - ay;
+                    ax = v0.y();
+                    ay = v0.z();
+                    bx = v2.y() - ax;
+                    by = v2.z() - ay;
+                    cx = v1.y() - ax;
+                    cy = v1.z() - ay;
                     break;
                 }
                 case 1: {
-                    ax = v0.z;
-                    ay = v0.x;
-                    bx = v2.z - ax;
-                    by = v2.x - ay;
-                    cx = v1.z - ax;
-                    cy = v1.x - ay;
+                    ax = v0.z();
+                    ay = v0.x();
+                    bx = v2.z() - ax;
+                    by = v2.x() - ay;
+                    cx = v1.z() - ax;
+                    cy = v1.x() - ay;
                     break;
                 }
                 case 2:
                 default: {
-                    ax = v0.x;
-                    ay = v0.y;
-                    bx = v2.x - ax;
-                    by = v2.y - ay;
-                    cx = v1.x - ax;
-                    cy = v1.y - ay;
+                    ax = v0.x();
+                    ay = v0.y();
+                    bx = v2.x() - ax;
+                    by = v2.y() - ay;
+                    cx = v1.x() - ax;
+                    cy = v1.y() - ay;
                 }
             }
             float det = bx * cy - by * cx;
@@ -92,9 +94,9 @@ public class Plane implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Instance parent = state.getInstance();
-        Vector3 worldNormal = state.transformNormalObjectToWorld(normal);
+        Normal3 worldNormal = Vector3J.normalize(state.transformNormalObjectToWorld(normal));
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         state.setShader(parent.getShader(0));
@@ -103,18 +105,18 @@ public class Plane implements PrimitiveList {
         float hu, hv;
         switch (k) {
             case 0: {
-                hu = p.y;
-                hv = p.z;
+                hu = p.y();
+                hv = p.z();
                 break;
             }
             case 1: {
-                hu = p.z;
-                hv = p.x;
+                hu = p.z();
+                hv = p.x();
                 break;
             }
             case 2: {
-                hu = p.x;
-                hv = p.y;
+                hu = p.x();
+                hv = p.y();
                 break;
             }
             default:
@@ -129,7 +131,7 @@ public class Plane implements PrimitiveList {
         float dn = normal.x() * r.dx + normal.y() * r.dy + normal.z() * r.dz;
         if (dn == 0.0)
             return;
-        float t = (((center.x - r.ox) * normal.x()) + ((center.y - r.oy) * normal.y()) + ((center.z - r.oz) * normal.z())) / dn;
+        float t = (((center.x() - r.ox) * normal.x()) + ((center.y() - r.oy) * normal.y()) + ((center.z() - r.oz) * normal.z())) / dn;
         if (r.isInside(t)) {
             r.setMax(t);
             state.setIntersection(0);

@@ -10,6 +10,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 import org.sunflow.math.Vector3Encoding;
@@ -81,13 +82,18 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         photons = photonList.toArray(new Photon[photonList.size()]);
         photonList = null;
         Photon[] temp = new Photon[storedPhotons + 1];
-        balanceSegment(temp, 1, 1, storedPhotons);
+        balanceSegment(temp, 1, 1, storedPhotons, bounds);
         photons = temp;
         halfStoredPhotons = storedPhotons / 2;
         log2n = (int) Math.ceil(Math.log(storedPhotons) / Math.log(2.0));
     }
 
-    private void balanceSegment(Photon[] temp, int index, int start, int end) {
+    private void balanceSegment(Photon[] temp, int index, int start, int end, BoundingBox sBound) {
+        /** TODO: lancelet: intentionally shadow this.bounds to throw an NPE
+         *  if bounds is used.  this is a quick hack to make sure that
+         *  this.bounds is not used in this method. */
+        @SuppressWarnings("unused") BoundingBox bounds = null;
+        
         int median = 1;
         while ((4 * median) <= (end - start + 1))
             median += median;
@@ -97,7 +103,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         } else
             median = end - median + 1;
         int axis = Photon.SPLIT_Z;
-        Vector3 extents = bounds.getExtents();
+        Vector3 extents = sBound.getExtents();
         if ((extents.x() > extents.y()) && (extents.x() > extents.z()))
             axis = Photon.SPLIT_X;
         else if (extents.y() > extents.z())
@@ -125,55 +131,56 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         }
         temp[index] = photons[median];
         temp[index].setSplitAxis(axis);
+        float minx = sBound.getMinimum().x();
+        float miny = sBound.getMinimum().y();
+        float minz = sBound.getMinimum().z();
+        float maxx = sBound.getMaximum().x();
+        float maxy = sBound.getMaximum().y();
+        float maxz = sBound.getMaximum().z();
+        BoundingBox bBound;
         if (median > start) {
             if (start < (median - 1)) {
-                float tmp;
                 switch (axis) {
                     case Photon.SPLIT_X:
-                        tmp = bounds.getMaximum().x;
-                        bounds.getMaximum().x = temp[index].x;
-                        balanceSegment(temp, 2 * index, start, median - 1);
-                        bounds.getMaximum().x = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, minz, temp[index].x, maxy, maxz);
+                        balanceSegment(temp, 2 * index, start, median - 1, bBound);
                         break;
                     case Photon.SPLIT_Y:
-                        tmp = bounds.getMaximum().y;
-                        bounds.getMaximum().y = temp[index].y;
-                        balanceSegment(temp, 2 * index, start, median - 1);
-                        bounds.getMaximum().y = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, minz, maxx, temp[index].y, maxz);
+                        balanceSegment(temp, 2 * index, start, median - 1, bBound);
                         break;
                     default:
-                        tmp = bounds.getMaximum().z;
-                        bounds.getMaximum().z = temp[index].z;
-                        balanceSegment(temp, 2 * index, start, median - 1);
-                        bounds.getMaximum().z = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, minz, maxx, maxy, temp[index].z);
+                        balanceSegment(temp, 2 * index, start, median - 1, bBound);
                 }
-            } else
+            } else {
                 temp[2 * index] = photons[start];
+            }
         }
         if (median < end) {
             if ((median + 1) < end) {
-                float tmp;
                 switch (axis) {
                     case Photon.SPLIT_X:
-                        tmp = bounds.getMinimum().x;
-                        bounds.getMinimum().x = temp[index].x;
-                        balanceSegment(temp, (2 * index) + 1, median + 1, end);
-                        bounds.getMinimum().x = tmp;
+                        bBound = new BoundingBox(
+                                temp[index].x, miny, minz, maxx, maxy, maxz);
+                        balanceSegment(temp, (2 * index) + 1, median + 1, end, bBound);
                         break;
                     case Photon.SPLIT_Y:
-                        tmp = bounds.getMinimum().y;
-                        bounds.getMinimum().y = temp[index].y;
-                        balanceSegment(temp, (2 * index) + 1, median + 1, end);
-                        bounds.getMinimum().y = tmp;
+                        bBound = new BoundingBox(
+                                minx, temp[index].y, minz, maxx, maxy, maxz);
+                        balanceSegment(temp, (2 * index) + 1, median + 1, end, bBound);
                         break;
                     default:
-                        tmp = bounds.getMinimum().z;
-                        bounds.getMinimum().z = temp[index].z;
-                        balanceSegment(temp, (2 * index) + 1, median + 1, end);
-                        bounds.getMinimum().z = tmp;
+                        bBound = new BoundingBox(
+                                minx, miny, temp[index].z, maxx, maxy, maxz);
+                        balanceSegment(temp, (2 * index) + 1, median + 1, end, bBound);
                 }
-            } else
+            } else {
                 temp[(2 * index) + 1] = photons[end];
+            }
         }
     }
 
@@ -190,7 +197,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             synchronized (this) {
                 storedPhotons++;
                 photonList.add(p);
-                bounds.include(new Point3(p.x, p.y, p.z));
+                bounds.include(Point3J.create(p.x, p.y, p.z));
                 maxPower = Math.max(maxPower, power.getMax());
             }
         }
@@ -220,7 +227,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         locatePhotons(np);
         if (np.found < 8)
             return;
-        Point3 ppos = new Point3();
+        Point3 ppos;
         Vector3 pdir;
         Vector3 pvec;
         float invArea = 1.0f / ((float) Math.PI * np.dist2[0]);
@@ -232,8 +239,8 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             pdir = Vector3Encoding.decode(phot.dir);
             float cos = -pdir.dot(state.getNormal());
             if (cos > 0.001) {
-                ppos.set(phot.x, phot.y, phot.z);
-                pvec = ppos.sub(state.getPoint());
+                ppos = Point3J.create(phot.x, phot.y, phot.z);
+                pvec = Point3J.sub(ppos, state.getPoint());
                 float pcos = pvec.dot(state.getNormal());
                 if ((pcos < maxNDist) && (pcos > -maxNDist)) {
                     LightSample sample = new LightSample();
@@ -258,9 +265,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             max = n;
             found = 0;
             gotHeap = false;
-            px = p.x;
-            py = p.y;
-            pz = p.z;
+            px = p.x();
+            py = p.y();
+            pz = p.z();
             dist2 = new float[n + 1];
             index = new Photon[n + 1];
             dist2[0] = maxDist2;
@@ -269,9 +276,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         @SuppressWarnings("unused") void reset(Point3 p, float maxDist2) {
             found = 0;
             gotHeap = false;
-            px = p.x;
-            py = p.y;
-            pz = p.z;
+            px = p.x();
+            py = p.y();
+            pz = p.z();
             dist2[0] = maxDist2;
         }
 
@@ -342,9 +349,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
         static final int SPLIT_MASK = 3;
 
         Photon(Point3 p, Vector3 dir, Color power) {
-            x = p.x;
-            y = p.y;
-            z = p.z;
+            x = p.x();
+            y = p.y();
+            z = p.z();
             this.dir = Vector3Encoding.encode(dir);
             this.power = power.toRGBE();
             flags = SPLIT_X;

@@ -10,10 +10,10 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.MathUtils;
 import org.sunflow.math.Matrix4;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
-import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
 public class Torus implements PrimitiveList {
@@ -67,16 +67,17 @@ public class Torus implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Instance parent = state.getInstance();
         // get local point
         Point3 p = state.transformWorldToObject(state.getPoint());
         // compute local normal
-        float deriv = p.x * p.x + p.y * p.y + p.z * p.z - ri2 - ro2;
-        state.setNormal(Vector3J.create(p.x * deriv, p.y * deriv, p.z * deriv + 2 * ro2 * p.z));
+        float deriv = p.x() * p.x() + p.y() * p.y() + p.z() * p.z() - ri2 - ro2;
+        state.setNormal(Vector3J.normalize(
+                Vector3J.create(p.x() * deriv, p.y() * deriv, p.z() * deriv + 2 * ro2 * p.z())));
 
-        double phi = Math.asin(MathUtils.clamp(p.z / ri, -1, 1));
-        double theta = Math.atan2(p.y, p.x);
+        double phi = Math.asin(MathUtils.clamp(p.z() / ri, -1, 1));
+        double theta = Math.atan2(p.y(), p.x());
         if (theta < 0)
             theta += 2 * Math.PI;
         state.getUV().x = (float) (theta / (2 * Math.PI));
@@ -84,7 +85,8 @@ public class Torus implements PrimitiveList {
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
+        Normal3 worldNormal = Vector3J.normalize(
+                state.transformNormalObjectToWorld(state.getNormal()));
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);
         // make basis in world space

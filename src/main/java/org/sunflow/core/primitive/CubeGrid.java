@@ -45,7 +45,7 @@ public abstract class CubeGrid implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Instance parent = state.getInstance();
         Vector3 normal;
         switch (state.getPrimitiveID()) {
@@ -71,7 +71,7 @@ public abstract class CubeGrid implements PrimitiveList {
                 normal = Vector3J.create(0, 0, 0);
                 break;
         }
-        state.setNormal(state.transformNormalObjectToWorld(normal));
+        state.setNormal(Vector3J.normalize(state.transformNormalObjectToWorld(normal)));
         state.setGeoNormal(state.getNormal());
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
         state.setShader(parent.getShader(0));

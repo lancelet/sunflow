@@ -155,7 +155,7 @@ public class SunflowAPI implements SunflowAPIInterface {
 
     public final void parameter(String name, Point3 value) {
         parameterList.addPoints(name, InterpolationType.NONE, new float[] {
-                value.x, value.y, value.z });
+                value.x(), value.y(), value.z() });
     }
 
     public final void parameter(String name, Vector3 value) {

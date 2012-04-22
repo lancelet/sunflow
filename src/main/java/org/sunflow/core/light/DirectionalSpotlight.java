@@ -12,6 +12,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -23,7 +24,7 @@ public class DirectionalSpotlight implements LightSource {
     private Color radiance;
 
     public DirectionalSpotlight() {
-        src = new Point3(0, 0, 0);
+        src = Point3J.zero();
         dir = Vector3J.create(0, 0, -1);
         basis = OrthoNormalBasis.makeFromW(dir);
         r = 1;
@@ -52,19 +53,18 @@ public class DirectionalSpotlight implements LightSource {
     public void getSamples(ShadingState state) {
         if (dir.dot(state.getGeoNormal()) < 0 && dir.dot(state.getNormal()) < 0) {
             // project point onto source plane
-            float x = state.getPoint().x - src.x;
-            float y = state.getPoint().y - src.y;
-            float z = state.getPoint().z - src.z;
+            float x = state.getPoint().x() - src.x();
+            float y = state.getPoint().y() - src.y();
+            float z = state.getPoint().z() - src.z();
             float t = ((x * dir.x()) + (y * dir.y()) + (z * dir.z()));
             if (t >= 0.0) {
                 x -= (t * dir.x());
                 y -= (t * dir.y());
                 z -= (t * dir.z());
                 if (((x * x) + (y * y) + (z * z)) <= r2) {
-                    Point3 p = new Point3();
-                    p.x = src.x + x;
-                    p.y = src.y + y;
-                    p.z = src.z + z;
+                    Point3 p = Point3J.create(src.x() + x,
+                                              src.y() + y,
+                                              src.z() + z);
                     LightSample dest = new LightSample();
                     dest.setShadowRay(new Ray(state.getPoint(), p));
                     dest.setRadiance(radiance, radiance);
@@ -83,8 +83,7 @@ public class DirectionalSpotlight implements LightSource {
                                             0);
         direction = basis.transform(direction);
         
-        Point3 position = new Point3();
-        Point3.add(src, direction, position);
+        Point3 position = Point3J.add(src, direction);
         
         Color power = new Color(radiance);
         power.mul((float) Math.PI * r2);

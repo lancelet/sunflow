@@ -4,6 +4,7 @@ import org.sunflow.SunflowAPI;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.MovingMatrix4;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.system.UI;
 import org.sunflow.system.UI.Module;
 
@@ -97,7 +98,7 @@ public class Camera implements RenderObject {
      * @return ray from the origin of camera space to the specified point
      */
     Ray getRay(Point3 p, float time) {
-        return new Ray(c2w == null ? new Point3(0, 0, 0) : c2w.sample(time).transformP(new Point3(0, 0, 0)), p);
+        return new Ray(c2w == null ? Point3J.create(0, 0, 0) : c2w.sample(time).transformP(Point3J.create(0, 0, 0)), p);
     }
 
     /**

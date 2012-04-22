@@ -2,6 +2,7 @@ package org.sunflow.core;
 
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -59,9 +60,9 @@ public final class Ray {
      * @param d ray direction (need not be normalized)
      */
     public Ray(Point3 o, Vector3 d) {
-        ox = o.x;
-        oy = o.y;
-        oz = o.z;
+        ox = o.x();
+        oy = o.y();
+        oz = o.z();
         dx = d.x();
         dy = d.y();
         dz = d.z();
@@ -82,12 +83,12 @@ public final class Ray {
      * @param b end point
      */
     public Ray(Point3 a, Point3 b) {
-        ox = a.x;
-        oy = a.y;
-        oz = a.z;
-        dx = b.x - ox;
-        dy = b.y - oy;
-        dz = b.z - oz;
+        ox = a.x();
+        oy = a.y();
+        oz = a.z();
+        dx = b.x() - ox;
+        dy = b.y() - oy;
+        dz = b.z() - oz;
         tMin = EPSILON;
         float n = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
         float in = 1.0f / n;
@@ -171,15 +172,13 @@ public final class Ray {
     /**
      * Gets the end point of the ray. A reference to <code>dest</code> is
      * returned to support chaining.
-     * 
-     * @param dest reference to the point to store
-     * @return reference to <code>dest</code>
+     *
+     * @return end point of the ray
      */
-    public final Point3 getPoint(Point3 dest) {
-        dest.x = ox + (tMax * dx);
-        dest.y = oy + (tMax * dy);
-        dest.z = oz + (tMax * dz);
-        return dest;
+    public final Point3 getPoint() {
+        return Point3J.create(ox + (tMax * dx),
+                              oy + (tMax * dy),
+                              oz + (tMax * dz));
     }
 
     /**

@@ -50,21 +50,24 @@ public class WireframeShader implements Shader {
         center = w2c.transformP(center);
         for (int i = 0; i < 3; i++)
             p[i] = w2c.transformP(state.transformObjectToWorld(p[i]));
-        float cn = 1.0f / (float) Math.sqrt(center.x * center.x + center.y * center.y + center.z * center.z);
+        float cn = 1.0f / (float) Math.sqrt(
+                center.x() * center.x() + 
+                center.y() * center.y() + 
+                center.z() * center.z());
         for (int i = 0, i2 = 2; i < 3; i2 = i, i++) {
             // compute orthogonal projection of the shading point onto each
             // triangle edge as in:
             // http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
-            float t = (center.x - p[i].x) * (p[i2].x - p[i].x);
-            t += (center.y - p[i].y) * (p[i2].y - p[i].y);
-            t += (center.z - p[i].z) * (p[i2].z - p[i].z);
+            float t = (center.x() - p[i].x()) * (p[i2].x() - p[i].x());
+            t += (center.y() - p[i].y()) * (p[i2].y() - p[i].y());
+            t += (center.z() - p[i].z()) * (p[i2].z() - p[i].z());
             t /= p[i].distanceToSquared(p[i2]);
-            float projx = (1 - t) * p[i].x + t * p[i2].x;
-            float projy = (1 - t) * p[i].y + t * p[i2].y;
-            float projz = (1 - t) * p[i].z + t * p[i2].z;
+            float projx = (1 - t) * p[i].x() + t * p[i2].x();
+            float projy = (1 - t) * p[i].y() + t * p[i2].y();
+            float projz = (1 - t) * p[i].z() + t * p[i2].z();
             float n = 1.0f / (float) Math.sqrt(projx * projx + projy * projy + projz * projz);
             // check angular width
-            float dot = projx * center.x + projy * center.y + projz * center.z;
+            float dot = projx * center.x() + projy * center.y() + projz * center.z();
             if (dot * n * cn >= cosWidth)
                 return getLineColor(state);
         }

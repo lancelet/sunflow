@@ -11,6 +11,7 @@ import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
@@ -136,35 +137,35 @@ public class JuliaFractal implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Instance parent = state.getInstance();
         // compute local normal
         Point3 p = state.transformWorldToObject(state.getPoint());
-        float gx1w = p.x - DELTA;
-        float gx1x = p.y;
-        float gx1y = p.z;
+        float gx1w = p.x() - DELTA;
+        float gx1x = p.y();
+        float gx1y = p.z();
         float gx1z = 0;
-        float gx2w = p.x + DELTA;
-        float gx2x = p.y;
-        float gx2y = p.z;
+        float gx2w = p.x() + DELTA;
+        float gx2x = p.y();
+        float gx2y = p.z();
         float gx2z = 0;
 
-        float gy1w = p.x;
-        float gy1x = p.y - DELTA;
-        float gy1y = p.z;
+        float gy1w = p.x();
+        float gy1x = p.y() - DELTA;
+        float gy1y = p.z();
         float gy1z = 0;
-        float gy2w = p.x;
-        float gy2x = p.y + DELTA;
-        float gy2y = p.z;
+        float gy2w = p.x();
+        float gy2x = p.y() + DELTA;
+        float gy2y = p.z();
         float gy2z = 0;
 
-        float gz1w = p.x;
-        float gz1x = p.y;
-        float gz1y = p.z - DELTA;
+        float gz1w = p.x();
+        float gz1x = p.y();
+        float gz1y = p.z() - DELTA;
         float gz1z = 0;
-        float gz2w = p.x;
-        float gz2x = p.y;
-        float gz2y = p.z + DELTA;
+        float gz2w = p.x();
+        float gz2x = p.y();
+        float gz2y = p.z() + DELTA;
         float gz2z = 0;
 
         for (int i = 0; i < maxIterations; i++) {
@@ -221,13 +222,16 @@ public class JuliaFractal implements PrimitiveList {
         float gradY = length(gy2w, gy2x, gy2y, gy2z) - length(gy1w, gy1x, gy1y, gy1z);
         float gradZ = length(gz2w, gz2x, gz2y, gz2z) - length(gz1w, gz1x, gz1y, gz1z);
         Vector3 n = Vector3J.create(gradX, gradY, gradZ);
-        state.setNormal(state.transformNormalObjectToWorld(n));
+        state.setNormal(Vector3J.normalize(state.transformNormalObjectToWorld(n)));
         state.setGeoNormal(state.getNormal());
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
 
-        state.getPoint().x += state.getNormal().x() * epsilon * 20;
-        state.getPoint().y += state.getNormal().y() * epsilon * 20;
-        state.getPoint().z += state.getNormal().z() * epsilon * 20;
+        Point3 hitPoint = state.getPoint();
+        Vector3 dHitPoint = Vector3J.create(
+                state.getNormal().x() * epsilon * 20,
+                state.getNormal().y() * epsilon * 20,
+                state.getNormal().z() * epsilon * 20);
+        state.setPoint(Point3J.add(hitPoint, dHitPoint));
 
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));

@@ -7,6 +7,7 @@ import org.sunflow.core.ShadingState;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.PerlinScalar;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -23,22 +24,23 @@ public class PerlinModifier implements Modifier {
     }
 
     public void modify(ShadingState state) {
-        Point3 p = state.transformWorldToObject(state.getPoint());
-        p.x *= size;
-        p.y *= size;
-        p.z *= size;
+        Point3 pt = state.transformWorldToObject(state.getPoint());
+        Point3 p = Point3J.create(pt.x() * size,
+                                  pt.y() * size,
+                                  pt.z() * size);
         Vector3 normal = state.transformNormalWorldToObject(state.getNormal());
-        double f0 = f(p.x, p.y, p.z);
-        double fx = f(p.x + .0001, p.y, p.z);
-        double fy = f(p.x, p.y + .0001, p.z);
-        double fz = f(p.x, p.y, p.z + .0001);
+        double f0 = f(p.x(), p.y(), p.z());
+        double fx = f(p.x() + .0001, p.y(), p.z());
+        double fy = f(p.x(), p.y() + .0001, p.z());
+        double fz = f(p.x(), p.y(), p.z() + .0001);
 
         normal = Vector3J.normalize(Vector3J.create(
                 (float)(normal.x() - scale * (fx - f0) / .0001),
                 (float)(normal.y() - scale * (fy - f0) / .0001),
                 (float)(normal.z() - scale * (fz - f0) / .0001))); 
 
-        state.setNormal(state.transformNormalObjectToWorld(normal));
+        state.setNormal(Vector3J.normalize(
+                state.transformNormalObjectToWorld(normal)));
         state.setBasis(OrthoNormalBasis.makeFromW(state.getNormal()));
     }
 

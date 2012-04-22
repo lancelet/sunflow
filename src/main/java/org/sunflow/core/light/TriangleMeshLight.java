@@ -15,6 +15,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.MathUtils;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
 
@@ -46,7 +47,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                 Point3 v0p = getPoint(a);
                 Point3 v1p = getPoint(b);
                 Point3 v2p = getPoint(c);
-                ngs[i] = Point3.normal(v0p, v1p, v2p);
+                ngs[i] = Point3J.normal(v0p, v1p, v2p);
                 areas[i] = 0.5f * ngs[i].length();
                 ngs[i] = Vector3J.normalize(ngs[i]);
                 totalArea += areas[i];
@@ -142,7 +143,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         px += 0.001f * ngs[j].x();
         py += 0.001f * ngs[j].y();
         pz += 0.001f * ngs[j].z();
-        Point3 position = new Point3(px, py, pz);
+        Point3 position = Point3J.create(px, py, pz);
         
         OrthoNormalBasis onb = OrthoNormalBasis.makeFromW(ngs[j]);
         u = (float) (2 * Math.PI * randX1);
@@ -170,12 +171,12 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
         Point3 p = state.getPoint();
         for (int tri3 = 0, i = 0; tri3 < triangles.length; tri3 += 3, i++) {
             // vector towards each vertex of the light source
-            Vector3 p0 = getPoint(triangles[tri3 + 0]).sub(p);
+            Vector3 p0 = Point3J.sub(getPoint(triangles[tri3 + 0]), p);
             // cull triangle if it is facing the wrong way
             if (p0.dot(ngs[i]) >= 0)
                 continue;
-            Vector3 p1 = getPoint(triangles[tri3 + 1]).sub(p);
-            Vector3 p2 = getPoint(triangles[tri3 + 2]).sub(p);
+            Vector3 p1 = Point3J.sub(getPoint(triangles[tri3 + 1]), p);
+            Vector3 p2 = Point3J.sub(getPoint(triangles[tri3 + 2]), p);
             // if all three vertices are below the hemisphere, stop
             if (p0.dot(n) <= 0 && p1.dot(n) <= 0 && p2.dot(n) <= 0)
                 continue;

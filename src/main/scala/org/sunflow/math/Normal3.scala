@@ -15,6 +15,8 @@ trait Normal3 extends Vector3 {
   }, "Triplet (%f, %f, %f) was not approximately normal." format (x, y, z))
   */
   
+  def unary_-()(b: Normal3Builder): Normal3 = b(-x, -y, -z)
+  
   override def lengthSquared: Float = 1.0f
   override def length: Float = 1.0f
   override def normalize()(implicit b: Normal3Builder): Normal3 = this

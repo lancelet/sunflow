@@ -9,6 +9,7 @@ import org.sunflow.core.Ray;
 import org.sunflow.core.ShadingState;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
+import org.sunflow.math.Normal3;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
 import org.sunflow.math.Solvers;
@@ -37,10 +38,10 @@ public class Sphere implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.getRay().getPoint(state.getPoint());
+        state.setPoint(state.getRay().getPoint());
         Instance parent = state.getInstance();
         Point3 localPoint = state.transformWorldToObject(state.getPoint());
-        state.setNormal(Vector3J.create(localPoint.x, localPoint.y, localPoint.z));
+        state.setNormal(Vector3J.normalize(Vector3J.create(localPoint.x(), localPoint.y(), localPoint.z())));
 
         float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
         if (phi < 0)
@@ -55,7 +56,7 @@ public class Sphere implements PrimitiveList {
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
         // into world space
-        Vector3 worldNormal = state.transformNormalObjectToWorld(state.getNormal());
+        Normal3 worldNormal = Vector3J.normalize(state.transformNormalObjectToWorld(state.getNormal()));
         v = state.transformVectorObjectToWorld(v);
         state.setNormal(worldNormal);
         state.setGeoNormal(worldNormal);

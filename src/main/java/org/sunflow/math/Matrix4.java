@@ -20,7 +20,7 @@ public final class Matrix4 {
     private float m22;
     private float m23;
 
-    // usefull constant matrices
+    // useful constant matrices
     public static final Matrix4 ZERO = new Matrix4();
     public static final Matrix4 IDENTITY = Matrix4.scale(1);
 
@@ -254,11 +254,10 @@ public final class Matrix4 {
      * @return a new Point3 object equal to <code>this*v</code>
      */
     public final Point3 transformP(Point3 p) {
-        Point3 rp = new Point3();
-        rp.x = m00 * p.x + m01 * p.y + m02 * p.z + m03;
-        rp.y = m10 * p.x + m11 * p.y + m12 * p.z + m13;
-        rp.z = m20 * p.x + m21 * p.y + m22 * p.z + m23;
-        return rp;
+        float rpx = m00 * p.x() + m01 * p.y() + m02 * p.z() + m03;
+        float rpy = m10 * p.x() + m11 * p.y() + m12 * p.z() + m13;
+        float rpz = m20 * p.x() + m21 * p.y() + m22 * p.z() + m23;
+        return Point3J.create(rpx, rpy, rpz);
     }
 
     /**
@@ -534,8 +533,9 @@ public final class Matrix4 {
      * @return
      */
     public final static Matrix4 lookAt(Point3 eye, Point3 target, Vector3 up) {
-        Matrix4 m = Matrix4.fromBasis(OrthoNormalBasis.makeFromWV(eye.sub(target), up));
-        return Matrix4.translation(eye.x, eye.y, eye.z).multiply(m);
+        Matrix4 m = Matrix4.fromBasis(
+                OrthoNormalBasis.makeFromWV(Point3J.sub(eye, target), up));
+        return Matrix4.translation(eye.x(), eye.y(), eye.z()).multiply(m);
     }
 
     public final static Matrix4 blend(Matrix4 m0, Matrix4 m1, float t) {

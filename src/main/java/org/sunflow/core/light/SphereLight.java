@@ -15,6 +15,7 @@ import org.sunflow.image.Color;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
 import org.sunflow.math.Point3;
+import org.sunflow.math.Point3J;
 import org.sunflow.math.Solvers;
 import org.sunflow.math.Vector3;
 import org.sunflow.math.Vector3J;
@@ -29,7 +30,7 @@ public class SphereLight implements LightSource, Shader {
     public SphereLight() {
         radiance = Color.WHITE;
         numSamples = 4;
-        center = new Point3();
+        center = Point3J.zero();
         radius = r2 = 1;
     }
 
@@ -57,7 +58,7 @@ public class SphereLight implements LightSource, Shader {
     public void getSamples(ShadingState state) {
         if (getNumSamples() <= 0)
             return;
-        Vector3 wc = center.sub(state.getPoint());
+        Vector3 wc = Point3J.sub(center, state.getPoint());
         float l2 = wc.lengthSquared();
         if (l2 <= r2)
             return; // inside the sphere?
@@ -92,9 +93,9 @@ public class SphereLight implements LightSource, Shader {
             if (cosNx <= 0)
                 continue;
 
-            float ocx = state.getPoint().x - center.x;
-            float ocy = state.getPoint().y - center.y;
-            float ocz = state.getPoint().z - center.z;
+            float ocx = state.getPoint().x() - center.x();
+            float ocy = state.getPoint().y() - center.y();
+            float ocz = state.getPoint().z() - center.z();
             float qa = dir.dot(dir);
             float qb = 2 * ((dir.x() * ocx) + (dir.y() * ocy) + (dir.z() * ocz));
             float qc = ((ocx * ocx) + (ocy * ocy) + (ocz * ocz)) - r2;
@@ -119,9 +120,9 @@ public class SphereLight implements LightSource, Shader {
         float phi = (float) (2 * Math.PI * randY2);
         float x = r * (float) Math.cos(phi);
         float y = r * (float) Math.sin(phi);        
-        Point3 position = new Point3(center.x + x * radius,
-                                     center.y + y * radius,
-                                     center.z + z * radius);
+        Point3 position = Point3J.create(center.x() + x * radius,
+                                         center.y() + y * radius,
+                                         center.z() + z * radius);
 
         OrthoNormalBasis basis = OrthoNormalBasis.makeFromW(
                 Vector3J.create(x, y, z));
@@ -158,6 +159,7 @@ public class SphereLight implements LightSource, Shader {
     }
 
     public Instance createInstance() {
-        return Instance.createTemporary(new Sphere(), Matrix4.translation(center.x, center.y, center.z).multiply(Matrix4.scale(radius)), this);
+        return Instance.createTemporary(new Sphere(), 
+                Matrix4.translation(center.x(), center.y(), center.z()).multiply(Matrix4.scale(radius)), this);
     }
 }
