@@ -23,8 +23,6 @@ trait Point3 {
 trait Point3Builder extends ((Float, Float, Float) => Point3)
 
 object Point3 {
-  private implicit val normal3Builder: Normal3Builder = 
-    Normal3.SimpleNormal3Builder
   def apply(x: Float, y: Float, z: Float)(implicit b: Point3Builder): Point3 =
     b(x, y, z)
   def normal(p0: Point3, p1: Point3, p2: Point3): Normal3 =
