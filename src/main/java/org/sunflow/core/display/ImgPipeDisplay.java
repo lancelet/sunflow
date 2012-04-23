@@ -36,7 +36,7 @@ public class ImgPipeDisplay extends JPanel implements Display {
         byte[] rgba = new byte[4 * (yh - yl + 1) * (xh - xl + 1)];
         for (int j = 0, idx = 0; j < h; j++) {
             for (int i = 0; i < w; i++, idx += 4) {
-                int rgb = data[(h - j - 1) * w + i].toNonLinear().toRGB();
+                int rgb = data[(h - j - 1) * w + i].toNonLinear().toIntRGB();
                 int cr = (rgb >> 16) & 0xFF;
                 int cg = (rgb >> 8) & 0xFF;
                 int cb = rgb & 0xFF;
@@ -59,7 +59,7 @@ public class ImgPipeDisplay extends JPanel implements Display {
         int yl = ih - 1 - (y + h - 1);
         int yh = ih - 1 - y;
         outputPacket(2, xl, xh, yl, yh);
-        int rgb = c.toNonLinear().toRGB();
+        int rgb = c.toNonLinear().toIntRGB();
         int cr = (rgb >> 16) & 0xFF;
         int cg = (rgb >> 8) & 0xFF;
         int cb = rgb & 0xFF;

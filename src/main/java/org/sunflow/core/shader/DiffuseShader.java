@@ -14,7 +14,7 @@ public class DiffuseShader implements Shader {
     private Color diff;
 
     public DiffuseShader() {
-        diff = Color.WHITE;
+        diff = Color.White();
     }
 
     public boolean update(ParameterList pl, SunflowAPI api) {
@@ -35,7 +35,7 @@ public class DiffuseShader implements Shader {
         return state.diffuse(getDiffuse(state));
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         Color diffuse;
         // make sure we are on the right side of the material
         if (state.getNormal().dot(state.getRay().getDirection()) > 0.0) {
@@ -44,11 +44,11 @@ public class DiffuseShader implements Shader {
         }
         diffuse = getDiffuse(state);
         state.storePhoton(state.getRay().getDirection(), power, diffuse);
-        float avg = diffuse.getAverage();
+        float avg = diffuse.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avg) {
             // photon is scattered
-            power.mul(diffuse).mul(1.0f / avg);
+            power = power.$times(diffuse).$times(1.0f / avg);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * rnd / avg;
             double v = state.getRandom(0, 1, 1);
@@ -58,5 +58,6 @@ public class DiffuseShader implements Shader {
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
+        return power;
     }
 }

@@ -255,7 +255,7 @@ public class EXRBitmapWriter implements BitmapWriter {
 
         for (int ty = 0; ty < tileRangeY; ty++) {
             for (int tx = 0; tx < tileRangeX; tx++) {
-                float[] rgbf = tile[tx + ty * tileRangeX].getRGB();
+                float[] rgbf = tile[tx + ty * tileRangeX].toArray();
                 if (channelType == FLOAT) {
                     rgb = ByteUtil.get4Bytes(Float.floatToRawIntBits(alpha[tx + ty * tileRangeX]));
                     tmpbuf[pixptr + 0] = rgb[0];

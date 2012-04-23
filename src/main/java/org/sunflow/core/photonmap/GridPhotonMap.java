@@ -109,8 +109,8 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                 }
             }
             g.count++;
-            g.flux.add(power);
-            g.diffuse.add(diffuse);
+            g.flux = g.flux.$plus(power);
+            g.diffuse = g.diffuse.$plus(diffuse);
             numStoredPhotons++;
         }
     }
@@ -122,7 +122,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         int cells = 0;
         for (int i = 0; i < cellHash.length; i++) {
             for (PhotonGroup g = cellHash[i]; g != null; g = g.next) {
-                g.diffuse.mul(1.0f / g.count);
+                g.diffuse = g.diffuse.$times(1.0f / g.count);
                 cells++;
             }
         }
@@ -159,7 +159,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
 
     public synchronized Color getRadiance(Point3 p, Vector3 n) {
         if (!bounds.contains(p))
-            return Color.BLACK;
+            return Color.Black();
         Vector3 ext = bounds.getExtents();
         int ix = (int) (((p.x() - bounds.getMinimum().x()) * nx) / ext.x());
         int iy = (int) (((p.y() - bounds.getMinimum().y()) * ny) / ext.y());
@@ -176,7 +176,7 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                     center = g;
                     break;
                 }
-                Color r = g.radiance.copy();
+                Color r = g.radiance;
                 rwl.readLock().unlock();
                 return r;
             }
@@ -185,8 +185,8 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
         while (true) {
             int numPhotons = 0;
             int ndiff = 0;
-            Color irr = Color.black();
-            Color diff = (center == null) ? Color.black() : null;
+            Color irr = Color.Black();
+            Color diff = (center == null) ? Color.Black() : null;
             for (int z = iz - (vol - 1); z <= iz + (vol - 1); z++) {
                 for (int y = iy - (vol - 1); y <= iy + (vol - 1); y++) {
                     for (int x = ix - (vol - 1); x <= ix + (vol - 1); x++) {
@@ -194,9 +194,9 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                         for (PhotonGroup g = get(x, y, z); g != null; g = g.next) {
                             if (g.id == vid && n.dot(g.normal) > NORMAL_THRESHOLD) {
                                 numPhotons += g.count;
-                                irr.add(g.flux);
+                                irr = irr.$plus(g.flux);
                                 if (diff != null) {
-                                    diff.add(g.diffuse);
+                                    diff = diff.$plus(g.diffuse);
                                     ndiff++;
                                 }
                                 break; // only one valid group can be found,
@@ -212,20 +212,20 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
                 float area = (2 * vol - 1) / 3.0f * ((ext.x() / nx) + (ext.y() / ny) + (ext.z() / nz));
                 area *= area;
                 area *= Math.PI;
-                irr.mul(1.0f / area);
+                irr = irr.$times(1.0f / area);
                 // upgrade lock manually
                 rwl.readLock().unlock();
                 rwl.writeLock().lock();
                 if (center == null) {
                     if (ndiff > 0)
-                        diff.mul(1.0f / ndiff);
+                        diff = diff.$times(1.0f / ndiff);
                     center = new PhotonGroup(id, n);
-                    center.diffuse.set(diff);
+                    center.diffuse = diff;
                     center.next = cellHash[id % cellHash.length];
                     cellHash[id % cellHash.length] = center;
                 }
-                irr.mul(center.diffuse);
-                center.radiance = irr.copy();
+                irr = irr.$times(center.diffuse);
+                center.radiance = irr;
                 rwl.writeLock().unlock(); // unlock write - done
                 return irr;
             }
@@ -255,8 +255,8 @@ public class GridPhotonMap implements GlobalPhotonMapInterface {
 
         PhotonGroup(int id, Vector3 n) {
             normal = n;
-            flux = Color.black();
-            diffuse = Color.black();
+            flux = Color.Black();
+            diffuse = Color.Black();
             radiance = null;
             count = 0;
             this.id = id;

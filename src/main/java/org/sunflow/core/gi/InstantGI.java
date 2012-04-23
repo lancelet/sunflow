@@ -32,7 +32,7 @@ public class InstantGI implements GIEngine {
         float minDist = 1;
         Color pow = null;
         for (PointLight vpl : virtualLights[set]) {
-            maxAvgPow = Math.max(maxAvgPow, vpl.power.getAverage());
+            maxAvgPow = Math.max(maxAvgPow, vpl.power.average());
             if (n.dot(vpl.n) > 0.9f) {
                 float d = vpl.p.distanceToSquared(p);
                 if (d < minDist) {
@@ -41,7 +41,7 @@ public class InstantGI implements GIEngine {
                 }
             }
         }
-        return pow == null ? Color.BLACK : pow.copy().mul(1.0f / maxAvgPow);
+        return pow == null ? Color.Black() : pow.$times(1.0f / maxAvgPow);
     }
 
     public boolean init(Options options, Scene scene) {
@@ -75,8 +75,8 @@ public class InstantGI implements GIEngine {
     }
 
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
-        float b = (float) Math.PI * c / diffuseReflectance.getMax();
-        Color irr = Color.black();
+        float b = (float) Math.PI * c / diffuseReflectance.max();
+        Color irr = Color.Black();
         Point3 p = state.getPoint();
         Vector3 n = state.getNormal();
         int set = (int) (state.getRandom(0, 1, 1) * numSets);
@@ -87,9 +87,9 @@ public class InstantGI implements GIEngine {
             if (dotNlD > 0 && dotND > 0) {
                 float r2 = r.getMax() * r.getMax();
                 Color opacity = state.traceShadow(r);
-                Color power = Color.blend(vpl.power, Color.BLACK, opacity);
+                Color power = vpl.power.lerpTo(Color.Black(), opacity);
                 float g = (dotND * dotNlD) / r2;
-                irr.madd(0.25f * Math.min(g, b), power);
+                irr = irr.$plus(power.$times(0.25f * Math.min(g, b)));
             }
         }
         // bias compensation
@@ -122,8 +122,10 @@ public class InstantGI implements GIEngine {
                     if (cosThetaY > 0) {
                         float g = (cosTheta * cosThetaY) / r2;
                         // was this path accounted for yet?
-                        if (g > b)
-                            irr.madd(scale * (g - b) / g, temp.getShader().getRadiance(temp));
+                        if (g > b) {
+                            Color rad = temp.getShader().getRadiance(temp);
+                            irr = irr.$plus(rad.$times(scale * (g - b) / g));
+                        }
                     }
                 }
             }

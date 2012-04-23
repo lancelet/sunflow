@@ -12,9 +12,10 @@ public class SimpleShader implements Shader {
     }
 
     public Color getRadiance(ShadingState state) {
-        return new Color(Math.abs(state.getRay().dot(state.getNormal())));
+        return Color.fromGray(Math.abs(state.getRay().dot(state.getNormal())));
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

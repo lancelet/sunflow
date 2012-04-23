@@ -24,7 +24,7 @@ public class UberShader implements Shader {
     private int numSamples;
 
     public UberShader() {
-        diff = spec = Color.GRAY;
+        diff = spec = Color.Gray();
         diffmap = specmap = null;
         diffBlend = specBlend = 1;
         glossyness = 0;
@@ -49,11 +49,13 @@ public class UberShader implements Shader {
     }
 
     public Color getDiffuse(ShadingState state) {
-        return diffmap == null ? diff : Color.blend(diff, diffmap.getPixel(state.getUV().x(), state.getUV().y()), diffBlend);
+        Color cdiffm = diffmap.getPixel(state.getUV().x(), state.getUV().y());
+        return diffmap == null ? diff : diff.lerpTo(cdiffm, diffBlend); 
     }
 
     public Color getSpecular(ShadingState state) {
-        return specmap == null ? spec : Color.blend(spec, specmap.getPixel(state.getUV().x(), state.getUV().y()), specBlend);
+        Color cspecm = specmap.getPixel(state.getUV().x(), state.getUV().y());
+        return specmap == null ? spec : spec.lerpTo(cspecm, specBlend);
     }
 
     public Color getRadiance(ShadingState state) {
@@ -79,28 +81,28 @@ public class UberShader implements Shader {
             float cos2 = cos * cos;
             float cos5 = cos2 * cos2 * cos;
             Color spec = getSpecular(state);
-            Color ret = Color.white();
-            ret.sub(spec);
-            ret.mul(cos5);
-            ret.add(spec);
-            return lr.add(ret.mul(state.traceReflection(refRay, 0)));
+            Color ret = Color.White();
+            ret = ret.$minus(spec);
+            ret = ret.$times(cos5);
+            ret = ret.$plus(spec);
+            return lr.$plus(ret.$times(state.traceReflection(refRay, 0)));
         } else
-            return lr.add(state.specularPhong(getSpecular(state), 2 / glossyness, numSamples));
+            return lr.$plus(state.specularPhong(getSpecular(state), 2 / glossyness, numSamples));
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         Color diffuse, specular;
         // make sure we are on the right side of the material
         state.faceforward();
         diffuse = getDiffuse(state);
         specular = getSpecular(state);
         state.storePhoton(state.getRay().getDirection(), power, diffuse);
-        float d = diffuse.getAverage();
-        float r = specular.getAverage();
+        float d = diffuse.average();
+        float r = specular.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < d) {
             // photon is scattered
-            power.mul(diffuse).mul(1.0f / d);
+            power = power.$times(diffuse).$times(1.0f / d);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * rnd / d;
             double v = state.getRandom(0, 1, 1);
@@ -112,7 +114,7 @@ public class UberShader implements Shader {
         } else if (rnd < d + r) {
             if (glossyness == 0) {
                 float cos = -state.getNormal().dot(state.getRay().getDirection());
-                power.mul(diffuse).mul(1.0f / d);
+                power = power.$times(diffuse).$times(1.0f / d);
                 // photon is reflected
                 float dn = 2 * cos;
                 Vector3 dir = Vector3J.create(
@@ -129,7 +131,7 @@ public class UberShader implements Shader {
                         (dn * state.getNormal().y()) + state.getRay().dy,
                         (dn * state.getNormal().z()) + state.getRay().dz);
                 */
-                power.mul(spec).mul(1.0f / r);
+                power = power.$times(spec).$times(1.0f / r);
                 OrthoNormalBasis onb = state.getBasis();
                 double u = 2 * Math.PI * (rnd - r) / r;
                 double v = state.getRandom(0, 1, 1);
@@ -140,5 +142,6 @@ public class UberShader implements Shader {
                 state.traceReflectionPhoton(new Ray(state.getPoint(), w), power);
             }
         }
+        return power;
     }
 }

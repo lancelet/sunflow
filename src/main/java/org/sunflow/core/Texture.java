@@ -100,15 +100,15 @@ public class Texture {
         Color c10 = bitmap.readColor(ix1, iy0);
         float k11 = u * v;
         Color c11 = bitmap.readColor(ix1, iy1);
-        Color c = Color.mul(k00, c00);
-        c.madd(k01, c01);
-        c.madd(k10, c10);
-        c.madd(k11, c11);
+        Color c = c00.$times(k00);
+        c = c.$plus(c01.$times(k01));
+        c = c.$plus(c10.$times(k10));
+        c = c.$plus(c11.$times(k11));
         return c;
     }
 
     public Vector3 getNormal(float x, float y, OrthoNormalBasis basis) {
-        float[] rgb = getPixel(x, y).getRGB();
+        float[] rgb = getPixel(x, y).toArray();
         return Vector3J.normalize(basis.transform(
                 Vector3J.create(2 * rgb[0] - 1, 
                                 2 * rgb[1] - 1, 
@@ -119,9 +119,9 @@ public class Texture {
         Bitmap bitmap = getBitmap();
         float dx = 1.0f / bitmap.getWidth();
         float dy = 1.0f / bitmap.getHeight();
-        float b0 = getPixel(x, y).getLuminance();
-        float bx = getPixel(x + dx, y).getLuminance();
-        float by = getPixel(x, y + dy).getLuminance();
+        float b0 = getPixel(x, y).luminance();
+        float bx = getPixel(x + dx, y).luminance();
+        float by = getPixel(x, y + dy).luminance();
         return Vector3J.normalize(basis.transform(
                 Vector3J.create(scale * (b0 - bx), 
                                 scale * (b0 - by), 

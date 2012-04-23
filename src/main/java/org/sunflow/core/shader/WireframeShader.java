@@ -15,8 +15,8 @@ public class WireframeShader implements Shader {
     private float cosWidth;
 
     public WireframeShader() {
-        lineColor = Color.BLACK;
-        fillColor = Color.WHITE;
+        lineColor = Color.Black();
+        fillColor = Color.White();
         // pick a very small angle - should be roughly the half the angular
         // width of a
         // pixel
@@ -74,6 +74,7 @@ public class WireframeShader implements Shader {
         return getFillColor(state);
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

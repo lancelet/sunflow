@@ -15,7 +15,7 @@ public class ShinyDiffuseShader implements Shader {
     private float refl;
 
     public ShinyDiffuseShader() {
-        diff = Color.GRAY;
+        diff = Color.Gray();
         refl = 0.5f;
     }
 
@@ -51,26 +51,26 @@ public class ShinyDiffuseShader implements Shader {
         float cos2 = cos * cos;
         float cos5 = cos2 * cos2 * cos;
 
-        Color ret = Color.white();
-        Color r = d.copy().mul(refl);
-        ret.sub(r);
-        ret.mul(cos5);
-        ret.add(r);
-        return lr.add(ret.mul(state.traceReflection(refRay, 0)));
+        Color ret = Color.White();
+        Color r = d.$times(refl);
+        ret = ret.$minus(r);
+        ret = ret.$times(cos5);
+        ret = ret.$plus(r);
+        return lr.$plus(ret.$times(state.traceReflection(refRay, 0)));
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         Color diffuse;
         // make sure we are on the right side of the material
         state.faceforward();
         diffuse = getDiffuse(state);
         state.storePhoton(state.getRay().getDirection(), power, diffuse);
-        float d = diffuse.getAverage();
+        float d = diffuse.average();
         float r = d * refl;
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < d) {
             // photon is scattered
-            power.mul(diffuse).mul(1.0f / d);
+            power = power.$times(diffuse).$times(1.0f / d);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * rnd / d;
             double v = state.getRandom(0, 1, 1);
@@ -81,7 +81,7 @@ public class ShinyDiffuseShader implements Shader {
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < d + r) {
             float cos = -state.getNormal().dot(state.getRay().getDirection());
-            power.mul(diffuse).mul(1.0f / d);
+            power.$times(diffuse).$times(1.0f / d);
             // photon is reflected
             float dn = 2 * cos;
             Vector3 dir = Vector3J.create(
@@ -90,5 +90,6 @@ public class ShinyDiffuseShader implements Shader {
                     (dn * state.getNormal().z()) + state.getRay().getDirection().z());
             state.traceReflectionPhoton(new Ray(state.getPoint(), dir), power);
         }
+        return power;
     }
 }

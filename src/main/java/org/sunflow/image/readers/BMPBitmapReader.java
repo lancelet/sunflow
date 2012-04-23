@@ -28,9 +28,9 @@ public class BMPBitmapReader implements BitmapReader {
         }
         if (!isLinear) {
             for (int index = 0; index < pixels.length; index += 3) {
-                pixels[index + 0] = Color.NATIVE_SPACE.rgbToLinear(pixels[index + 0]);
-                pixels[index + 1] = Color.NATIVE_SPACE.rgbToLinear(pixels[index + 1]);
-                pixels[index + 2] = Color.NATIVE_SPACE.rgbToLinear(pixels[index + 2]);
+                pixels[index + 0] = Color.NativeSpace().rgbToLinear(pixels[index + 0]);
+                pixels[index + 1] = Color.NativeSpace().rgbToLinear(pixels[index + 1]);
+                pixels[index + 2] = Color.NativeSpace().rgbToLinear(pixels[index + 2]);
             }
         }
         return new BitmapRGB8(width, height, pixels);

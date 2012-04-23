@@ -19,8 +19,8 @@ public class AnisotropicWardShader implements Shader {
     private int numRays;
 
     public AnisotropicWardShader() {
-        rhoD = Color.GRAY;
-        rhoS = Color.GRAY;
+        rhoD = Color.Gray();
+        rhoS = Color.Gray();
         alphaX = 1;
         alphaY = 1;
         numRays = 4;
@@ -65,14 +65,14 @@ public class AnisotropicWardShader implements Shader {
         // direct lighting and caustics
         state.initLightSamples();
         state.initCausticSamples();
-        Color lr = Color.black();
+        Color lr = Color.Black();
         // compute specular contribution
         if (state.includeSpecular()) {
             Vector3 in = Vector3J.negate(state.getRay().getDirection());
             for (LightSample sample : state) {
                 float cosNL = sample.dot(state.getNormal());
                 float fr = brdf(in, sample.getShadowRay().getDirection(), onb);
-                lr.madd(cosNL * fr, sample.getSpecularRadiance());
+                lr = lr.$plus(sample.getSpecularRadiance().$times(cosNL * fr));
             }
 
             // indirect lighting - specular
@@ -126,27 +126,27 @@ public class AnisotropicWardShader implements Shader {
                     float w = ih * cosTheta * cosTheta * cosTheta * (float) Math.sqrt(Math.abs(no / ni));
 
                     Ray r = new Ray(state.getPoint(), o);
-                    lr.madd(w / n, state.traceGlossy(r, i));
+                    lr = lr.$plus(state.traceGlossy(r, i).$times(w / n));
                 }
             }
-            lr.mul(rhoS);
+            lr = lr.$times(rhoS);
         }
         // add diffuse contribution
-        lr.add(state.diffuse(getDiffuse(state)));
+        lr = lr.$plus(state.diffuse(getDiffuse(state)));
         return lr;
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         // make sure we are on the right side of the material
         state.faceforward();
         Color d = getDiffuse(state);
         state.storePhoton(state.getRay().getDirection(), power, d);
-        float avgD = d.getAverage();
-        float avgS = rhoS.getAverage();
+        float avgD = d.average();
+        float avgS = rhoS.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avgD) {
             // photon is scattered diffusely
-            power.mul(d).mul(1.0f / avgD);
+            power = power.$times(d).$times(1.0f / avgD);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * rnd / avgD;
             double v = state.getRandom(0, 1, 1);
@@ -157,7 +157,7 @@ public class AnisotropicWardShader implements Shader {
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         } else if (rnd < avgD + avgS) {
             // photon is scattered specularly
-            power.mul(rhoS).mul(1 / avgS);
+            power = power.$times(rhoS).$times(1 / avgS);
             OrthoNormalBasis basis = state.getBasis();
             Vector3 in = Vector3J.negate(state.getRay().getDirection());
             double r1 = rnd / avgS;
@@ -204,5 +204,6 @@ public class AnisotropicWardShader implements Shader {
             Ray r = new Ray(state.getPoint(), o);
             state.traceReflectionPhoton(r, power);
         }
+        return power;
     }
 }

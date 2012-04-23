@@ -39,32 +39,33 @@ public class Sphere implements PrimitiveList {
 
     public void prepareShadingState(ShadingState state) {
         state.init();
-        state.setPoint(state.getRay().getPoint());
         Instance parent = state.getInstance();
-        Point3 localPoint = state.transformWorldToObject(state.getPoint());
-        state.setNormal(Vector3J.normalize(Vector3J.create(localPoint.x(), localPoint.y(), localPoint.z())));
+        Point3 worldPoint = state.getRay().getPoint();
+        state.setPoint(worldPoint);
+        Point3 localPoint = state.transformWorldToObject(worldPoint);
+        Normal3 localNormal = Vector3J.normalize(Vector3J.create(localPoint.x(), localPoint.y(), localPoint.z()));
+        // into world space
+        Normal3 worldNormal = Vector3J.normalize(state.transformNormalObjectToWorld(localNormal));
+        state.setNormal(worldNormal);
+        state.setGeoNormal(worldNormal);
 
-        float phi = (float) Math.atan2(state.getNormal().y(), state.getNormal().x());
+        float phi = (float) Math.atan2(localNormal.y(), localNormal.x());
         if (phi < 0)
             phi += 2 * Math.PI;
-        float theta = (float) Math.acos(state.getNormal().z());
+        float theta = (float) Math.acos(localNormal.z());
         float uvy = theta / (float) Math.PI;
         float uvx = phi / (float) (2 * Math.PI);
         state.setUV(Point2J.create(uvx, uvy));
-        Vector3 v = Vector3J.create(
-                -2 * (float) Math.PI * state.getNormal().y(),
-                2 * (float) Math.PI * state.getNormal().x(),
-                0);
         state.setShader(parent.getShader(0));
         state.setModifier(parent.getModifier(0));
-        // into world space
-        Normal3 worldNormal = Vector3J.normalize(state.transformNormalObjectToWorld(state.getNormal()));
-        v = state.transformVectorObjectToWorld(v);
-        state.setNormal(worldNormal);
-        state.setGeoNormal(worldNormal);
-        // compute basis in world space
-        state.setBasis(OrthoNormalBasis.makeFromWV(state.getNormal(), v));
 
+        // compute basis in world space
+        Vector3 v = Vector3J.create(
+                -2 * (float) Math.PI * worldNormal.y(),
+                2 * (float) Math.PI * worldNormal.x(),
+                0);
+        v = state.transformVectorObjectToWorld(v);
+        state.setBasis(OrthoNormalBasis.makeFromWV(worldNormal, v));
     }
 
     public void intersectPrimitive(Ray r, int primID, IntersectionState state) {

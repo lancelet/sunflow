@@ -69,14 +69,14 @@ public class FastDisplay extends JPanel implements Display {
         iw -= w;
         for (int j = 0, index = 0; j < h; j++, off += iw)
             for (int i = 0; i < w; i++, index++, off++)
-                pixels[off] = 0xFF000000 | data[index].toRGB();
+                pixels[off] = 0xFF000000 | data[index].toIntRGB();
     }
 
     public void imageFill(int x, int y, int w, int h, Color c, float alpha) {
         int iw = image.getWidth();
         int off = x + iw * y;
         iw -= w;
-        int rgb = 0xFF000000 | c.toRGB();
+        int rgb = 0xFF000000 | c.toIntRGB();
         for (int j = 0; j < h; j++, off += iw)
             for (int i = 0; i < w; i++, off++)
                 pixels[off] = rgb;

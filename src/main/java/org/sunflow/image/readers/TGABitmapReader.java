@@ -97,7 +97,7 @@ public class TGABitmapReader implements BitmapReader {
             // apply reverse correction
             for (int ptr = 0; ptr < pixels.length; ptr += bpp) {
                 for (int i = 0; i < 3 && i < bpp; i++)
-                    pixels[ptr + i] = Color.NATIVE_SPACE.rgbToLinear(pixels[ptr + i]);
+                    pixels[ptr + i] = Color.NativeSpace().rgbToLinear(pixels[ptr + i]);
             }
         }
 

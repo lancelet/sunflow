@@ -25,9 +25,9 @@ public class PathTracingGIEngine implements GIEngine {
 
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         if (samples <= 0)
-            return Color.BLACK;
+            return Color.Black();
         // compute new sample
-        Color irr = Color.black();
+        Color irr = Color.Black();
         OrthoNormalBasis onb = state.getBasis();
         int n = state.getDiffuseDepth() == 0 ? samples : 1;
         for (int i = 0; i < n; i++) {
@@ -46,14 +46,14 @@ public class PathTracingGIEngine implements GIEngine {
             if (temp != null) {
                 temp.getInstance().prepareShadingState(temp);
                 if (temp.getShader() != null)
-                    irr.add(temp.getShader().getRadiance(temp));
+                    irr = irr.$plus(temp.getShader().getRadiance(temp));
             }
         }
-        irr.mul((float) Math.PI / n);
+        irr = irr.$times((float) Math.PI / n);
         return irr;
     }
 
     public Color getGlobalRadiance(ShadingState state) {
-        return Color.BLACK;
+        return Color.Black();
     }
 }

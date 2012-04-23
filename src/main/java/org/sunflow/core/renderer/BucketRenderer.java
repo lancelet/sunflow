@@ -275,7 +275,7 @@ public class BucketRenderer implements ImageSampler {
                             sampled += samples[s].sampled() ? 1 : 0;
                         }
                     }
-                    bucketRGB[index] = new Color(sampled * invArea);
+                    bucketRGB[index] = Color.fromGray(sampled * invArea);
                     bucketAlpha[index] = 1.0f;
                 }
             }
@@ -285,7 +285,7 @@ public class BucketRenderer implements ImageSampler {
             for (int y = 0, index = 0; y < bh; y++, cy--) {
                 float cx = x0 + 0.5f;
                 for (int x = 0; x < bw; x++, index++, cx++) {
-                    Color c = Color.black();
+                    Color c = Color.Black();
                     float a = 0;
                     float weight = 0.0f;
                     for (int j = -fs, sy = y * subPixelSize; j <= fs; j++, sy++) {
@@ -297,14 +297,14 @@ public class BucketRenderer implements ImageSampler {
                             if (Math.abs(dy) > fhs)
                                 continue;
                             float f = filter.get(dx, dy);
-                            c.madd(f, samples[s].c);
+                            c = c.$plus(samples[s].c.$times(f));
                             a += f * samples[s].alpha;
                             weight += f;
 
                         }
                     }
                     float invWeight = 1.0f / weight;
-                    c.mul(invWeight);
+                    c = c.$times(invWeight);
                     a *= invWeight;
                     bucketRGB[index] = c;
                     bucketAlpha[index] = a;
@@ -396,7 +396,7 @@ public class BucketRenderer implements ImageSampler {
 
         final void set(ShadingState state) {
             if (state == null)
-                c = Color.BLACK;
+                c = Color.Black();
             else {
                 c = state.getResult();
                 shader = state.getShader();
@@ -413,16 +413,16 @@ public class BucketRenderer implements ImageSampler {
 
         final void add(ShadingState state) {
             if (n == 0)
-                c = Color.black();
+                c = Color.Black();
             if (state != null) {
-                c.add(state.getResult());
+                c = c.$plus(state.getResult());
                 alpha += state.getInstance() == null ? 0 : 1;
             }
             n++;
         }
 
         final void scale(float s) {
-            c.mul(s);
+            c = c.$plus(Color.fromGray(s));
             alpha *= s;
         }
 
@@ -439,7 +439,7 @@ public class BucketRenderer implements ImageSampler {
                 return true;
             if (shader != sample.shader)
                 return true;
-            if (Color.hasContrast(c, sample.c, thresh))
+            if (c.hasContrast(sample.c, thresh))
                 return true;
             if (Math.abs(alpha - sample.alpha) / (alpha + sample.alpha) > thresh)
                 return true;
@@ -457,10 +457,10 @@ public class BucketRenderer implements ImageSampler {
             Color c01 = i01.c;
             Color c10 = i10.c;
             Color c11 = i11.c;
-            Color c = Color.mul(k00, c00);
-            c.madd(k01, c01);
-            c.madd(k10, c10);
-            c.madd(k11, c11);
+            Color c = c00.$times(k00);
+            c = c.$plus(c01.$times(k01));
+            c = c.$plus(c10.$times(k10));
+            c = c.$plus(c11.$times(k11));
             result.c = c;
             result.alpha = k00 * i00.alpha + k01 * i01.alpha + k10 * i10.alpha + k11 * i11.alpha;
             return result;

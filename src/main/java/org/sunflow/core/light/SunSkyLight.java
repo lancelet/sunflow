@@ -88,7 +88,7 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
         basis = OrthoNormalBasis.makeFromWV(
                 Vector3J.create(0, 0, 1), Vector3J.create(0, 1, 0));
         groundExtendSky = false;
-        groundColor = Color.BLACK;
+        groundColor = Color.Black();
         initSunSky();
     }
 
@@ -175,7 +175,7 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
                 float u = (x + 0.5f) * du;
                 float v = (y + 0.5f) * dv;
                 Color c = getSkyRGB(getDirection(u, v));
-                imageHistogram[x][y] = c.getLuminance() * (float) Math.sin(Math.PI * v);
+                imageHistogram[x][y] = c.luminance() * (float) Math.sin(Math.PI * v);
                 if (y > 0)
                     imageHistogram[x][y] += imageHistogram[x][y - 1];
             }
@@ -277,10 +277,8 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
                 LightSample dest = new LightSample();
                 dest.setShadowRay(new Ray(state.getPoint(), dir));
                 dest.getShadowRay().setMax(Float.MAX_VALUE);
-                Color radiance = getSkyRGB(localDir);
+                Color radiance = getSkyRGB(localDir).$times(invP);
                 dest.setRadiance(radiance, radiance);
-                dest.getDiffuseRadiance().mul(invP);
-                dest.getSpecularRadiance().mul(invP);
                 dest.traceShadow(state);
                 state.addSample(dest);
             }
@@ -317,8 +315,9 @@ public class SunSkyLight implements LightSource, PrimitiveList, Shader {
         return getSkyRGB(basis.untransform(state.getRay().getDirection())).constrainRGB();
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         // let photon escape
+        return power;
     }
 
     private Vector3 getDirection(float u, float v) {

@@ -10,7 +10,7 @@ public class ConstantShader implements Shader {
     private Color c;
 
     public ConstantShader() {
-        c = Color.WHITE;
+        c = Color.White();
     }
 
     public boolean update(ParameterList pl, SunflowAPI api) {
@@ -22,6 +22,7 @@ public class ConstantShader implements Shader {
         return c;
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

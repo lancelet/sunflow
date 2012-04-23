@@ -160,12 +160,11 @@ class LightServer {
                         double randX2 = QMC.halton(2, qmcI);
                         double randY2 = QMC.halton(3, qmcI);
                         Photon photon = lights[j].getPhoton(randX1, randY1, randX2, randY2);
-                        Color scaledPower = photon.power();
-                        scaledPower.mul(scale);
+                        Color scaledPower = photon.power().$times(scale);
                         Ray r = new Ray(photon.position(), photon.direction());
                         scene.trace(r, istate);
                         if (istate.hit())
-                            shadePhoton(ShadingState.createPhotonState(r, istate, qmcI, map, LightServer.this), scaledPower);
+                            scaledPower = shadePhoton(ShadingState.createPhotonState(r, istate, qmcI, map, LightServer.this), scaledPower);
                     }
                 }
             });
@@ -191,48 +190,52 @@ class LightServer {
         return true;
     }
 
-    void shadePhoton(ShadingState state, Color power) {
+    Color shadePhoton(ShadingState state, Color power) {
         state.getInstance().prepareShadingState(state);
         Shader shader = getPhotonShader(state);
         // scatter photon
         if (shader != null)
-            shader.scatterPhoton(state, power);
+            power = shader.scatterPhoton(state, power);
+        return power;
     }
 
-    void traceDiffusePhoton(ShadingState previous, Ray r, Color power) {
+    Color traceDiffusePhoton(ShadingState previous, Ray r, Color power) {
         if (previous.getDiffuseDepth() >= maxDiffuseDepth)
-            return;
+            return power;
         IntersectionState istate = previous.getIntersectionState();
         scene.trace(r, istate);
         if (previous.getIntersectionState().hit()) {
             // create a new shading context
             ShadingState state = ShadingState.createDiffuseBounceState(previous, r, 0);
-            shadePhoton(state, power);
+            power = shadePhoton(state, power);
         }
+        return power;
     }
 
-    void traceReflectionPhoton(ShadingState previous, Ray r, Color power) {
+    Color traceReflectionPhoton(ShadingState previous, Ray r, Color power) {
         if (previous.getReflectionDepth() >= maxReflectionDepth)
-            return;
+            return power;
         IntersectionState istate = previous.getIntersectionState();
         scene.trace(r, istate);
         if (previous.getIntersectionState().hit()) {
             // create a new shading context
             ShadingState state = ShadingState.createReflectionBounceState(previous, r, 0);
-            shadePhoton(state, power);
+            power = shadePhoton(state, power);
         }
+        return power;
     }
 
-    void traceRefractionPhoton(ShadingState previous, Ray r, Color power) {
+    Color traceRefractionPhoton(ShadingState previous, Ray r, Color power) {
         if (previous.getRefractionDepth() >= maxRefractionDepth)
-            return;
+            return power;
         IntersectionState istate = previous.getIntersectionState();
         scene.trace(r, istate);
         if (previous.getIntersectionState().hit()) {
             // create a new shading context
             ShadingState state = ShadingState.createRefractionBounceState(previous, r, 0);
-            shadePhoton(state, power);
+            power = shadePhoton(state, power);
         }
+        return power;
     }
 
     private Shader getShader(ShadingState state) {
@@ -253,7 +256,7 @@ class LightServer {
             state.getInstance().prepareShadingState(state);
             Shader shader = getShader(state);
             if (shader == null) {
-                state.setResult(Color.BLACK);
+                state.setResult(Color.Black());
                 return state;
             }
             if (cache != null) {
@@ -273,7 +276,7 @@ class LightServer {
     }
 
     private static final void checkNanInf(Color c) {
-        if (c.isNan())
+        if (c.isNaN())
             UI.printWarning(Module.LIGHT, "NaN shading sample!");
         else if (c.isInf())
             UI.printWarning(Module.LIGHT, "Inf shading sample!");
@@ -284,43 +287,43 @@ class LightServer {
         if (shader != null)
             state.setResult(shader.getRadiance(state));
         else
-            state.setResult(Color.BLACK);
+            state.setResult(Color.Black());
     }
 
     Color shadeHit(ShadingState state) {
         state.getInstance().prepareShadingState(state);
         Shader shader = getShader(state);
-        return (shader != null) ? shader.getRadiance(state) : Color.BLACK;
+        return (shader != null) ? shader.getRadiance(state) : Color.Black();
     }
 
     Color traceGlossy(ShadingState previous, Ray r, int i) {
         // limit path depth and disable caustic paths
         if (previous.getReflectionDepth() >= maxReflectionDepth || previous.getDiffuseDepth() > 0)
-            return Color.BLACK;
+            return Color.Black();
         IntersectionState istate = previous.getIntersectionState();
         istate.numGlossyRays++;
         scene.trace(r, istate);
-        return istate.hit() ? shadeHit(ShadingState.createGlossyBounceState(previous, r, i)) : Color.BLACK;
+        return istate.hit() ? shadeHit(ShadingState.createGlossyBounceState(previous, r, i)) : Color.Black();
     }
 
     Color traceReflection(ShadingState previous, Ray r, int i) {
         // limit path depth and disable caustic paths
         if (previous.getReflectionDepth() >= maxReflectionDepth || previous.getDiffuseDepth() > 0)
-            return Color.BLACK;
+            return Color.Black();
         IntersectionState istate = previous.getIntersectionState();
         istate.numReflectionRays++;
         scene.trace(r, istate);
-        return istate.hit() ? shadeHit(ShadingState.createReflectionBounceState(previous, r, i)) : Color.BLACK;
+        return istate.hit() ? shadeHit(ShadingState.createReflectionBounceState(previous, r, i)) : Color.Black();
     }
 
     Color traceRefraction(ShadingState previous, Ray r, int i) {
         // limit path depth and disable caustic paths
         if (previous.getRefractionDepth() >= maxRefractionDepth || previous.getDiffuseDepth() > 0)
-            return Color.BLACK;
+            return Color.Black();
         IntersectionState istate = previous.getIntersectionState();
         istate.numRefractionRays++;
         scene.trace(r, istate);
-        return istate.hit() ? shadeHit(ShadingState.createRefractionBounceState(previous, r, i)) : Color.BLACK;
+        return istate.hit() ? shadeHit(ShadingState.createRefractionBounceState(previous, r, i)) : Color.Black();
     }
 
     ShadingState traceFinalGather(ShadingState previous, Ray r, int i) {
@@ -333,14 +336,14 @@ class LightServer {
 
     Color getGlobalRadiance(ShadingState state) {
         if (giEngine == null)
-            return Color.BLACK;
+            return Color.Black();
         return giEngine.getGlobalRadiance(state);
     }
 
     Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         // no gi engine, or we have already exceeded number of available bounces
         if (giEngine == null || state.getDiffuseDepth() >= maxDiffuseDepth)
-            return Color.BLACK;
+            return Color.Black();
         return giEngine.getIrradiance(state, diffuseReflectance);
     }
 

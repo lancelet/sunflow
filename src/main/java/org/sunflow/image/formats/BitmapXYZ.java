@@ -27,7 +27,7 @@ public class BitmapXYZ extends Bitmap {
     @Override
     public Color readColor(int x, int y) {
         int index = 3 * (x + y * w);
-        return Color.NATIVE_SPACE.convertXYZtoRGB(new XYZColor(data[index], data[index + 1], data[index + 2])).mul(0.1f);
+        return Color.NativeSpace().convertXYZtoRGB(new XYZColor(data[index], data[index + 1], data[index + 2])).$times(0.1f);
     }
 
     @Override

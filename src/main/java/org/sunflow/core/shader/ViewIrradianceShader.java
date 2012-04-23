@@ -13,9 +13,10 @@ public class ViewIrradianceShader implements Shader {
 
     public Color getRadiance(ShadingState state) {
         state.faceforward();
-        return new Color().set(state.getIrradiance(Color.WHITE)).mul(1.0f / (float) Math.PI);
+        return state.getIrradiance(Color.White()).$times(1.0f / (float) Math.PI);
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

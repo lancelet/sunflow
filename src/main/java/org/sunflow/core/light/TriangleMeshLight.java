@@ -27,7 +27,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
     private Vector3[] ngs;
 
     public TriangleMeshLight() {
-        radiance = Color.WHITE;
+        radiance = Color.White();
         numSamples = 4;
     }
 
@@ -99,14 +99,15 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
 
     public Color getRadiance(ShadingState state) {
         if (!state.includeLights())
-            return Color.BLACK;
+            return Color.Black();
         state.faceforward();
         // emit constant radiance
-        return state.isBehind() ? Color.BLACK : radiance;
+        return state.isBehind() ? Color.Black() : radiance;
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         // do not scatter photons
+        return power;
     }
 
     public Instance createInstance() {
@@ -154,14 +155,13 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
                                 (float) (Math.sqrt(1 - randY1)))
                 );
         
-        Color power = new Color(radiance);
-        power.mul((float) Math.PI * areas[j]);
+        Color power = radiance.$times((float) Math.PI * areas[j]);
         
         return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {
-        return radiance.copy().mul((float) Math.PI * totalArea).getLuminance();
+        return radiance.$times((float) Math.PI * totalArea).luminance();
     }
 
     public void getSamples(ShadingState state) {
@@ -227,7 +227,7 @@ public class TriangleMeshLight extends TriangleMesh implements Shader, LightSour
 
             // use lower sampling depth for diffuse bounces
             int samples = state.getDiffuseDepth() > 0 ? 1 : numSamples;
-            Color c = Color.mul(area / samples, radiance);
+            Color c = radiance.$times(area / samples);
             for (int j = 0; j < samples; j++) {
                 // random offset on unit square
                 double randX = state.getRandom(j, 0, samples);

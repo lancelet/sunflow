@@ -16,13 +16,16 @@ public class ViewCausticsShader implements Shader {
         state.faceforward();
         state.initCausticSamples();
         // integrate a diffuse function
-        Color lr = Color.black();
-        for (LightSample sample : state)
-            lr.madd(sample.dot(state.getNormal()), sample.getDiffuseRadiance());
-        return lr.mul(1.0f / (float) Math.PI);
+        Color lr = Color.Black();
+        for (LightSample sample : state) {
+            Color ldiff = sample.getDiffuseRadiance();
+            lr = lr.$plus(ldiff.$times(sample.dot(state.getNormal())));
+        }
+        return lr.$times(1.0f / (float) Math.PI);
 
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

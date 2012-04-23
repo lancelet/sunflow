@@ -194,7 +194,7 @@ public class SCParser implements SceneParser {
     private void parseBackgroundBlock(SunflowAPIInterface api) throws IOException, ParserException, ColorSpecificationException {
         p.checkNextToken("{");
         p.checkNextToken("color");
-        api.parameter("color", null, parseColor().getRGB());
+        api.parameter("color", null, parseColor().toArray());
         api.shader("background.shader", "constant");
         api.geometry("background", "background");
         api.parameter("shaders", "background.shader");
@@ -274,9 +274,9 @@ public class SCParser implements SceneParser {
             p.checkNextToken("up");
             api.parameter("gi.fake.up", parseVector());
             p.checkNextToken("sky");
-            api.parameter("gi.fake.sky", null, parseColor().getRGB());
+            api.parameter("gi.fake.sky", null, parseColor().toArray());
             p.checkNextToken("ground");
-            api.parameter("gi.fake.ground", null, parseColor().getRGB());
+            api.parameter("gi.fake.ground", null, parseColor().toArray());
         } else if (p.peekNextToken("igi")) {
             api.parameter("gi.engine", "igi");
             p.checkNextToken("samples");
@@ -291,9 +291,9 @@ public class SCParser implements SceneParser {
         } else if (p.peekNextToken("ambocc")) {
             api.parameter("gi.engine", "ambocc");
             p.checkNextToken("bright");
-            api.parameter("gi.ambocc.bright", null, parseColor().getRGB());
+            api.parameter("gi.ambocc.bright", null, parseColor().toArray());
             p.checkNextToken("dark");
-            api.parameter("gi.ambocc.dark", null, parseColor().getRGB());
+            api.parameter("gi.ambocc.dark", null, parseColor().toArray());
             p.checkNextToken("samples");
             api.parameter("gi.ambocc.samples", p.getNextInt());
             if (p.peekNextToken("maxdist"))
@@ -470,7 +470,7 @@ public class SCParser implements SceneParser {
         p.checkNextToken("type");
         if (p.peekNextToken("diffuse")) {
             if (p.peekNextToken("diff")) {
-                api.parameter("diffuse", null, parseColor().getRGB());
+                api.parameter("diffuse", null, parseColor().toArray());
                 api.shader(name, "diffuse");
             } else if (p.peekNextToken("texture")) {
                 api.parameter("texture", p.getNextToken());
@@ -483,10 +483,10 @@ public class SCParser implements SceneParser {
                 api.parameter("texture", tex = p.getNextToken());
             else {
                 p.checkNextToken("diff");
-                api.parameter("diffuse", null, parseColor().getRGB());
+                api.parameter("diffuse", null, parseColor().toArray());
             }
             p.checkNextToken("spec");
-            api.parameter("specular", null, parseColor().getRGB());
+            api.parameter("specular", null, parseColor().toArray());
             api.parameter("power", p.getNextFloat());
             if (p.peekNextToken("samples"))
                 api.parameter("samples", p.getNextInt());
@@ -497,11 +497,11 @@ public class SCParser implements SceneParser {
         } else if (p.peekNextToken("amb-occ") || p.peekNextToken("amb-occ2")) {
             String tex = null;
             if (p.peekNextToken("diff") || p.peekNextToken("bright"))
-                api.parameter("bright", null, parseColor().getRGB());
+                api.parameter("bright", null, parseColor().toArray());
             else if (p.peekNextToken("texture"))
                 api.parameter("texture", tex = p.getNextToken());
             if (p.peekNextToken("dark")) {
-                api.parameter("dark", null, parseColor().getRGB());
+                api.parameter("dark", null, parseColor().toArray());
                 p.checkNextToken("samples");
                 api.parameter("samples", p.getNextInt());
                 p.checkNextToken("dist");
@@ -513,17 +513,17 @@ public class SCParser implements SceneParser {
                 api.shader(name, "textured_ambient_occlusion");
         } else if (p.peekNextToken("mirror")) {
             p.checkNextToken("refl");
-            api.parameter("color", null, parseColor().getRGB());
+            api.parameter("color", null, parseColor().toArray());
             api.shader(name, "mirror");
         } else if (p.peekNextToken("glass")) {
             p.checkNextToken("eta");
             api.parameter("eta", p.getNextFloat());
             p.checkNextToken("color");
-            api.parameter("color", null, parseColor().getRGB());
+            api.parameter("color", null, parseColor().toArray());
             if (p.peekNextToken("absorption.distance") || p.peekNextToken("absorbtion.distance"))
                 api.parameter("absorption.distance", p.getNextFloat());
             if (p.peekNextToken("absorption.color") || p.peekNextToken("absorbtion.color"))
-                api.parameter("absorption.color", null, parseColor().getRGB());
+                api.parameter("absorption.color", null, parseColor().toArray());
             api.shader(name, "glass");
         } else if (p.peekNextToken("shiny")) {
             String tex = null;
@@ -531,7 +531,7 @@ public class SCParser implements SceneParser {
                 api.parameter("texture", tex = p.getNextToken());
             else {
                 p.checkNextToken("diff");
-                api.parameter("diffuse", null, parseColor().getRGB());
+                api.parameter("diffuse", null, parseColor().toArray());
             }
             p.checkNextToken("refl");
             api.parameter("shiny", p.getNextFloat());
@@ -545,10 +545,10 @@ public class SCParser implements SceneParser {
                 api.parameter("texture", tex = p.getNextToken());
             else {
                 p.checkNextToken("diff");
-                api.parameter("diffuse", null, parseColor().getRGB());
+                api.parameter("diffuse", null, parseColor().toArray());
             }
             p.checkNextToken("spec");
-            api.parameter("specular", null, parseColor().getRGB());
+            api.parameter("specular", null, parseColor().toArray());
             p.checkNextToken("rough");
             api.parameter("roughnessX", p.getNextFloat());
             api.parameter("roughnessY", p.getNextFloat());
@@ -567,7 +567,7 @@ public class SCParser implements SceneParser {
         } else if (p.peekNextToken("constant")) {
             // backwards compatibility -- peek only
             p.peekNextToken("color");
-            api.parameter("color", null, parseColor().getRGB());
+            api.parameter("color", null, parseColor().toArray());
             api.shader(name, "constant");
         } else if (p.peekNextToken("janino")) {
             String typename = p.peekNextToken("typename") ? p.getNextToken() : PluginRegistry.shaderPlugins.generateUniqueName("janino_shader");
@@ -578,13 +578,13 @@ public class SCParser implements SceneParser {
             api.shader(name, "show_instance_id");
         } else if (p.peekNextToken("uber")) {
             if (p.peekNextToken("diff"))
-                api.parameter("diffuse", null, parseColor().getRGB());
+                api.parameter("diffuse", null, parseColor().toArray());
             if (p.peekNextToken("diff.texture"))
                 api.parameter("diffuse.texture", p.getNextToken());
             if (p.peekNextToken("diff.blend"))
                 api.parameter("diffuse.blend", p.getNextFloat());
             if (p.peekNextToken("refl") || p.peekNextToken("spec"))
-                api.parameter("specular", null, parseColor().getRGB());
+                api.parameter("specular", null, parseColor().toArray());
             if (p.peekNextToken("texture")) {
                 // deprecated
                 UI.printWarning(Module.API, "Deprecated uber shader parameter \"texture\" - please use \"diffuse.texture\" and \"diffuse.blend\" instead");
@@ -1015,7 +1015,7 @@ public class SCParser implements SceneParser {
             String name = p.getNextToken();
             UI.printInfo(Module.API, "Reading light mesh: %s ...", name);
             p.checkNextToken("emit");
-            api.parameter("radiance", null, parseColor().getRGB());
+            api.parameter("radiance", null, parseColor().toArray());
             int samples = numLightSamples;
             if (p.peekNextToken("samples"))
                 samples = p.getNextInt();
@@ -1054,7 +1054,7 @@ public class SCParser implements SceneParser {
                 pow = parseColor();
                 p.checkNextToken("power");
                 float po = p.getNextFloat();
-                pow.mul(po);
+                pow = pow.$times(po);
             } else {
                 UI.printWarning(Module.API, "Deprecated color specification - please use color and power instead");
                 p.checkNextToken("power");
@@ -1062,15 +1062,15 @@ public class SCParser implements SceneParser {
             }
             p.checkNextToken("p");
             api.parameter("center", parsePoint());
-            api.parameter("power", null, pow.getRGB());
+            api.parameter("power", null, pow.toArray());
             api.light(generateUniqueName("pointlight"), "point");
         } else if (p.peekNextToken("spherical")) {
             UI.printInfo(Module.API, "Reading spherical light ...");
             p.checkNextToken("color");
             Color pow = parseColor();
             p.checkNextToken("radiance");
-            pow.mul(p.getNextFloat());
-            api.parameter("radiance", null, pow.getRGB());
+            pow = pow.$times(p.getNextFloat());
+            api.parameter("radiance", null, pow.toArray());
             p.checkNextToken("center");
             api.parameter("center", parsePoint());
             p.checkNextToken("radius");
@@ -1092,10 +1092,10 @@ public class SCParser implements SceneParser {
             Color e = parseColor();
             if (p.peekNextToken("intensity")) {
                 float i = p.getNextFloat();
-                e.mul(i);
+                e = e.$times(i);
             } else
                 UI.printWarning(Module.API, "Deprecated color specification - please use emit and intensity instead");
-            api.parameter("radiance", null, e.getRGB());
+            api.parameter("radiance", null, e.toArray());
             api.light(generateUniqueName("dirlight"), "directional");
         } else if (p.peekNextToken("ibl")) {
             UI.printInfo(Module.API, "Reading image based light ...");
@@ -1126,10 +1126,10 @@ public class SCParser implements SceneParser {
             Color e = parseColor();
             if (p.peekNextToken("radiance")) {
                 float r = p.getNextFloat();
-                e.mul(r);
+                e = e.$times(r);
             } else
                 UI.printWarning(Module.API, "Deprecated color specification - please use emit and radiance instead");
-            api.parameter("radiance", null, e.getRGB());
+            api.parameter("radiance", null, e.toArray());
             int samples = numLightSamples;
             if (p.peekNextToken("samples"))
                 samples = p.getNextInt();
@@ -1159,7 +1159,7 @@ public class SCParser implements SceneParser {
             if (p.peekNextToken("ground.extendsky"))
                 api.parameter("ground.extendsky", p.getNextBoolean());
             else if (p.peekNextToken("ground.color"))
-                api.parameter("ground.color", null, parseColor().getRGB());
+                api.parameter("ground.color", null, parseColor().toArray());
             api.light(generateUniqueName("sunsky"), "sunsky");
         } else if (p.peekNextToken("cornellbox")) {
             UI.printInfo(Module.API, "Reading cornell box ...");
@@ -1168,17 +1168,17 @@ public class SCParser implements SceneParser {
             p.checkNextToken("corner1");
             api.parameter("corner1", parsePoint());
             p.checkNextToken("left");
-            api.parameter("leftColor", null, parseColor().getRGB());
+            api.parameter("leftColor", null, parseColor().toArray());
             p.checkNextToken("right");
-            api.parameter("rightColor", null, parseColor().getRGB());
+            api.parameter("rightColor", null, parseColor().toArray());
             p.checkNextToken("top");
-            api.parameter("topColor", null, parseColor().getRGB());
+            api.parameter("topColor", null, parseColor().toArray());
             p.checkNextToken("bottom");
-            api.parameter("bottomColor", null, parseColor().getRGB());
+            api.parameter("bottomColor", null, parseColor().toArray());
             p.checkNextToken("back");
-            api.parameter("backColor", null, parseColor().getRGB());
+            api.parameter("backColor", null, parseColor().toArray());
             p.checkNextToken("emit");
-            api.parameter("radiance", null, parseColor().getRGB());
+            api.parameter("radiance", null, parseColor().toArray());
             if (p.peekNextToken("samples"))
                 api.parameter("samples", p.getNextInt());
             api.light(generateUniqueName("cornellbox"), "cornell_box");

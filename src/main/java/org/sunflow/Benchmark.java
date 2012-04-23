@@ -279,6 +279,6 @@ public class Benchmark implements BenchmarkTest, UserInterface, Display {
         // copy bucket data to validation image
         for (int j = 0, index = 0; j < h; j++, y++)
             for (int i = 0, offset = x + resolution * (resolution - 1 - y); i < w; i++, index++, offset++)
-                validationImage[offset] = data[index].copy().toNonLinear().toRGB();
+                validationImage[offset] = data[index].toNonLinear().toIntRGB();
     }
 }

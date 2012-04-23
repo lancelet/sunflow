@@ -41,7 +41,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         top = bottom = back = gray;
 
         // light source
-        radiance = Color.WHITE;
+        radiance = Color.White();
         samples = 16;
     }
 
@@ -285,7 +285,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 float lx = state.getPoint().x();
                 float ly = state.getPoint().y();
                 if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0)
-                    return state.includeLights() ? radiance : Color.BLACK;
+                    return state.includeLights() ? radiance : Color.Black();
                 kd = top;
                 break;
             default:
@@ -299,7 +299,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         return state.diffuse(kd);
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         int side = state.getPrimitiveID();
         Color kd = null;
         switch (side) {
@@ -319,7 +319,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                 float lx = state.getPoint().x();
                 float ly = state.getPoint().y();
                 if (lx >= lxmin && lx < lxmax && ly >= lymin && ly < lymax && state.getRay().dz > 0)
-                    return;
+                    return power;
                 kd = top;
                 break;
             default:
@@ -331,11 +331,11 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
             state.setGeoNormal(Vector3J.normalize(Vector3J.negate(state.getGeoNormal())));
         }
         state.storePhoton(state.getRay().getDirection(), power, kd);
-        double avg = kd.getAverage();
+        double avg = kd.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avg) {
             // photon is scattered
-            power.mul(kd).mul(1 / (float) avg);
+            power = power.$times(kd).$times(1 / (float) avg);
             OrthoNormalBasis onb = OrthoNormalBasis.makeFromW(state.getNormal());
             double u = 2 * Math.PI * rnd / avg;
             double v = state.getRandom(0, 1, 1);
@@ -343,8 +343,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
             float s1 = (float) Math.sqrt(1.0 - v);
             Vector3 w = Vector3J.create((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
             w = onb.transform(w);
-            state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
+            power = state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
+        return power;
     }
 
     public int getNumSamples() {
@@ -384,9 +385,8 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
                     float g = cosNy / (r * r);
                     float scale = g * a;
                     // set final sample radiance
-                    dest.setRadiance(radiance, radiance);
-                    dest.getDiffuseRadiance().mul(scale);
-                    dest.getSpecularRadiance().mul(scale);
+                    Color lcol = radiance.$times(scale);
+                    dest.setRadiance(lcol, lcol);
                     dest.traceShadow(state);
                     state.addSample(dest);
                 }
@@ -404,14 +404,13 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         double s = Math.sqrt(randY1);
         Vector3 direction = Vector3J.create((float) (Math.cos(u) * s), (float) (Math.sin(u) * s), (float) -Math.sqrt(1.0f - randY1));
         
-        Color power = new Color(radiance);
-        power.mul((float) Math.PI * area);
+        Color power = radiance.$times((float) Math.PI * area);
 
         return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {
-        return radiance.copy().mul((float) Math.PI * area).getLuminance();
+        return radiance.$times((float) Math.PI * area).luminance();
     }
 
     public int getNumPrimitives() {

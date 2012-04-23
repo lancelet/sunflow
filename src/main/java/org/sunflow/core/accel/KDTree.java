@@ -208,15 +208,15 @@ public class KDTree implements AccelerationStructure {
                     float blend = (float) n / (float) maxN;
                     Color nc;
                     if (blend < 0.25)
-                        nc = Color.blend(Color.BLUE, Color.GREEN, blend / 0.25f);
+                        nc = Color.Blue().lerpTo(Color.Green(), blend / 0.25f);
                     else if (blend < 0.5)
-                        nc = Color.blend(Color.GREEN, Color.YELLOW, (blend - 0.25f) / 0.25f);
+                        nc = Color.Green().lerpTo(Color.Yellow(), (blend - 0.25f) / 0.25f);
                     else if (blend < 0.75)
-                        nc = Color.blend(Color.YELLOW, Color.RED, (blend - 0.50f) / 0.25f);
+                        nc = Color.Yellow().lerpTo(Color.Red(), (blend - 0.50f) / 0.25f);
                     else
-                        nc = Color.MAGENTA;
+                        nc = Color.Magenta();
                     mtlFile.write(String.format("newmtl mtl%d\n", n));
-                    float[] rgb = nc.getRGB();
+                    float[] rgb = nc.toArray();
                     mtlFile.write("Ka 0.1 0.1 0.1\n");
                     mtlFile.write(String.format("Kd %.12g %.12g %.12g\n", rgb[0], rgb[1], rgb[2]));
                     mtlFile.write("illum 1\n\n");

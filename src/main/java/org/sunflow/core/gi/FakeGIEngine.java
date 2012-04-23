@@ -24,22 +24,22 @@ public class FakeGIEngine implements GIEngine {
         float sin2 = (1 - cosTheta * cosTheta);
         float sine = sin2 > 0 ? (float) Math.sqrt(sin2) * 0.5f : 0;
         if (cosTheta > 0)
-            return Color.blend(sky, ground, sine);
+            return sky.lerpTo(ground, sine);
         else
-            return Color.blend(ground, sky, sine);
+            return ground.lerpTo(sky, sine);
     }
 
     public Color getGlobalRadiance(ShadingState state) {
-        return Color.BLACK;
+        return Color.Black();
     }
 
     public boolean init(Options options, Scene scene) {
         up = Vector3J.normalize(options.getVector(
                 "gi.fake.up", Vector3J.create(0, 1, 0)));
-        sky = options.getColor("gi.fake.sky", Color.WHITE).copy();
-        ground = options.getColor("gi.fake.ground", Color.BLACK).copy();
-        sky.mul((float) Math.PI);
-        ground.mul((float) Math.PI);
+        sky = options.getColor("gi.fake.sky", Color.White());
+        ground = options.getColor("gi.fake.ground", Color.Black());
+        sky = sky.$times((float) Math.PI);
+        ground = ground.$times((float) Math.PI);
         return true;
     }
 }

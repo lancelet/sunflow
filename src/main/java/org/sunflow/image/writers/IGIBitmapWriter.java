@@ -34,7 +34,7 @@ public class IGIBitmapWriter implements BitmapWriter {
     public void writeTile(int x, int y, int w, int h, Color[] color, float[] alpha) throws IOException {
         for (int j = 0, index = 0, pixel = 3 * (x + y * width); j < h; j++, pixel += 3 * (width - w)) {
             for (int i = 0; i < w; i++, index++, pixel += 3) {
-                XYZColor c = Color.NATIVE_SPACE.convertRGBtoXYZ(color[index]);
+                XYZColor c = Color.NativeSpace().convertRGBtoXYZ(color[index]);
                 xyz[pixel + 0] = c.getX();
                 xyz[pixel + 1] = c.getY();
                 xyz[pixel + 2] = c.getZ();

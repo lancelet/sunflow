@@ -151,7 +151,7 @@ public class MultipassRenderer implements ImageSampler {
         for (int y = 0, i = 0, cy = imageHeight - 1 - y0; y < bh; y++, cy--) {
             for (int x = 0, cx = x0; x < bw; x++, i++, cx++) {
                 // sample pixel
-                Color c = Color.black();
+                Color c = Color.Black();
                 float a = 0;
                 int instance = ((cx & ((1 << QMC.MAX_SIGMA_ORDER) - 1)) << QMC.MAX_SIGMA_ORDER) + QMC.sigma(cy & ((1 << QMC.MAX_SIGMA_ORDER) - 1), QMC.MAX_SIGMA_ORDER);
                 double jitterX = QMC.halton(0, instance);
@@ -167,11 +167,11 @@ public class MultipassRenderer implements ImageSampler {
                     double lensV = QMC.mod1(jitterV + QMC.halton(3, s));
                     ShadingState state = scene.getRadiance(istate, rx, ry, lensU, lensV, time, instance + s, 5, cache);
                     if (state != null) {
-                        c.add(state.getResult());
+                        c = c.$plus(state.getResult());
                         a++;
                     }
                 }
-                bucketRGB[i] = c.mul(invNumSamples);
+                bucketRGB[i] = c.$times(invNumSamples);
                 bucketAlpha[i] = a * invNumSamples;
                 if (cache != null)
                     cache.reset();

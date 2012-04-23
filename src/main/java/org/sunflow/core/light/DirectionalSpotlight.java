@@ -29,7 +29,7 @@ public class DirectionalSpotlight implements LightSource {
         basis = OrthoNormalBasis.makeFromW(dir);
         r = 1;
         r2 = r * r;
-        radiance = Color.WHITE;
+        radiance = Color.White();
     }
 
     public boolean update(ParameterList pl, SunflowAPI api) {
@@ -85,14 +85,13 @@ public class DirectionalSpotlight implements LightSource {
         
         Point3 position = Point3J.add(src, direction);
         
-        Color power = new Color(radiance);
-        power.mul((float) Math.PI * r2);
+        Color power = radiance.$times((float) Math.PI * r2);
         
         return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {
-        return radiance.copy().mul((float) Math.PI * r2).getLuminance();
+        return radiance.$times((float) Math.PI * r2).luminance();
     }
 
     public Instance createInstance() {

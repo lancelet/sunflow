@@ -63,14 +63,14 @@ public class IrradianceCacheGIEngine implements GIEngine {
             if (state.getShader() != null)
                 return state.getShader().getRadiance(state);
             else
-                return Color.BLACK;
+                return Color.Black();
         } else
             return globalPhotonMap.getRadiance(state.getPoint(), state.getNormal());
     }
 
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         if (samples <= 0)
-            return Color.BLACK;
+            return Color.Black();
         if (state.getDiffuseDepth() > 0) {
             // do simple path tracing for additional bounces (single ray)
             float xi = (float) state.getRandom(0, 0, 1);
@@ -87,14 +87,14 @@ public class IrradianceCacheGIEngine implements GIEngine {
             w = onb.transform(w);
             Ray r = new Ray(state.getPoint(), w);
             ShadingState temp = state.traceFinalGather(r, 0);
-            return temp != null ? getGlobalRadiance(temp).copy().mul((float) Math.PI) : Color.BLACK;
+            return temp != null ? getGlobalRadiance(temp).$times((float) Math.PI) : Color.Black();
         }
         rwl.readLock().lock();
         Color irr = getIrradiance(state.getPoint(), state.getNormal());
         rwl.readLock().unlock();
         if (irr == null) {
             // compute new sample
-            irr = Color.black();
+            irr = Color.Black();
             OrthoNormalBasis onb = state.getBasis();
             float invR = 0;
             float minR = Float.POSITIVE_INFINITY;
@@ -116,10 +116,10 @@ public class IrradianceCacheGIEngine implements GIEngine {
                     minR = Math.min(r.getMax(), minR);
                     invR += 1.0f / r.getMax();
                     temp.getInstance().prepareShadingState(temp);
-                    irr.add(getGlobalRadiance(temp));
+                    irr = irr.$plus(getGlobalRadiance(temp));
                 }
             }
-            irr.mul((float) Math.PI / samples);
+            irr = irr.$times((float) Math.PI / samples);
             invR = samples / invR;
             rwl.writeLock().lock();
             insert(state.getPoint(), state.getNormal(), invR, irr);
@@ -162,7 +162,7 @@ public class IrradianceCacheGIEngine implements GIEngine {
             return null;
         Sample x = new Sample(p, n);
         float w = root.find(x);
-        return (x.irr == null) ? null : x.irr.mul(1.0f / w);
+        return (x.irr == null) ? null : x.irr.$times(1.0f / w);
     }
 
     private final class Node {
@@ -201,9 +201,9 @@ public class IrradianceCacheGIEngine implements GIEngine {
                 if (invWi < tolerance || d2 < minSpacing * minSpacing) {
                     float wi = Math.min(1e10f, 1.0f / invWi);
                     if (x.irr != null)
-                        x.irr.madd(wi, s.irr);
+                        x.irr = x.irr.$plus(s.irr.$times(wi));
                     else
-                        x.irr = s.irr.copy().mul(wi);
+                        x.irr = s.irr.$times(wi);
                     weight += wi;
                 }
             }

@@ -18,9 +18,10 @@ import org.sunflow.image.Color;
 
 @SuppressWarnings("serial")
 public class ImagePanel extends JPanel implements Display {
-    private static final int[] BORDERS = { Color.RED.toRGB(),
-            Color.GREEN.toRGB(), Color.BLUE.toRGB(), Color.YELLOW.toRGB(),
-            Color.CYAN.toRGB(), Color.MAGENTA.toRGB() };
+    private static final int[] BORDERS = { Color.Red().toIntRGB(),
+            Color.Green().toIntRGB(), Color.Blue().toIntRGB(), 
+            Color.Yellow().toIntRGB(), Color.Cyan().toIntRGB(), 
+            Color.Magenta().toIntRGB() };
     private BufferedImage image;
     private float xo, yo;
     private float w, h;
@@ -215,12 +216,12 @@ public class ImagePanel extends JPanel implements Display {
     public synchronized void imageUpdate(int x, int y, int w, int h, Color[] data, float[] alpha) {
         for (int j = 0, index = 0; j < h; j++)
             for (int i = 0; i < w; i++, index++)
-                image.setRGB(x + i, y + j, data[index].copy().mul(1.0f / alpha[index]).toNonLinear().toRGBA(alpha[index]));
+                image.setRGB(x + i, y + j, data[index].$times(1.0f / alpha[index]).toNonLinear().toIntRGBA(alpha[index]));
         repaint();
     }
 
     public synchronized void imageFill(int x, int y, int w, int h, Color c, float alpha) {
-        int rgba = c.copy().mul(1.0f / alpha).toNonLinear().toRGBA(alpha);
+        int rgba = c.$times(1.0f / alpha).toNonLinear().toIntRGBA(alpha);
         for (int j = 0; j < h; j++)
             for (int i = 0; i < w; i++)
                 image.setRGB(x + i, y + j, rgba);

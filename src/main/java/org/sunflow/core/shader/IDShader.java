@@ -15,9 +15,10 @@ public class IDShader implements Shader {
     public Color getRadiance(ShadingState state) {
         Vector3 n = state.getNormal();
         float f = n == null ? 1.0f : Math.abs(state.getRay().dot(n));
-        return new Color(state.getInstance().hashCode()).mul(f);
+        return Color.fromIntRGB(state.getInstance().hashCode()).$times(f);
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

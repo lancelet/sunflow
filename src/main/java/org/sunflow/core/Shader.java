@@ -24,6 +24,8 @@ public interface Shader extends RenderObject {
      * 
      * @param state current state
      * @param power power of the incoming photon.
+     * 
+     * @return power of the outgoing photon
      */
-    public void scatterPhoton(ShadingState state, Color power);
+    public Color scatterPhoton(ShadingState state, Color power);
 }

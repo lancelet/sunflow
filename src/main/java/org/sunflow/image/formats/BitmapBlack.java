@@ -16,7 +16,7 @@ public class BitmapBlack extends Bitmap {
 
     @Override
     public Color readColor(int x, int y) {
-        return Color.BLACK;
+        return Color.Black();
     }
 
     @Override

@@ -19,7 +19,7 @@ public class BitmapGA8 extends Bitmap {
 
     @Override
     public Color readColor(int x, int y) {
-        return new Color((data[2 * (x + y * w) + 0] & 0xFF) * INV255);
+        return Color.fromIntRGB((int)((data[2 * (x + y * w) + 0] & 0xFF) * INV255));
     }
 
     @Override

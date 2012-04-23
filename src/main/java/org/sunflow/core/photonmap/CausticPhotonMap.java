@@ -198,7 +198,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                 storedPhotons++;
                 photonList.add(p);
                 bounds.include(Point3J.create(p.x, p.y, p.z));
-                maxPower = Math.max(maxPower, power.getMax());
+                maxPower = Math.max(maxPower, power.max());
             }
         }
     }
@@ -245,8 +245,9 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
                 if ((pcos < maxNDist) && (pcos > -maxNDist)) {
                     LightSample sample = new LightSample();
                     sample.setShadowRay(new Ray(state.getPoint(), Vector3J.negate(pdir)));
-                    sample.setRadiance(new Color().setRGBE(np.index[i].power).mul(invArea / cos), Color.BLACK);
-                    sample.getDiffuseRadiance().mul((1.0f - (float) Math.sqrt(np.dist2[i] * f2r2)) * fInv);
+                    Color ldiff = Color.fromIntRGBE(np.index[i].power).$times(invArea / cos);
+                    ldiff = ldiff.$times((1.0f - (float) Math.sqrt(np.dist2[i] * f2r2)) * fInv);
+                    sample.setRadiance(ldiff, Color.Black());
                     state.addSample(sample);
                 }
             }
@@ -353,7 +354,7 @@ public final class CausticPhotonMap implements CausticPhotonMapInterface {
             y = p.y();
             z = p.z();
             this.dir = Vector3Encoding.encode(dir);
-            this.power = power.toRGBE();
+            this.power = power.toIntRGBE();
             flags = SPLIT_X;
         }
 

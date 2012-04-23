@@ -18,9 +18,9 @@ public class GlassShader implements Shader {
 
     public GlassShader() {
         eta = 1.3f;
-        color = Color.WHITE;
+        color = Color.White();
         absorptionDistance = 0; // disabled by default
-        absorptionColor = Color.GRAY; // 50% absorbtion
+        absorptionColor = Color.Gray(); // 50% absorbtion
     }
 
     public boolean update(ParameterList pl, SunflowAPI api) {
@@ -35,7 +35,7 @@ public class GlassShader implements Shader {
 
     public Color getRadiance(ShadingState state) {
         if (!state.includeSpecular())
-            return Color.BLACK;
+            return Color.Black();
         state.faceforward();
         float cos = state.getCosND();
         boolean inside = state.isBehind();
@@ -74,34 +74,36 @@ public class GlassShader implements Shader {
         if (inside && absorptionDistance > 0) {
             // this ray is inside the object and leaving it
             // compute attenuation that occured along the ray
-            absorbtion = Color.mul(-state.getRay().getMax() / absorptionDistance, absorptionColor.copy().opposite()).exp();
+            Color oppAbCol = absorptionColor.opposite();
+            absorbtion = oppAbCol.$times(-state.getRay().getMax() / absorptionDistance).exp();
             if (absorbtion.isBlack())
-                return Color.BLACK; // nothing goes through
+                return Color.Black(); // nothing goes through
         }
         // refracted ray
-        Color ret = Color.black();
+        Color ret = Color.Black();
         if (!tir) {
-            ret.madd(kt, state.traceRefraction(new Ray(state.getPoint(), refrDir), 0)).mul(color);
+            ret = ret.$plus(state.traceRefraction(new Ray(state.getPoint(), refrDir), 0).$times(kt)).$times(color);
         }
-        if (!inside || tir)
-            ret.add(Color.mul(kr, state.traceReflection(new Ray(state.getPoint(), reflDir), 0)).mul(color));
-        return absorbtion != null ? ret.mul(absorbtion) : ret;
+        if (!inside || tir) {
+            ret = ret.$plus(state.traceReflection(new Ray(state.getPoint(), reflDir), 0).$times(kr)).$times(color);
+        }
+        return absorbtion != null ? ret.$times(absorbtion) : ret;
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
-        Color refr = Color.mul(1 - f0, color);
-        Color refl = Color.mul(f0, color);
-        float avgR = refl.getAverage();
-        float avgT = refr.getAverage();
+    public Color scatterPhoton(ShadingState state, Color power) {
+        Color refr = color.$times(1 - f0);
+        Color refl = color.$times(f0);
+        float avgR = refl.average();
+        float avgT = refr.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avgR) {
             state.faceforward();
             // don't reflect internally
             if (state.isBehind())
-                return;
+                return power;
             // photon is reflected
             float cos = state.getCosND();
-            power.mul(refl).mul(1.0f / avgR);
+            power = power.$times(refl).$times(1.0f / avgR);
             float dn = 2 * cos;
             Vector3 dir = Vector3J.create(
                     (dn * state.getNormal().x()) + state.getRay().getDirection().x(),
@@ -113,13 +115,14 @@ public class GlassShader implements Shader {
             // photon is refracted
             float cos = state.getCosND();
             float neta = state.isBehind() ? eta : 1.0f / eta;
-            power.mul(refr).mul(1.0f / avgT);
+            power = power.$times(refr).$times(1.0f / avgT);
             float wK = -neta;
             float arg = 1 - (neta * neta * (1 - (cos * cos)));
             if (state.isBehind() && absorptionDistance > 0) {
                 // this ray is inside the object and leaving it
                 // compute attenuation that occured along the ray
-                power.mul(Color.mul(-state.getRay().getMax() / absorptionDistance, absorptionColor.copy().opposite()).exp());
+                Color absOpp = absorptionColor.opposite();
+                power = power.$times(absOpp.$times(-state.getRay().getMax() / absorptionDistance).exp());
             }
             if (arg < 0) {
                 // TIR
@@ -138,5 +141,6 @@ public class GlassShader implements Shader {
                 state.traceRefractionPhoton(new Ray(state.getPoint(), dir), power);
             }
         }
+        return power;
     }
 }

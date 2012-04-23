@@ -21,7 +21,7 @@ public class PointLight implements LightSource {
 
     public PointLight() {
         lightPoint = Point3J.zero();
-        power = Color.WHITE;
+        power = Color.White();
     }
 
     public boolean update(ParameterList pl, SunflowAPI api) {
@@ -41,9 +41,8 @@ public class PointLight implements LightSource {
             // prepare shadow ray
             dest.setShadowRay(new Ray(state.getPoint(), lightPoint));
             float scale = 1.0f / (float) (4 * Math.PI * lightPoint.distanceToSquared(state.getPoint()));
-            dest.setRadiance(power, power);
-            dest.getDiffuseRadiance().mul(scale);
-            dest.getSpecularRadiance().mul(scale);
+            Color radiance = power.$times(scale);
+            dest.setRadiance(radiance, radiance);
             dest.traceShadow(state);
             state.addSample(dest);
         }
@@ -58,13 +57,11 @@ public class PointLight implements LightSource {
                                             (float) Math.sin(phi) * s,
                                             (float) (1 - 2 * randY1));
         
-        Color power = new Color(this.power);
-
-        return PhotonJ.create(position, direction, power);
+        return PhotonJ.create(position, direction, this.power);
     }
 
     public float getPower() {
-        return power.getLuminance();
+        return power.luminance();
     }
 
     public Instance createInstance() {

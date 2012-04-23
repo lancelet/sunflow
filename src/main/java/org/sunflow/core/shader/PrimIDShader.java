@@ -8,8 +8,8 @@ import org.sunflow.image.Color;
 import org.sunflow.math.Vector3;
 
 public class PrimIDShader implements Shader {
-    private static final Color[] BORDERS = { Color.RED, Color.GREEN,
-            Color.BLUE, Color.YELLOW, Color.CYAN, Color.MAGENTA };
+    private static final Color[] BORDERS = { Color.Red(), Color.Green(),
+            Color.Blue(), Color.Yellow(), Color.Cyan(), Color.Magenta() };
 
     public boolean update(ParameterList pl, SunflowAPI api) {
         return true;
@@ -18,9 +18,10 @@ public class PrimIDShader implements Shader {
     public Color getRadiance(ShadingState state) {
         Vector3 n = state.getNormal();
         float f = n == null ? 1.0f : Math.abs(state.getRay().dot(n));
-        return BORDERS[state.getPrimitiveID() % BORDERS.length].copy().mul(f);
+        return BORDERS[state.getPrimitiveID() % BORDERS.length].$times(f);
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

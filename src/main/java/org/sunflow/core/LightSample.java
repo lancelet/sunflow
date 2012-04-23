@@ -45,8 +45,8 @@ public class LightSample {
      */
     public final void traceShadow(ShadingState state) {
         Color opacity = state.traceShadow(shadowRay);
-        Color.blend(ldiff, Color.BLACK, opacity, ldiff);
-        Color.blend(lspec, Color.BLACK, opacity, lspec);
+        ldiff = ldiff.lerpTo(Color.Black(), opacity);
+        lspec = lspec.lerpTo(Color.Black(), opacity);
     }
 
     /**
@@ -66,7 +66,7 @@ public class LightSample {
     public Color getDiffuseRadiance() {
         return ldiff;
     }
-
+    
     /**
      * Get specular radiance.
      * 
@@ -86,8 +86,8 @@ public class LightSample {
      * @param s specular radiance
      */
     public void setRadiance(Color d, Color s) {
-        ldiff = d.copy();
-        lspec = s.copy();
+        ldiff = d;
+        lspec = s;
     }
 
     /**

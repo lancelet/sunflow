@@ -29,9 +29,9 @@ public class PNGBitmapReader implements BitmapReader {
         }
         if (!isLinear) {
             for (int index = 0; index < pixels.length; index += 4) {
-                pixels[index + 0] = Color.NATIVE_SPACE.rgbToLinear(pixels[index + 0]);
-                pixels[index + 1] = Color.NATIVE_SPACE.rgbToLinear(pixels[index + 1]);
-                pixels[index + 2] = Color.NATIVE_SPACE.rgbToLinear(pixels[index + 2]);
+                pixels[index + 0] = Color.NativeSpace().rgbToLinear(pixels[index + 0]);
+                pixels[index + 1] = Color.NativeSpace().rgbToLinear(pixels[index + 1]);
+                pixels[index + 2] = Color.NativeSpace().rgbToLinear(pixels[index + 2]);
             }
         }
         return new BitmapRGBA8(width, height, pixels);

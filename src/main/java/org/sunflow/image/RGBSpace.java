@@ -114,7 +114,7 @@ public final class RGBSpace {
     }
 
     public final XYZColor convertRGBtoXYZ(Color c) {
-        float[] rgb = c.getRGB();
+        float[] rgb = c.toArray();
         float X = (xr * rgb[0]) + (xg * rgb[1]) + (xb * rgb[2]);
         float Y = (yr * rgb[0]) + (yg * rgb[1]) + (yb * rgb[2]);
         float Z = (zr * rgb[0]) + (zg * rgb[1]) + (zb * rgb[2]);

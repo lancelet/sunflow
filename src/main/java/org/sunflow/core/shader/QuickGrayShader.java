@@ -23,30 +23,30 @@ public class QuickGrayShader implements Shader {
             // if this shader has been applied to an infinite instance because
             // of shader overrides
             // run the default shader, otherwise, just shade black
-            return state.getShader() != this ? state.getShader().getRadiance(state) : Color.BLACK;
+            return state.getShader() != this ? state.getShader().getRadiance(state) : Color.Black();
         }
         // make sure we are on the right side of the material
         state.faceforward();
         // setup lighting
         state.initLightSamples();
         state.initCausticSamples();
-        return state.diffuse(Color.GRAY);
+        return state.diffuse(Color.Gray());
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         Color diffuse;
         // make sure we are on the right side of the material
         if (state.getNormal().dot(state.getRay().getDirection()) > 0.0) {
             state.setNormal(Vector3J.normalize(Vector3J.negate(state.getNormal())));
             state.setGeoNormal(Vector3J.normalize(Vector3J.negate(state.getGeoNormal())));
         }
-        diffuse = Color.GRAY;
+        diffuse = Color.Gray();
         state.storePhoton(state.getRay().getDirection(), power, diffuse);
-        float avg = diffuse.getAverage();
+        float avg = diffuse.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avg) {
             // photon is scattered
-            power.mul(diffuse).mul(1.0f / avg);
+            power = power.$times(diffuse).$times(1.0f / avg);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * rnd / avg;
             double v = state.getRandom(0, 1, 1);
@@ -56,5 +56,6 @@ public class QuickGrayShader implements Shader {
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
+        return power;
     }
 }

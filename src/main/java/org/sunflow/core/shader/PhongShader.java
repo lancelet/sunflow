@@ -17,8 +17,8 @@ public class PhongShader implements Shader {
     private int numRays;
 
     public PhongShader() {
-        diff = Color.GRAY;
-        spec = Color.GRAY;
+        diff = Color.Gray();
+        spec = Color.Gray();
         power = 20;
         numRays = 4;
     }
@@ -42,20 +42,20 @@ public class PhongShader implements Shader {
         state.initLightSamples();
         state.initCausticSamples();
         // execute shader
-        return state.diffuse(getDiffuse(state)).add(state.specularPhong(spec, power, numRays));
+        return state.diffuse(getDiffuse(state)).$plus(state.specularPhong(spec, power, numRays));
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         // make sure we are on the right side of the material
         state.faceforward();
         Color d = getDiffuse(state);
         state.storePhoton(state.getRay().getDirection(), power, d);
-        float avgD = d.getAverage();
-        float avgS = spec.getAverage();
+        float avgD = d.average();
+        float avgS = spec.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avgD) {
             // photon is scattered diffusely
-            power.mul(d).mul(1.0f / avgD);
+            power = power.$times(d).$times(1.0f / avgD);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * rnd / avgD;
             double v = state.getRandom(0, 1, 1);
@@ -74,7 +74,7 @@ public class PhongShader implements Shader {
                     (dn * state.getNormal().y()) + state.getRay().dy,
                     (dn * state.getNormal().z()) + state.getRay().dz);
             */
-            power.mul(spec).mul(1.0f / avgS);
+            power = power.$times(spec).$times(1.0f / avgS);
             OrthoNormalBasis onb = state.getBasis();
             double u = 2 * Math.PI * (rnd - avgD) / avgS;
             double v = state.getRandom(0, 1, 1);
@@ -84,5 +84,6 @@ public class PhongShader implements Shader {
             w = onb.transform(w);
             state.traceReflectionPhoton(new Ray(state.getPoint(), w), power);
         }
+        return power;
     }
 }

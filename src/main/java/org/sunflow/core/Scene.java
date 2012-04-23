@@ -222,7 +222,7 @@ public class Scene {
     Color traceShadow(Ray r, IntersectionState state) {
         state.numShadowRays++;
         trace(r, state);
-        return state.hit() ? Color.WHITE : Color.BLACK;
+        return state.hit() ? Color.White() : Color.Black();
     }
 
     void traceBake(Ray r, IntersectionState state) {

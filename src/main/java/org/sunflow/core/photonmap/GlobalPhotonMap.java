@@ -54,7 +54,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             storedPhotons++;
             photonList.add(p);
             bounds.include(Point3J.create(p.x, p.y, p.z));
-            maxPower = Math.max(maxPower, power.getMax());
+            maxPower = Math.max(maxPower, power.max());
         }
     }
 
@@ -220,10 +220,10 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             y = p.y();
             z = p.z();
             this.dir = Vector3Encoding.encode(dir);
-            this.power = power.toRGBE();
+            this.power = power.toIntRGBE();
             flags = 0;
             normal = Vector3Encoding.encode(n);
-            data = diffuse.toRGB();
+            data = diffuse.toIntRGB();
         }
 
         void setSplitAxis(int axis) {
@@ -297,8 +297,8 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
         Point3 ppos;
         Vector3 pdir;
         Vector3 pvec;
-        Color irr = new Color();
-        Color pow = new Color();
+        Color irr;
+        Color pow;
         float maxDist2 = gatherRadius * gatherRadius;
         NearestPhotons np = new NearestPhotons(p, numGather, maxDist2);
         Photon[] temp = new Photon[quadStoredPhotons + 1];
@@ -308,7 +308,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             Photon curr = photons[i];
             p = Point3J.create(curr.x, curr.y, curr.z);
             n = Vector3Encoding.decode(curr.normal);
-            irr.set(Color.BLACK);
+            irr = Color.Black();
             np.reset(p, maxDist2);
             locatePhotons(np);
             if (np.found < 8) {
@@ -326,14 +326,16 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                     ppos = Point3J.create(phot.x, phot.y, phot.z);
                     pvec = Point3J.sub(ppos, p);
                     float pcos = pvec.dot(n);
-                    if ((pcos < maxNDist) && (pcos > -maxNDist))
-                        irr.add(pow.setRGBE(phot.power));
+                    if ((pcos < maxNDist) && (pcos > -maxNDist)) {
+                        pow = Color.fromIntRGBE(phot.power);
+                        irr = irr.$plus(pow);
+                    }
                 }
             }
-            irr.mul(invArea);
+            irr = irr.$times(invArea);
             // compute radiance
-            irr.mul(new Color(curr.data)).mul(1.0f / (float) Math.PI);
-            curr.data = irr.toRGBE();
+            irr = irr.$times(Color.fromIntRGBE(curr.data)).$times(1.0f / (float) Math.PI);
+            curr.data = irr.toIntRGBE();
             temp[i] = curr;
         }
         UI.taskStop();
@@ -352,7 +354,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
 
     public Color getRadiance(Point3 p, Vector3 n) {
         if (!hasRadiance || (storedPhotons == 0))
-            return Color.BLACK;
+            return Color.Black();
         float px = p.x();
         float py = p.y();
         float pz = p.z();
@@ -390,7 +392,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
                 i >>= 1;
                 level--;
                 if (i == 0)
-                    return (nearest == null) ? Color.BLACK : new Color().setRGBE(nearest.data);
+                    return (nearest == null) ? Color.Black() : Color.fromIntRGBE(nearest.data);
             } while ((dist1d2[level] >= maxDist2) || (cameFrom != chosen[level]));
             curr = photons[i];
             dist2 = curr.getDist2(px, py, pz);

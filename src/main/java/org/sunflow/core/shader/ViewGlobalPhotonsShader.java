@@ -16,6 +16,7 @@ public class ViewGlobalPhotonsShader implements Shader {
         return state.getGlobalRadiance();
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }

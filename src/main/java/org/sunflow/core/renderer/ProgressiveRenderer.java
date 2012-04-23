@@ -115,7 +115,7 @@ public class ProgressiveRenderer implements ImageSampler {
                 double lensU = QMC.halton(2, instance);
                 double lensV = QMC.halton(3, instance);
                 ShadingState state = scene.getRadiance(istate, x, imageHeight - 1 - y, lensU, lensV, time, instance, 4, null);
-                Color c = state != null ? state.getResult() : Color.BLACK;
+                Color c = state != null ? state.getResult() : Color.Black();
                 pixels++;
                 // fill region
                 display.imageFill(x, y, Math.min(ds, imageWidth - x), Math.min(ds, imageHeight - y), c, state == null ? 0 : 1);

@@ -233,26 +233,27 @@ public class Hair implements PrimitiveList, Shader {
         Vector3 v = Vector3J.negate(state.getRay().getDirection());
         Vector3 h;
         Vector3 t = state.getBasis().transform(Vector3J.create(0, 1, 0));
-        Color diff = Color.black();
-        Color spec = Color.black();
+        Color diff = Color.Black();
+        Color spec = Color.Black();
         for (LightSample ls : state) {
             Vector3 l = ls.getShadowRay().getDirection();
             float dotTL = t.dot(l);
             float sinTL = (float) Math.sqrt(1 - dotTL * dotTL);
             // float dotVL = Vector3.dot(v, l);
-            diff.madd(sinTL, ls.getDiffuseRadiance());
+            diff = diff.$plus(ls.getDiffuseRadiance().$times(sinTL));
             h = Vector3J.normalize(Vector3J.add(v, l));
             float dotTH = t.dot(h);
             float sinTH = (float) Math.sqrt(1 - dotTH * dotTH);
             float s = (float) Math.pow(sinTH, 10.0f);
-            spec.madd(s, ls.getSpecularRadiance());
+            spec = spec.$plus(ls.getSpecularRadiance().$times(s));
         }
-        Color c = Color.add(diff, spec, new Color());
+        Color c = diff.$plus(spec);
         // transparency
-        return Color.blend(c, state.traceTransparency(), state.getV(), new Color());
+        return c.lerpTo(state.traceTransparency(), state.getV());
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 
     public PrimitiveList getBakingPrimitives() {

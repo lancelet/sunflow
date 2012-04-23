@@ -17,12 +17,12 @@ public class AmbientOcclusionGIEngine implements GIEngine {
     private float maxDist;
 
     public Color getGlobalRadiance(ShadingState state) {
-        return Color.BLACK;
+        return Color.Black();
     }
 
     public boolean init(Options options, Scene scene) {
-        bright = options.getColor("gi.ambocc.bright", Color.WHITE);
-        dark = options.getColor("gi.ambocc.dark", Color.BLACK);
+        bright = options.getColor("gi.ambocc.bright", Color.White());
+        dark = options.getColor("gi.ambocc.dark", Color.Black());
         samples = options.getInt("gi.ambocc.samples", 32);
         maxDist = options.getFloat("gi.ambocc.maxdist", 0);
         maxDist = (maxDist <= 0) ? Float.POSITIVE_INFINITY : maxDist;
@@ -31,7 +31,7 @@ public class AmbientOcclusionGIEngine implements GIEngine {
 
     public Color getIrradiance(ShadingState state, Color diffuseReflectance) {
         OrthoNormalBasis onb = state.getBasis();
-        Color result = Color.black();
+        Color result = Color.Black();
         for (int i = 0; i < samples; i++) {
             float xi = (float) state.getRandom(i, 0, samples);
             float xj = (float) state.getRandom(i, 1, samples);
@@ -46,8 +46,8 @@ public class AmbientOcclusionGIEngine implements GIEngine {
             onb.transform(w);
             Ray r = new Ray(state.getPoint(), w);
             r.setMax(maxDist);
-            result.add(Color.blend(bright, dark, state.traceShadow(r)));
+            result = result.$plus(bright.lerpTo(dark, state.traceShadow(r)));
         }
-        return result.mul((float) Math.PI / samples);
+        return result.$times((float) Math.PI / samples);
     }
 }

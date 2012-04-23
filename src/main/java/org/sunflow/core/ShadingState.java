@@ -781,10 +781,13 @@ public final class ShadingState implements Iterable<LightSample> {
      * 
      * @param r ray to trace photon along
      * @param power power of the new photon
+     * 
+     * @return photon power
      */
-    public final void traceDiffusePhoton(Ray r, Color power) {
+    public final Color traceDiffusePhoton(Ray r, Color power) {
         if (map.allowDiffuseBounced())
-            server.traceDiffusePhoton(this, r, power);
+            power = server.traceDiffusePhoton(this, r, power);
+        return power;
     }
 
     /**
@@ -829,7 +832,7 @@ public final class ShadingState implements Iterable<LightSample> {
      * @return occlusion color
      */
     public final Color occlusion(int samples, float maxDist) {
-        return occlusion(samples, maxDist, Color.WHITE, Color.BLACK);
+        return occlusion(samples, maxDist, Color.White(), Color.Black());
     }
 
     /**
@@ -850,7 +853,7 @@ public final class ShadingState implements Iterable<LightSample> {
         // make sure we are on the right side of the material
         faceforward();
         OrthoNormalBasis onb = getBasis();
-        Color result = Color.black();
+        Color result = Color.Black();
         for (int i = 0; i < samples; i++) {
             float xi = (float) getRandom(i, 0, samples);
             float xj = (float) getRandom(i, 1, samples);
@@ -865,9 +868,9 @@ public final class ShadingState implements Iterable<LightSample> {
             w = onb.transform(w);
             Ray r = new Ray(p, w);
             r.setMax(maxDist);
-            result.add(Color.blend(bright, dark, traceShadow(r)));
+            result = result.$plus(bright.lerpTo(dark, traceShadow(r)));
         }
-        return result.mul(1.0f / samples);
+        return result.$times(1.0f / samples);
     }
 
     /**
@@ -879,13 +882,15 @@ public final class ShadingState implements Iterable<LightSample> {
      */
     public final Color diffuse(Color diff) {
         // integrate a diffuse function
-        Color lr = Color.black();
+        Color lr = Color.Black();
         if (diff.isBlack())
             return lr;
-        for (LightSample sample : this)
-            lr.madd(sample.dot(n), sample.getDiffuseRadiance());
-        lr.add(getIrradiance(diff));
-        return lr.mul(diff).mul(1.0f / (float) Math.PI);
+        for (LightSample sample : this) {
+            lr = lr.$plus(sample.getDiffuseRadiance().$times(sample.dot(n)));
+        }
+        lr = lr.$plus(getIrradiance(diff));
+        lr = lr.$times(diff).$times(1.0f / (float) Math.PI);
+        return lr;
     }
 
     /**
@@ -899,7 +904,7 @@ public final class ShadingState implements Iterable<LightSample> {
      */
     public final Color specularPhong(Color spec, float power, int numRays) {
         // integrate a phong specular function
-        Color lr = Color.black();
+        Color lr = Color.Black();
         if (!includeSpecular || spec.isBlack())
             return lr;
         // reflected direction
@@ -911,8 +916,10 @@ public final class ShadingState implements Iterable<LightSample> {
         for (LightSample sample : this) {
             float cosNL = sample.dot(n);
             float cosLR = sample.dot(refDir);
-            if (cosLR > 0)
-                lr.madd(cosNL * (float) Math.pow(cosLR, power), sample.getSpecularRadiance());
+            if (cosLR > 0) {
+                float m = cosNL * (float) Math.pow(cosLR, power);
+                lr = lr.$plus(sample.getSpecularRadiance().$times(m));
+            }
         }
         // indirect lighting
         if (numRays > 0) {
@@ -931,11 +938,12 @@ public final class ShadingState implements Iterable<LightSample> {
                                             (float) s);
                 w = onb.transform(w);
                 float wn = w.dot(n);
-                if (wn > 0)
-                    lr.madd(wn * mul, traceGlossy(new Ray(p, w), i));
+                if (wn > 0) {
+                    lr = lr.$plus(traceGlossy(new Ray(p, w), i).$times(wn * mul));
+                }
             }
         }
-        lr.mul(spec).mul((power + 2) / (2.0f * (float) Math.PI));
+        lr = lr.$times(spec).$times((power + 2) / (2.0f * (float) Math.PI));
         return lr;
     }
 

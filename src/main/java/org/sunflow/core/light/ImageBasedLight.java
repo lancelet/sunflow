@@ -76,7 +76,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
                     float u = (x + 0.5f) * du;
                     float v = (y + 0.5f) * dv;
                     Color c = texture.getPixel(u, v);
-                    imageHistogram[x][y] = c.getLuminance() * (float) Math.sin(Math.PI * v);
+                    imageHistogram[x][y] = c.luminance() * (float) Math.sin(Math.PI * v);
                     if (y > 0)
                         imageHistogram[x][y] += imageHistogram[x][y - 1];
                 }
@@ -132,7 +132,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
             float invP = (float) Math.sin(sv * Math.PI) * jacobian / (numSamples * px * py);
             samples[i] = getDirection(su, sv);
             samples[i] = basis.transform(samples[i]);
-            colors[i] = texture.getPixel(su, sv).mul(invP);
+            colors[i] = texture.getPixel(su, sv).$times(invP);
         }
     }
 
@@ -197,10 +197,8 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
                     LightSample dest = new LightSample();
                     dest.setShadowRay(new Ray(state.getPoint(), dir));
                     dest.getShadowRay().setMax(Float.MAX_VALUE);
-                    Color radiance = texture.getPixel(su, sv);
+                    Color radiance = texture.getPixel(su, sv).$times(invP);
                     dest.setRadiance(radiance, radiance);
-                    dest.getDiffuseRadiance().mul(invP);
-                    dest.getSpecularRadiance().mul(invP);
                     dest.traceShadow(state);
                     state.addSample(dest);
                 }
@@ -238,7 +236,7 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
 
     public Color getRadiance(ShadingState state) {
         // lookup texture based on ray direction
-        return state.includeLights() ? getColor(basis.untransform(state.getRay().getDirection())) : Color.BLACK;
+        return state.includeLights() ? getColor(basis.untransform(state.getRay().getDirection())) : Color.Black();
     }
 
     private Color getColor(Vector3 dir) {
@@ -263,7 +261,8 @@ public class ImageBasedLight implements PrimitiveList, LightSource, Shader {
         return dest;
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 
     public float getPower() {

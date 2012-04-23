@@ -28,7 +28,7 @@ public class SphereLight implements LightSource, Shader {
     private float r2;
 
     public SphereLight() {
-        radiance = Color.WHITE;
+        radiance = Color.White();
         numSamples = 4;
         center = Point3J.zero();
         radius = r2 = 1;
@@ -72,7 +72,7 @@ public class SphereLight implements LightSource, Shader {
         OrthoNormalBasis basis = OrthoNormalBasis.makeFromW(wc);
         int samples = state.getDiffuseDepth() > 0 ? 1 : getNumSamples();
         float scale = (float) (2 * Math.PI * (1 - cosThetaMax));
-        Color c = Color.mul(scale / samples, radiance);
+        Color c = radiance.$times(scale / samples);
         for (int i = 0; i < samples; i++) {
             // random offset on unit square
             double randX = state.getRandom(i, 0, samples);
@@ -136,26 +136,26 @@ public class SphereLight implements LightSource, Shader {
                                             cosTheta);
         direction = basis.transform(direction);
         
-        Color power = new Color(radiance);
-        power.mul((float) (Math.PI * Math.PI * 4 * r2));
+        Color power = radiance.$times((float) (Math.PI * Math.PI * 4 * r2));
         
         return PhotonJ.create(position, direction, power);
     }
 
     public float getPower() {
-        return radiance.copy().mul((float) (Math.PI * Math.PI * 4 * r2)).getLuminance();
+        return radiance.$times((float) (Math.PI * Math.PI * 4 * r2)).luminance();
     }
 
     public Color getRadiance(ShadingState state) {
         if (!state.includeLights())
-            return Color.BLACK;
+            return Color.Black();
         state.faceforward();
         // emit constant radiance
-        return state.isBehind() ? Color.BLACK : radiance;
+        return state.isBehind() ? Color.Black() : radiance;
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
         // do not scatter photons
+        return power;
     }
 
     public Instance createInstance() {

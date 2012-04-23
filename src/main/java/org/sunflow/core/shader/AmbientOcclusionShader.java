@@ -13,8 +13,8 @@ public class AmbientOcclusionShader implements Shader {
     private float maxDist;
 
     public AmbientOcclusionShader() {
-        bright = Color.WHITE;
-        dark = Color.BLACK;
+        bright = Color.White();
+        dark = Color.Black();
         samples = 32;
         maxDist = Float.POSITIVE_INFINITY;
     }
@@ -43,6 +43,7 @@ public class AmbientOcclusionShader implements Shader {
         return state.occlusion(samples, maxDist, getBrightColor(state), dark);
     }
 
-    public void scatterPhoton(ShadingState state, Color power) {
+    public Color scatterPhoton(ShadingState state, Color power) {
+        return power;
     }
 }
