@@ -6,7 +6,7 @@ version := "0.08.0"
 
 organization := "com.github.sunflow"
 
-scalaVersion := "2.9.1-1"
+scalaVersion := "2.9.2"
 
 javaOptions += "-server -XX:+DoEscapeAnalysis -XX:+UseCompressedOops"
 
