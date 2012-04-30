@@ -334,7 +334,7 @@ public final class GlobalPhotonMap implements GlobalPhotonMapInterface {
             }
             irr = irr.$times(invArea);
             // compute radiance
-            irr = irr.$times(Color.fromIntRGBE(curr.data)).$times(1.0f / (float) Math.PI);
+            irr = irr.$times(Color.fromIntRGB(curr.data)).$times(1.0f / (float) Math.PI);
             curr.data = irr.toIntRGBE();
             temp[i] = curr;
         }

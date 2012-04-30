@@ -422,7 +422,7 @@ public class BucketRenderer implements ImageSampler {
         }
 
         final void scale(float s) {
-            c = c.$plus(Color.fromGray(s));
+            c = c.$times(s);
             alpha *= s;
         }
 
