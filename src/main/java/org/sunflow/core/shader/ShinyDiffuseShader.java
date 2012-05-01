@@ -64,7 +64,6 @@ public class ShinyDiffuseShader implements Shader {
         // make sure we are on the right side of the material
         state.faceforward();
         diffuse = getDiffuse(state);
-        state.storePhoton(state.getRay().getDirection(), power, diffuse);
         float d = diffuse.average();
         float r = d * refl;
         double rnd = state.getRandom(0, 0, 1);
@@ -90,6 +89,7 @@ public class ShinyDiffuseShader implements Shader {
                     (dn * state.getNormal().z()) + state.getRay().getDirection().z());
             state.traceReflectionPhoton(new Ray(state.getPoint(), dir), power);
         }
+        state.storePhoton(state.getRay().getDirection(), power, diffuse);
         return power;
     }
 }

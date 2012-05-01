@@ -140,7 +140,6 @@ public class AnisotropicWardShader implements Shader {
         // make sure we are on the right side of the material
         state.faceforward();
         Color d = getDiffuse(state);
-        state.storePhoton(state.getRay().getDirection(), power, d);
         float avgD = d.average();
         float avgS = rhoS.average();
         double rnd = state.getRandom(0, 0, 1);
@@ -204,6 +203,7 @@ public class AnisotropicWardShader implements Shader {
             Ray r = new Ray(state.getPoint(), o);
             state.traceReflectionPhoton(r, power);
         }
+        state.storePhoton(state.getRay().getDirection(), power, d);
         return power;
     }
 }

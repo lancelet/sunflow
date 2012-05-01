@@ -36,14 +36,12 @@ public class DiffuseShader implements Shader {
     }
 
     public Color scatterPhoton(ShadingState state, Color power) {
-        Color diffuse;
         // make sure we are on the right side of the material
         if (state.getNormal().dot(state.getRay().getDirection()) > 0.0) {
             state.setNormal(Vector3J.normalize(Vector3J.negate(state.getNormal())));
             state.setGeoNormal(Vector3J.normalize(Vector3J.negate(state.getGeoNormal())));
         }
-        diffuse = getDiffuse(state);
-        state.storePhoton(state.getRay().getDirection(), power, diffuse);
+        Color diffuse = getDiffuse(state);
         float avg = diffuse.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avg) {
@@ -56,8 +54,9 @@ public class DiffuseShader implements Shader {
             float s1 = (float) Math.sqrt(1.0 - v);
             Vector3 w = Vector3J.create((float) Math.cos(u) * s, (float) Math.sin(u) * s, s1);
             w = onb.transform(w);
-            state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
+            power = state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
+        state.storePhoton(state.getRay().getDirection(), power, diffuse);
         return power;
     }
 }

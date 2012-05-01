@@ -18,18 +18,18 @@ final case class Color private[image] (r: Float, g: Float, b: Float) {
                                    
   def isBlack: Boolean = (r <= 0) && (g <= 0) && (b <= 0)
   def luminance: Float = (0.2989f * r) + (0.5866f * g) + (0.1145f * b)
-  def min: Float = Seq(r, g, b).min
-  lazy val max: Float = Seq(r, g, b).max
-  def average: Float = Seq(r, g, b).sum / 3.0f
-  def toArray: Array[Float] = Seq(r, g, b).toArray
+  def min: Float = ((r min g) min b)
+  def max: Float = ((r max g) max b)
+  def average: Float = (r + g + b) / 3.0f
+  def toArray: Array[Float] = Array(r, g, b)
   def toIntRGB: Int = {
-    val ir = mclamp((r * 255 + 0.5).toInt, 0, 255)
-    val ig = mclamp((g * 255 + 0.5).toInt, 0, 255)
-    val ib = mclamp((b * 255 + 0.5).toInt, 0, 255)
+    val ir: Int = mclamp((r * 255 + 0.5).toInt, 0, 255)
+    val ig: Int = mclamp((g * 255 + 0.5).toInt, 0, 255)
+    val ib: Int = mclamp((b * 255 + 0.5).toInt, 0, 255)
     (ir << 16) | (ig << 8) | ib
   }
   def toIntRGBA(a: Float): Int = {
-    val ia = mclamp((a * 255 + 0.5).toInt, 0, 255)
+    val ia: Int = mclamp((a * 255 + 0.5).toInt, 0, 255)
     ia << 24 | toIntRGB
   }
   
@@ -62,7 +62,7 @@ final case class Color private[image] (r: Float, g: Float, b: Float) {
   }
   
   def constrainRGB: Color = {
-    val w = Seq(0, r, g, b).min
+    val w = (((0.0f min r) min g) min b)
     if (w > 0) Color(r + w, g + w, b + w) else this
   }
   

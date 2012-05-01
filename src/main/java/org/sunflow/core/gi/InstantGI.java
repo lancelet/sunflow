@@ -82,8 +82,8 @@ public class InstantGI implements GIEngine {
         int set = (int) (state.getRandom(0, 1, 1) * numSets);
         for (PointLight vpl : virtualLights[set]) {
             Ray r = new Ray(p, vpl.p);
-            float dotNlD = -(r.dx * vpl.n.x() + r.dy * vpl.n.y() + r.dz * vpl.n.z());
-            float dotND = r.dx * n.x() + r.dy * n.y() + r.dz * n.z();
+            float dotNlD = -r.dot(vpl.n);
+            float dotND = r.dot(n);
             if (dotNlD > 0 && dotND > 0) {
                 float r2 = r.getMax() * r.getMax();
                 Color opacity = state.traceShadow(r);
@@ -94,8 +94,9 @@ public class InstantGI implements GIEngine {
         }
         // bias compensation
         int nb = (state.getDiffuseDepth() == 0 || numBias <= 0) ? numBias : 1;
-        if (nb <= 0)
+        if (nb <= 0) {
             return irr;
+        }
         OrthoNormalBasis onb = state.getBasis();
         float scale = (float) Math.PI / nb;
         for (int i = 0; i < nb; i++) {
@@ -133,14 +134,19 @@ public class InstantGI implements GIEngine {
         return irr;
     }
 
-    private static class PointLight {
-        Point3 p;
-        Vector3 n;
-        Color power;
+    private static final class PointLight {
+        final Point3 p;
+        final Vector3 n;
+        final Color power;
+        public PointLight(Point3 p, Vector3 n, Color power) {
+            this.p = p;
+            this.n = n;
+            this.power = power;
+        }
     }
 
-    private class PointLightStore implements PhotonStore {
-        ArrayList<PointLight> virtualLights = new ArrayList<PointLight>();
+    private final class PointLightStore implements PhotonStore {
+        final ArrayList<PointLight> virtualLights = new ArrayList<PointLight>();
 
         public int numEmit() {
             return numPhotons;
@@ -151,10 +157,9 @@ public class InstantGI implements GIEngine {
 
         public void store(ShadingState state, Vector3 dir, Color power, Color diffuse) {
             state.faceforward();
-            PointLight vpl = new PointLight();
-            vpl.p = state.getPoint();
-            vpl.n = state.getNormal();
-            vpl.power = power;
+            PointLight vpl = new PointLight(state.getPoint(), 
+                                            state.getNormal(),
+                                            power);
             synchronized (this) {
                 virtualLights.add(vpl);
             }

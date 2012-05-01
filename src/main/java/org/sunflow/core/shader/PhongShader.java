@@ -49,7 +49,6 @@ public class PhongShader implements Shader {
         // make sure we are on the right side of the material
         state.faceforward();
         Color d = getDiffuse(state);
-        state.storePhoton(state.getRay().getDirection(), power, d);
         float avgD = d.average();
         float avgS = spec.average();
         double rnd = state.getRandom(0, 0, 1);
@@ -84,6 +83,7 @@ public class PhongShader implements Shader {
             w = onb.transform(w);
             state.traceReflectionPhoton(new Ray(state.getPoint(), w), power);
         }
+        state.storePhoton(state.getRay().getDirection(), power, d);
         return power;
     }
 }

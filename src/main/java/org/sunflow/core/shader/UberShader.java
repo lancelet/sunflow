@@ -96,7 +96,6 @@ public class UberShader implements Shader {
         state.faceforward();
         diffuse = getDiffuse(state);
         specular = getSpecular(state);
-        state.storePhoton(state.getRay().getDirection(), power, diffuse);
         float d = diffuse.average();
         float r = specular.average();
         double rnd = state.getRandom(0, 0, 1);
@@ -142,6 +141,7 @@ public class UberShader implements Shader {
                 state.traceReflectionPhoton(new Ray(state.getPoint(), w), power);
             }
         }
+        state.storePhoton(state.getRay().getDirection(), power, diffuse);
         return power;
     }
 }

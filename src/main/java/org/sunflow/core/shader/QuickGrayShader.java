@@ -41,7 +41,6 @@ public class QuickGrayShader implements Shader {
             state.setGeoNormal(Vector3J.normalize(Vector3J.negate(state.getGeoNormal())));
         }
         diffuse = Color.Gray();
-        state.storePhoton(state.getRay().getDirection(), power, diffuse);
         float avg = diffuse.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avg) {
@@ -56,6 +55,7 @@ public class QuickGrayShader implements Shader {
             w = onb.transform(w);
             state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
+        state.storePhoton(state.getRay().getDirection(), power, diffuse);
         return power;
     }
 }

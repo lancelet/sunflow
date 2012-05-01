@@ -13,6 +13,7 @@ import org.sunflow.core.Ray;
 import org.sunflow.core.Shader;
 import org.sunflow.core.ShadingState;
 import org.sunflow.image.Color;
+import org.sunflow.image.ColorJ;
 import org.sunflow.math.BoundingBox;
 import org.sunflow.math.Matrix4;
 import org.sunflow.math.OrthoNormalBasis;
@@ -35,9 +36,9 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
         updateGeometry(Point3J.create(-1, -1, -1), Point3J.create(1, 1, 1));
 
         // cube colors
-        left = new Color(0.80f, 0.25f, 0.25f);
-        right = new Color(0.25f, 0.25f, 0.80f);
-        Color gray = new Color(0.70f, 0.70f, 0.70f);
+        left = ColorJ.create(0.80f, 0.25f, 0.25f);
+        right = ColorJ.create(0.25f, 0.25f, 0.80f);
+        Color gray = ColorJ.create(0.70f, 0.70f, 0.70f);
         top = bottom = back = gray;
 
         // light source
@@ -330,7 +331,6 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
             state.setNormal(Vector3J.normalize(Vector3J.negate(state.getNormal())));
             state.setGeoNormal(Vector3J.normalize(Vector3J.negate(state.getGeoNormal())));
         }
-        state.storePhoton(state.getRay().getDirection(), power, kd);
         double avg = kd.average();
         double rnd = state.getRandom(0, 0, 1);
         if (rnd < avg) {
@@ -345,6 +345,7 @@ public class CornellBox implements PrimitiveList, Shader, LightSource {
             w = onb.transform(w);
             power = state.traceDiffusePhoton(new Ray(state.getPoint(), w), power);
         }
+        state.storePhoton(state.getRay().getDirection(), power, kd);
         return power;
     }
 
