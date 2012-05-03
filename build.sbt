@@ -8,9 +8,16 @@ organization := "com.github.sunflow"
 
 scalaVersion := "2.9.2"
 
+scalacOptions += "-Ydependent-method-types"
+
 javaOptions += "-server -XX:+DoEscapeAnalysis -XX:+UseCompressedOops"
 
 assemblySettings
+
+resolvers ++= Seq(
+  "Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/",
+  "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+)
 
 mainClass := Some("SunflowGUI")
 
@@ -27,5 +34,6 @@ excludedFiles in assembly := { (bases: Seq[File]) =>
 }
 
 libraryDependencies ++= Seq(
-  "janino" % "janino" % "2.5.10"
+  "janino" % "janino" % "2.5.10",
+  "com.chuusai" %% "shapeless" % "1.2.0"
 )
